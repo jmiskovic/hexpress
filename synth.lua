@@ -8,6 +8,7 @@ function synth.new()
   self.D = 0.1 -- decay
   self.S = 0.9 -- sustain
   self.R = 0.5 -- release
+  self.pad = {math.huge, math.huge}
   self.noteOn = nil
   self.noteOff = nil
   self.sample = love.audio.newSource('strings.wav')
@@ -17,14 +18,16 @@ function synth.new()
   return self
 end
 
-function synth:startNote(pitch)
+function synth:startNote(pitch, q, r)
   self.noteOn = 0
   self.noteOff = nil
   self.sample:setPitch(pitch)
+  self.pad = {q, r}
 end
 
 function synth:stopNote()
   self.noteOff = self.noteOn
+  self.pad = {math.huge, math.huge}
 end
 
 -- https://www.desmos.com/calculator/wp88j1ojhu

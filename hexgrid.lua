@@ -31,6 +31,7 @@ function hexgrid.new(size, radius)
       -1/2 * size,   -size*math.sqrt(3)/2,
       1/2 * size,    -size*math.sqrt(3)/2
     }
+  self.touches = {}
   return self
 end
 
@@ -148,26 +149,30 @@ function hexgrid:draw_hex(q, r, offx, offy)
   love.graphics.origin()
 end
 
-local lastPressed = nil
+function hexgrid:touchpressed(id, x, y, dx, dy, pressure)
+  local q, r = grid:pixel_to_hex(x, y)
+  self.touches[id] = {q, r, x, y}
+  self:cellpressed(q, r)
+end
 
 function hexgrid:touchmoved(id, x, y, dx, dy, pressure)
     local q, r = grid:pixel_to_hex(x, y)
-    if not lastPressed then
-      self:cellpressed(q, r)
-    elseif (lastPressed[1] ~= q) or (lastPressed[2] ~= r) then
-      self:cellreleased(unpack(lastPressed))
-      self:cellpressed(q, r)
-    end
-    lastPressed = {q, r}
-end
 
-function hexgrid:touchpressed(id, x, y, dx, dy, pressure)
-  self:touchmoved(id, x, y, dx, dy, pressure)
+    if self.touches[id] then
+      if q == self.touches[id][1] and r == self.touches[id][2] then
+      else
+        self:cellreleased(self.touches[id][1], self.touches[id][2])
+        self:cellpressed(q, r)
+      end
+    end
+    self.touches[id] = {q, r, x, y}
 end
 
 function hexgrid:touchreleased(id, x, y, dx, dy, pressure)
-  if lastPressed then self:cellreleased(unpack(lastPressed)) end
-  lastPressed = nil
+  if self.touches[id] then
+    self:cellreleased(self.touches[id][1], self.touches[id][2])
+  end
+  self.touches[id] = nil
 end
 
 -- stub for callback
