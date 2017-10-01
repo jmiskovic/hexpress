@@ -1,6 +1,11 @@
 local configScreen = {}
 
+local suit = require('SUIT')
 
+local fontSetting = {font=love.graphics.newFont(22)}
+
+
+local context = {}
 local callbacks = {
   'load',
   'draw',
@@ -9,10 +14,15 @@ local callbacks = {
   'mousepressed',
   'mousereleased',
   'keypressed',
+  'touchpressed',
+  'touchmoved',
+  'touchreleased',
 }
 
-local context = {}
-
+configScreen.A = {value = 0.1, min = 0, max = 0.5, unit='s'} -- attack
+configScreen.D = {value = 0.1, min = 0, max = 0.5, unit='s'} -- decay
+configScreen.S = {value = 0.7, min = 0, max = 1.0, unit='x'}  -- sustain
+configScreen.R = {value = 0.2, min = 0, max = 0.5, unit='s'} -- release
 
 function configScreen.enter()
   -- save Love2D callbacks so we can restore state on exiting the screen
@@ -21,16 +31,9 @@ function configScreen.enter()
     love[name] = configScreen[name]
   end
 
-  --context.load          = love.load
-  --context.draw          = love.draw
-  --context.update        = love.update
-  --context.mousemoved    = love.mousemoved
-  --context.mousepressed  = love.mousepressed
-  --context.mousereleased = love.mousereleased
-  --context.keypressed    = love.keypressed
-
   love.draw       = configScreen.draw
   love.keypressed = configScreen.keypressed
+
 end
 
 function configScreen.leave()
@@ -41,13 +44,23 @@ function configScreen.leave()
 end
 
 function configScreen.draw()
-
+  suit.draw()
 end
 
 function configScreen.keypressed(key)
     if key == 'escape' then
         configScreen.leave()
+        love.load()
     end
+end
+
+function configScreen.update(dt)
+  for i,e in ipairs({'A', 'D', 'S', 'R'}) do
+    suit.Slider(configScreen[e], 50,  i * 100 - 15, 500, 60)
+    suit.Label(e, fontSetting, 20, i*100)
+    local value = string.format('%1.1f %s', configScreen[e].value, configScreen[e].unit)
+    suit.Label(value, fontSetting, 575, i*100)
+  end
 end
 
 return configScreen

@@ -2,12 +2,12 @@ local synth = {}
 
 synth.__index = synth
 
-function synth.new()
+function synth.new(a, d, s, r)
   local self = setmetatable({}, synth)
-  self.A = 0.1 -- attack
-  self.D = 0.1 -- decay
-  self.S = 0.9 -- sustain
-  self.R = 0.5 -- release
+  self.A = a or 0.5 -- attack
+  self.D = d or 0.3 -- decay
+  self.S = s or 0.8 -- sustain
+  self.R = r or 0.5 -- release
   self.pad = {math.huge, math.huge}
   self.noteOn = nil
   self.noteOff = nil
@@ -69,11 +69,7 @@ end
 function synth:update(dt)
   -- increase elapsed time from note on and note off events
   self.noteOn  = self.noteOn  and self.noteOn  + dt or nil
-  -- silence note if release has expired
-  -- self.noteOn  = self.noteOff < self.R  and self.noteOn  or nil
-  -- self.noteOff = self.noteOff < self.R  and self.noteOff or nil
   -- update volume according to ADSR envelope
-
   self.sample:setVolume(self:adsr())
 end
 

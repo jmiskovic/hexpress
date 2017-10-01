@@ -13,7 +13,6 @@ local synths = {}
 grid = hexgrid.new(sw/17, math.floor(swh / 50))
 
 function love.load()
-  --loop:play()
   local joysticks = love.joystick.getJoysticks()
 
   for i, joystick in ipairs(joysticks) do
@@ -24,7 +23,7 @@ function love.load()
   end
 
   for i = 1, synth_count do
-    synths[i] = synth.new()
+    synths[i] = synth.new(configScreen.A.value, configScreen.D.value, configScreen.S.value, configScreen.R.value)
   end
 end
 
@@ -38,12 +37,12 @@ function love.draw()
 end
 
 function love.update(dt)
---  local val = pitch_shifter.read() or 0
---  local pitch = val - pitch_shifter.lastval
---  pitch_shifter.lastval = val
---  pitch_shifter.pitch = pitch_shifter.pitch * 0.8 + pitch * 0.2
---  loop:setVolume(loop:getVolume() - pitch_shifter.pitch)
+  -- local val = pitch_shifter.read() or 0
+  -- local pitch = val - pitch_shifter.lastval
+  -- pitch_shifter.lastval = val
+  -- pitch_shifter.pitch = pitch_shifter.pitch * 0.8 + pitch * 0.2
   for i = 1, synth_count do
+    -- synths[i].sample:setVolume(loop:getVolume() - pitch_shifter.pitch)
     synths[i]:update(dt)
   end
 end
@@ -60,7 +59,6 @@ end
 
 function love.touchreleased(id, x, y, dx, dy, pressure)
   grid:touchreleased(id, x, y, dx, dy, pressure)
-  --loop:stop()
 end
 
 function grid:cellpressed(q, r)
@@ -81,7 +79,7 @@ end
 function grid:cellreleased(q, r)
   for i = 1, synth_count do
     if synths[i].pad[1] == q and synths[i].pad[2] == r then
-      synths[i]:stopNote(q, r)
+      synths[i]:stopNote()
       break
     end
   end
@@ -90,6 +88,10 @@ end
 function love.keypressed(key)
   if key == 'escape' then
     --love.event.quit()
+    for i = 1, synth_count do
+      synths[i]:stopNote()
+      synths[i].sample:stop()
+    end
     configScreen.enter()
   end
 end
