@@ -127,12 +127,12 @@ function hexgrid:draw(cx, cy)
   for q, r in spiral_iter(0, 0, self.radius) do
     local x, y = self:hex_to_pixel(q, r)
     local note_name = note_names[(self:hex_to_note(q, r)) % 12 +1]
-    local gray = 80 - string.len(note_name) * 20
-    local tint = -40 + 30*math.floor(self:hex_to_note(q, r) / 12)
+    local gray = 0.33 - string.len(note_name) * 0.07
+    local tint = -0.16 + 0.12 * math.floor(self:hex_to_note(q, r) / 12)
     love.graphics.setColor(gray + tint, gray, gray)
     love.graphics.translate(cx + x, cy + y)
     love.graphics.polygon('fill', self.hexapoly)
-    love.graphics.setColor(150, 150, 200)
+    love.graphics.setColor(0.6, 0.6, 0.78)
     love.graphics.print(note_name, -5, -5)
     love.graphics.origin()
     i = i + 1
@@ -143,7 +143,7 @@ end
 function hexgrid:draw_hex(q, r, offx, offy)
   local x, y = self:hex_to_pixel(q,r)
   x, y = x + offx, y + offy
-  love.graphics.setColor(255, 255, 255, 5)
+  love.graphics.setColor(1, 1, 1, 0.1)
   love.graphics.translate(x, y)
   love.graphics.polygon('fill', self.hexapoly)
   love.graphics.origin()
