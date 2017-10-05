@@ -10,6 +10,8 @@ local swh, shh = sw / 2, sh/2
 local synth_count = 5
 local synths = {}
 
+local eff
+
 grid = hexgrid.new(sw/17, math.floor(swh / 50))
 
 function love.load()
@@ -21,6 +23,8 @@ function love.load()
       break
     end
   end
+  love.audio.setEffect('myecho', {type='flanger'})--'echo', delay=0.35, feedback=0.8, volume=0.8, spread=0.5, tapdelay=0.0, damping=0.5})
+  eff = love.audio.getEffect('myecho')
 
   for i = 1, synth_count do
     synths[i] = synth.new(configScreen.A.value, configScreen.D.value, configScreen.S.value, configScreen.R.value)
@@ -55,6 +59,9 @@ end
 
 function love.touchmoved(id, x, y, dx, dy, pressure)
   grid:touchmoved(id, x - swh, y - shh, dx, dy, pressure)
+  mx, my = love.mouse.getPosition()
+  mx = mx / 800
+  eff.feedback = mx
 end
 
 function love.touchreleased(id, x, y, dx, dy, pressure)

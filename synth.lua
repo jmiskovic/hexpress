@@ -11,9 +11,10 @@ function synth.new(a, d, s, r)
   self.pad = {math.huge, math.huge}
   self.noteOn = nil
   self.noteOff = nil
-  self.sample = love.audio.newSource('strings.wav')
+  self.sample = love.audio.newSource(love.sound.newDecoder('strings.wav'))
   self.sample:setLooping(true)
   self.sample:setVolume(0)
+  self.sample:setEffect('myecho')
   self.sample:play()
   return self
 end
