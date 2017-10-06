@@ -2,7 +2,6 @@ local configScreen = require('configScreen')
 local hexgrid = require('hexgrid')
 local synth = require('synth')
 
-local pitch_shifter = {read = 0, lastval = 0, pitch = 0}
 
 local sw, sh = love.graphics.getDimensions()
 local swh, shh = sw / 2, sh/2
@@ -10,22 +9,10 @@ local swh, shh = sw / 2, sh/2
 local synth_count = 5
 local synths = {}
 
-local eff
-
 grid = hexgrid.new(sw/17, math.floor(swh / 50))
 
 function love.load()
-  local joysticks = love.joystick.getJoysticks()
-
-  for i, joystick in ipairs(joysticks) do
-    if joystick:getName() == 'Android Accelerometer' then
-      pitch_shifter.read = function() return joystick:getAxis(2) end
-      break
-    end
-  end
-  love.audio.setEffect('myecho', {type='flanger'})--'echo', delay=0.35, feedback=0.8, volume=0.8, spread=0.5, tapdelay=0.0, damping=0.5})
-  eff = love.audio.getEffect('myecho')
-
+  synth.load()
   for i = 1, synth_count do
     synths[i] = synth.new(configScreen.A.value, configScreen.D.value, configScreen.S.value, configScreen.R.value)
   end
@@ -37,16 +24,10 @@ function love.draw()
   local x, y = love.mouse.getPosition()
   local q,r = grid:pixel_to_hex(x - swh, y - shh)
   grid:draw_hex(q, r, swh, shh)
-  --love.graphics.print(love.touch.getPressure(1), 5, 60)
 end
 
 function love.update(dt)
-  -- local val = pitch_shifter.read() or 0
-  -- local pitch = val - pitch_shifter.lastval
-  -- pitch_shifter.lastval = val
-  -- pitch_shifter.pitch = pitch_shifter.pitch * 0.8 + pitch * 0.2
   for i = 1, synth_count do
-    -- synths[i].sample:setVolume(loop:getVolume() - pitch_shifter.pitch)
     synths[i]:update(dt)
   end
 end
@@ -59,9 +40,6 @@ end
 
 function love.touchmoved(id, x, y, dx, dy, pressure)
   grid:touchmoved(id, x - swh, y - shh, dx, dy, pressure)
-  mx, my = love.mouse.getPosition()
-  mx = mx / 800
-  eff.feedback = mx
 end
 
 function love.touchreleased(id, x, y, dx, dy, pressure)

@@ -2,6 +2,14 @@ local synth = {}
 
 synth.__index = synth
 
+synth.effect = nil
+
+-- init synth system
+function synth.load()
+  love.audio.setEffect('myeffect', {type='echo', delay=0.35, feedback=0.3, volume=0.4, spread=0.5, tapdelay=0.0, damping=0.5})
+  synth.effect = love.audio.getEffect('myeffect')
+end
+
 function synth.new(a, d, s, r)
   local self = setmetatable({}, synth)
   self.A = a or 0.5 -- attack
@@ -14,7 +22,7 @@ function synth.new(a, d, s, r)
   self.sample = love.audio.newSource(love.sound.newDecoder('strings.wav'))
   self.sample:setLooping(true)
   self.sample:setVolume(0)
-  self.sample:setEffect('myecho')
+  self.sample:setEffect('myeffect')
   self.sample:play()
   return self
 end
