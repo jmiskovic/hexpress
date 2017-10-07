@@ -11,6 +11,7 @@ local axial_directions = {
    { 1, -1}, { 0, -1}, {-1,  0}, {-1,  1}, { 0,  1}, { 1,  0}
 }
 
+
 -- get QR of cell in specified direction from QR cell
 local function hex_neighbor(q, r, direction)
   local dir = axial_directions[direction]
@@ -32,6 +33,8 @@ function hexgrid.new(size, radius)
       1/2 * size,    -size*math.sqrt(3)/2
     }
   self.touches = {}
+  self.font = love.graphics.newFont("Ubuntu-B.ttf", size)
+  self.font_color = {0.13, 0.13, 0.13, 0.5}
   return self
 end
 
@@ -123,6 +126,7 @@ note_names = {'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'}
 
 -- iterate through and draw hex grid
 function hexgrid:draw(cx, cy)
+  love.graphics.setFont(self.font)
   i = 1
   for q, r in spiral_iter(0, 0, self.radius) do
     local x, y = self:hex_to_pixel(q, r)
@@ -132,8 +136,8 @@ function hexgrid:draw(cx, cy)
     love.graphics.setColor(gray + tint, gray, gray)
     love.graphics.translate(cx + x, cy + y)
     love.graphics.polygon('fill', self.hexapoly)
-    love.graphics.setColor(0.6, 0.6, 0.78)
-    love.graphics.print(note_name, -5, -5)
+    love.graphics.setColor(self.font_color)
+    love.graphics.print(note_name, -self.font:getWidth(note_name)/2, -self.font:getHeight()/2)
     love.graphics.origin()
     i = i + 1
   end
