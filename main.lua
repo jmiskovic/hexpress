@@ -1,29 +1,28 @@
-local configScreen = require('configScreen')
 local hexgrid = require('hexgrid')
 local synth = require('synth')
 
 
 local sw, sh = love.graphics.getDimensions()
-local swh, shh = sw / 2, sh/2
+local hexgrid_center = {sw/2, sh/2}
 
 local synth_count = 5
 local synths = {}
 
-grid = hexgrid.new(sw/17, math.floor(swh / 50))
+grid = hexgrid.new(sw / 12.42, 5)
 
 function love.load()
   synth.load()
   for i = 1, synth_count do
-    synths[i] = synth.new(configScreen.A.value, configScreen.D.value, configScreen.S.value, configScreen.R.value)
+    synths[i] = synth.new()
   end
 end
 
 function love.draw()
-  grid:draw(swh, shh)
+  grid:draw(hexgrid_center[1], hexgrid_center[2])
 
   local x, y = love.mouse.getPosition()
-  local q,r = grid:pixel_to_hex(x - swh, y - shh)
-  grid:draw_hex(q, r, swh, shh)
+  local q,r = grid:pixel_to_hex(x - hexgrid_center[1], y - hexgrid_center[2])
+  grid:draw_hex(q, r, hexgrid_center[1], hexgrid_center[2])
 end
 
 function love.update(dt)
@@ -35,11 +34,11 @@ end
 local lastnote = 0
 
 function love.touchpressed(id, x, y, dx, dy, pressure)
-  grid:touchpressed(id, x - swh, y - shh, dx, dy, pressure)
+  grid:touchpressed(id, x - hexgrid_center[1], y - hexgrid_center[2], dx, dy, pressure)
 end
 
 function love.touchmoved(id, x, y, dx, dy, pressure)
-  grid:touchmoved(id, x - swh, y - shh, dx, dy, pressure)
+  grid:touchmoved(id, x - hexgrid_center[1], y - hexgrid_center[2], dx, dy, pressure)
 end
 
 function love.touchreleased(id, x, y, dx, dy, pressure)
@@ -71,13 +70,5 @@ function grid:cellreleased(q, r)
 end
 
 function love.keypressed(key)
-  if key == 'escape' then
-    --love.event.quit()
-    for i = 1, synth_count do
-      synths[i]:stopNote()
-      synths[i].sample:stop()
-    end
-    configScreen.enter()
-  end
 end
 

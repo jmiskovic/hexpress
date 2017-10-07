@@ -21,6 +21,7 @@ end
 -- specify new grid with cell size and grid span ('radius' from center cell)
 function hexgrid.new(size, radius)
   local self = setmetatable({}, hexgrid)
+  self.note_offset = 4
   self.size = size or 10
   self.radius = radius or 5
   size = size * 0.95
@@ -112,7 +113,7 @@ end
 
 -- harmonic note grid from QR coordinate
 function hexgrid:hex_to_note(q, r)
-    return 24+q*4 + (-q-r)*7
+    return 24+q*4 + (-q-r)*7 + self.note_offset
 end
 
 -- QR cell from 2D XY coordinate
@@ -131,9 +132,8 @@ function hexgrid:draw(cx, cy)
   for q, r in spiral_iter(0, 0, self.radius) do
     local x, y = self:hex_to_pixel(q, r)
     local note_name = note_names[(self:hex_to_note(q, r)) % 12 +1]
-    local gray = 0.33 - string.len(note_name) * 0.07
-    local tint = -0.16 + 0.12 * math.floor(self:hex_to_note(q, r) / 12)
-    love.graphics.setColor(gray + tint, gray, gray)
+    local gray = 0.43 - string.len(note_name) * 0.16
+    love.graphics.setColor(gray + 0.1, gray + 0.2, gray)
     love.graphics.translate(cx + x, cy + y)
     love.graphics.polygon('fill', self.hexapoly)
     love.graphics.setColor(self.font_color)
