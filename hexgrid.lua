@@ -111,46 +111,11 @@ function hexgrid:hex_to_pixel(q, r)
   return x, y
 end
 
--- harmonic note grid from QR coordinate
-function hexgrid:hex_to_note(q, r)
-    return 24+q*4 + (-q-r)*7 + self.note_offset
-end
-
 -- QR cell from 2D XY coordinate
 function hexgrid:pixel_to_hex(x, y)
   local q = x * 2/3 / self.size
   local r = (y * math.sqrt(3)/3 - x/3) / self.size
   return cube_to_axial(hex_rounder(axial_to_cube(q, r)))
-end
-
-note_names = {'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'}
-
--- iterate through and draw hex grid
-function hexgrid:draw(cx, cy)
-  love.graphics.setFont(self.font)
-  i = 1
-  for q, r in spiral_iter(0, 0, self.radius) do
-    local x, y = self:hex_to_pixel(q, r)
-    local note_name = note_names[(self:hex_to_note(q, r)) % 12 +1]
-    local gray = 0.43 - string.len(note_name) * 0.16
-    love.graphics.setColor(gray + 0.1, gray + 0.2, gray)
-    love.graphics.translate(cx + x, cy + y)
-    love.graphics.polygon('fill', self.hexapoly)
-    love.graphics.setColor(self.font_color)
-    love.graphics.print(note_name, -self.font:getWidth(note_name)/2, -self.font:getHeight()/2)
-    love.graphics.origin()
-    i = i + 1
-  end
-end
-
--- draw QR cell with XY offset
-function hexgrid:draw_hex(q, r, offx, offy)
-  local x, y = self:hex_to_pixel(q,r)
-  x, y = x + offx, y + offy
-  love.graphics.setColor(1, 1, 1, 0.1)
-  love.graphics.translate(x, y)
-  love.graphics.polygon('fill', self.hexapoly)
-  love.graphics.origin()
 end
 
 function hexgrid:touchpressed(id, x, y, dx, dy, pressure)
@@ -185,6 +150,74 @@ end
 
 -- stub for callback
 function hexgrid:cellreleased(q, r)
+end
+
+-- RENDERING
+
+function hexgrid:draw_tonepad(q, r, cx, cy)
+  local x, y = self:hex_to_pixel(q, r)
+  local note_name = note_names[(self:hex_to_note(q, r)) % 12 +1]
+  local gray = 0.43 - string.len(note_name) * 0.16
+  love.graphics.setColor(gray + 0.1, gray + 0.2, gray)
+  love.graphics.translate(cx + x, cy + y)
+  love.graphics.polygon('fill', self.hexapoly)
+  love.graphics.setColor(self.font_color)
+  love.graphics.print(note_name, -self.font:getWidth(note_name)/2, -self.font:getHeight()/2)
+  love.graphics.origin()
+end
+
+local grille_image = love.graphics.newImage('grille.png')
+
+function hexgrid:draw_grille(q, r, cx, cy)
+  local x, y = self:hex_to_pixel(q, r)
+  x, y = x + cx, y + cy
+  love.graphics.translate(x, y)
+  love.graphics.setColor(1, 1, 1, 1)
+  love.graphics.stencil(
+    function ()
+      love.graphics.polygon('fill', self.hexapoly)
+    end, "replace", 1)
+  love.graphics.setStencilTest("greater", 0)
+  local w, h = grille_image:getDimensions()
+  love.graphics.draw(grille_image, - w/2, - h/2)
+  love.graphics.setStencilTest()
+  love.graphics.origin()
+end
+
+-- draw QR cell with XY offset
+function hexgrid:draw_highlight(q, r, cx, cy)
+  local x, y = self:hex_to_pixel(q,r)
+  x, y = x + cx, y + cy
+  love.graphics.setColor(1, 1, 1, 0.1)
+  --love.graphics.print(q..','..r, 0, 0)
+  love.graphics.translate(x, y)
+  love.graphics.polygon('fill', self.hexapoly)
+  love.graphics.origin()
+end
+
+local rendering_methods = {
+ ['-4,0'] = hexgrid.draw_grille,
+ ['-4,4'] = hexgrid.draw_grille,
+ ['4,-4'] = hexgrid.draw_grille,
+ ['4,0']  = hexgrid.draw_grille
+}
+
+-- iterate through and draw hex grid
+function hexgrid:draw(cx, cy)
+  love.graphics.setFont(self.font)
+  for q, r in spiral_iter(0, 0, self.radius) do
+    local render_func = rendering_methods[q..','..r] or self.draw_tonepad
+    render_func(self, q, r, cx, cy)
+  end
+end
+
+-- MUSICAL STUFF (TODO: extract from hexgrid)
+
+note_names = {'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'}
+
+-- harmonic note grid from QR coordinate
+function hexgrid:hex_to_note(q, r)
+    return 24+q*4 + (-q-r)*7 + self.note_offset
 end
 
 return hexgrid

@@ -22,7 +22,7 @@ function love.draw()
 
   local x, y = love.mouse.getPosition()
   local q,r = grid:pixel_to_hex(x - hexgrid_center[1], y - hexgrid_center[2])
-  grid:draw_hex(q, r, hexgrid_center[1], hexgrid_center[2])
+  grid:draw_highlight(q, r, hexgrid_center[1], hexgrid_center[2])
 end
 
 function love.update(dt)
