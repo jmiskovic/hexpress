@@ -6,25 +6,45 @@ synth.effect = nil
 
 -- init synth system
 function synth.load()
-  love.audio.setEffect('myeffect', {type='echo', delay=0.35, feedback=0.3, volume=0.4, spread=0.5, tapdelay=0.0, damping=0.5})
+  love.audio.setEffect('myeffect',
+    {type='ringmodulator',
+     frequency=5,
+     volume=1,
+    })
   synth.effect = love.audio.getEffect('myeffect')
+  synth.readTiltFunc = fetchReadTiltFunc()
 end
 
 function synth.new(a, d, s, r)
   local self = setmetatable({}, synth)
-  self.A = a or 0.5 -- attack
-  self.D = d or 0.3 -- decay
-  self.S = s or 0.8 -- sustain
-  self.R = r or 0.5 -- release
+  self.A = a or 0.15 -- attack
+  self.D = d or 0.10 -- decay
+  self.S = s or 0.65 -- sustain
+  self.R = r or 0.55 -- release
   self.pad = {math.huge, math.huge}
   self.noteOn = nil
   self.noteOff = nil
-  self.sample = love.audio.newSource(love.sound.newDecoder('strings.wav'))
+  local sample_path = 'samples/brite.wav'
+  self.sample = love.audio.newSource(love.sound.newDecoder(sample_path))
   self.sample:setLooping(true)
   self.sample:setVolume(0)
   self.sample:setEffect('myeffect')
   self.sample:play()
   return self
+end
+
+function fetchReadTiltFunc()
+-- finding acc
+local func
+  local joysticks = love.joystick.getJoysticks()
+  for i, joystick in ipairs(joysticks) do
+    if joystick:getName() == 'Android Accelerometer' then
+      func = function() return joystick:getAxis(2) end
+      break
+    end
+  end
+  func = func or function() return 0 end
+  return func
 end
 
 function synth:startNote(pitch, q, r)
@@ -75,11 +95,15 @@ function synth:adsr()
   return vol, state
 end
 
+local t = 0
 function synth:update(dt)
   -- increase elapsed time from note on and note off events
   self.noteOn  = self.noteOn  and self.noteOn  + dt or nil
   -- update volume according to ADSR envelope
   self.sample:setVolume(self:adsr())
+  t = t + dt
+  synth.effect.frequency = 10 * (1 - synth.readTiltFunc())
+  love.audio.setEffect('myeffect', synth.effect)
 end
 
 return synth
