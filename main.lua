@@ -22,7 +22,6 @@ function love.draw()
 
   local x, y = love.mouse.getPosition()
   local q,r = grid:pixel_to_hex(x - hexgrid_center[1], y - hexgrid_center[2])
-  grid:draw_highlight(q, r, hexgrid_center[1], hexgrid_center[2])
 end
 
 function love.update(dt)
@@ -48,7 +47,7 @@ end
 function grid:cellpressed(q, r)
   local n = grid:hex_to_note(q, r)
   --love.system.vibrate(0.01)
-  local pitch = math.pow(math.pow(2, 1/12), n-12)
+  local pitch = math.pow(math.pow(2, 1/12), n)
   -- reuse synth that's not playing, or has longest note duration (preferably already released note)
   local synths_sorted = {}
   for i = 1, synth_count do synths_sorted[i] = synths[i] end
