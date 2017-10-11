@@ -11,5 +11,6 @@ function love.conf(t)
   t.window.title = "Hextrument"
   t.window.width, t.window.height = unpack(resolutions_16_9[3])
   t.window.fullscreen = false
+  t.window.resizable = true
   t.window.vsync = false
 end

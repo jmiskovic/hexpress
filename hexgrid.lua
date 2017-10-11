@@ -142,13 +142,13 @@ function hexgrid:pixel_to_hex(x, y)
 end
 
 function hexgrid:touchpressed(id, x, y, dx, dy, pressure)
-  local q, r = grid:pixel_to_hex(x, y)
+  local q, r = self:pixel_to_hex(x, y)
   self.touches[id] = {q, r, x, y}
   self.table[q][r]:pressed(q, r)
 end
 
 function hexgrid:touchmoved(id, x, y, dx, dy, pressure)
-    local q, r = grid:pixel_to_hex(x, y)
+    local q, r = self:pixel_to_hex(x, y)
 
     if self.touches[id] then
       if q == self.touches[id][1] and r == self.touches[id][2] then
