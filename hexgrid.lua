@@ -15,7 +15,6 @@ local axial_directions = {
    { 1, -1}, { 0, -1}, {-1,  0}, {-1,  1}, { 0,  1}, { 1,  0}
 }
 
-
 -- get QR of cell in specified direction from QR cell
 local function hex_neighbor(q, r, direction)
   local dir = axial_directions[direction]
@@ -26,7 +25,6 @@ end
 function hexgrid.new(size, radius)
   local self = setmetatable({}, hexgrid)
   self.table = table.autotable(2)
-  self.note_offset = 4
   self.size = size or 10
   self.radius = radius or 5
   size = size * 0.95
@@ -40,8 +38,26 @@ function hexgrid.new(size, radius)
     }
   pad.font = love.graphics.newFont("Ubuntu-B.ttf", size)
   self.touches = {}
+
+  local special_pads = table.autotable(2)
+  special_pads[-4][ 0] = {constructor='new_grille', arguments={}}
+  special_pads[-4][ 4] = {constructor='new_grille', arguments={}}
+  special_pads[ 4][-4] = {constructor='new_grille', arguments={}}
+  special_pads[ 4][ 0] = {constructor='new_grille', arguments={}}
+  special_pads[-4][ 1] = {constructor='new_button', arguments={'SND'}}
+  special_pads[-4][ 2] = {constructor='new_button', arguments={'FX'}}
+  special_pads[-4][ 3] = {constructor='new_button', arguments={'PAD'}}
+  special_pads[ 4][-3] = {constructor='new_button', arguments={'P1'}}
+  special_pads[ 4][-2] = {constructor='new_button', arguments={'P2'}}
+  special_pads[ 4][-1] = {constructor='new_button', arguments={'P3'}}
+
   for q, r in spiral_iter(0, 0, self.radius) do
-    self.table[q][r] = pad.new_tonepad()
+    local special_pad = special_pads[q][r]
+    if special_pad then
+      self.table[q][r] = pad[special_pad.constructor](q, r, unpack(special_pad.arguments))
+    else
+      self.table[q][r] = pad.new_tonepad(q, r)
+    end
   end
   return self
 end
@@ -128,7 +144,7 @@ end
 function hexgrid:touchpressed(id, x, y, dx, dy, pressure)
   local q, r = grid:pixel_to_hex(x, y)
   self.touches[id] = {q, r, x, y}
-  self:cellpressed(q, r)
+  self.table[q][r]:pressed(q, r)
 end
 
 function hexgrid:touchmoved(id, x, y, dx, dy, pressure)
@@ -137,8 +153,9 @@ function hexgrid:touchmoved(id, x, y, dx, dy, pressure)
     if self.touches[id] then
       if q == self.touches[id][1] and r == self.touches[id][2] then
       else
-        self:cellreleased(self.touches[id][1], self.touches[id][2])
-        self:cellpressed(q, r)
+        local qr, rr = unpack(self.touches[id])
+        self.table[qr][rr]:released(qr, rr)
+        self.table[q][r]:pressed(q, r)
       end
     end
     self.touches[id] = {q, r, x, y}
@@ -146,17 +163,10 @@ end
 
 function hexgrid:touchreleased(id, x, y, dx, dy, pressure)
   if self.touches[id] then
-    self:cellreleased(self.touches[id][1], self.touches[id][2])
+    local q, r = unpack(self.touches[id])
+    self.table[q][r]:released(q, r)
   end
   self.touches[id] = nil
-end
-
--- stub for callback
-function hexgrid:cellpressed(q, r)
-end
-
--- stub for callback
-function hexgrid:cellreleased(q, r)
 end
 
 -- RENDERING
@@ -166,19 +176,9 @@ function hexgrid:draw(cx, cy)
   for q, r in spiral_iter(0, 0, self.radius) do
     if self.table[q][r] then
       local x, y = self:hex_to_pixel(q, r)
-      local note_name = note_names[(self:hex_to_note(q, r)) % 12 +1]
-      self.table[q][r]:draw(x + cx, y + cy, note_name)
+      self.table[q][r]:draw(x + cx, y + cy)
     end
   end
-end
-
--- MUSICAL STUFF (TODO: extract from hexgrid)
-
-note_names = {'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'}
-
--- harmonic note grid from QR coordinate
-function hexgrid:hex_to_note(q, r)
-    return q*4 + (-q-r)*7 + self.note_offset
 end
 
 return hexgrid

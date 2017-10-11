@@ -3,9 +3,14 @@ local synth = {}
 synth.__index = synth
 
 synth.effect = nil
+synth.count = 5
 
 -- init synth system
 function synth.load()
+  for i = 1, synth.count do
+    synth[i] = synth.new()
+  end
+
   love.audio.setEffect('myeffect',
     {type='ringmodulator',
      frequency=5,
@@ -21,7 +26,6 @@ function synth.new(a, d, s, r)
   self.D = d or 0.10 -- decay
   self.S = s or 0.65 -- sustain
   self.R = r or 0.55 -- release
-  self.pad = {math.huge, math.huge}
   self.noteOn = nil
   self.noteOff = nil
   local sample_path = 'samples/brite.wav'
@@ -47,16 +51,14 @@ local func
   return func
 end
 
-function synth:startNote(pitch, q, r)
+function synth:startNote(pitch)
   self.noteOn = 0
   self.noteOff = nil
   self.sample:setPitch(pitch)
-  self.pad = {q, r}
 end
 
 function synth:stopNote()
   self.noteOff = self.noteOn
-  self.pad = {math.huge, math.huge}
 end
 
 -- https://www.desmos.com/calculator/wp88j1ojhu
@@ -95,15 +97,25 @@ function synth:adsr()
   return vol, state
 end
 
-local t = 0
-function synth:update(dt)
-  -- increase elapsed time from note on and note off events
-  self.noteOn  = self.noteOn  and self.noteOn  + dt or nil
-  -- update volume according to ADSR envelope
-  self.sample:setVolume(self:adsr())
-  t = t + dt
+function synth.update(dt)
+  for i,s in ipairs(synth) do
+    s.noteOn = s.noteOn and s.noteOn + dt or nil
+    s.sample:setVolume(s:adsr()) -- update volume according to ADSR envelope
+  end
   synth.effect.frequency = 10 * (1 - synth.readTiltFunc())
   love.audio.setEffect('myeffect', synth.effect)
+end
+
+-- get synth that's not playing, or has longest note duration (preferably already released note)
+function synth.get_unused()
+  local synths_sorted = {}
+  for i = 1, synth.count do synths_sorted[i] = synth[i] end
+  table.sort(synths_sorted, function(a, b)
+    ac = (a.noteOn or math.huge) + (a.noteOff and 15 or 0)
+    bc = (b.noteOn or math.huge) + (b.noteOff and 15 or 0)
+    return ac > bc
+    end)
+  return synths_sorted[1]
 end
 
 return synth
