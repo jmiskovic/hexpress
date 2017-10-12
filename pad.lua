@@ -3,8 +3,9 @@ pad.__index = pad
 
 local synth = require('synth')
 local log = require('log')
-
-
+local min = math.min
+local max = math.max
+pad.moved = function(self, dx, dy) end -- stub
 
 pad.font_color = {0.13, 0.13, 0.13, 0.5}
 note_names = {'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'}
@@ -83,6 +84,7 @@ function pad.new_button(q, r, name)
   self.name = name
   self.draw     = pad.draw_button
   self.pressed  = pad.pressed_button
+  self.moved    = pad.moved_button
   self.released = pad.released_button
   return self
 end
@@ -97,9 +99,32 @@ function pad:draw_button(x, y)
   love.graphics.origin()
 end
 
-function pad.pressed_button()
+local octave_tracker = 0
+local octave_pitch = 0
+local octave_hi = synth.new(0.3)
+local octave_lo = synth.new(0.3)
+
+function pad:pressed_button()
+  octave_tracker = 0
+  octave_hi.sample:setPitch(synth[1].sample:getPitch() * 2)
+  octave_lo.sample:setPitch(synth[1].sample:getPitch() / 2)
 end
-function pad.released_button()
+
+function pad:moved_button(dx, dy)
+  octave_tracker = octave_tracker - dy / 100
+  octave_tracker = max(-1, min(1, octave_tracker))
+  octave_hi.sample:setVolume(max(0, octave_tracker))
+  octave_lo.sample:setVolume(-min(0, octave_tracker))
+
+  for i,s in ipairs(synth) do
+    local pitch = s.sample:getPitch() * (1 + dx / 300)
+    s.sample:setPitch(pitch)
+  end
+end
+
+function pad:released_button()
+  octave_hi.sample:setVolume(0)
+  octave_lo.sample:setVolume(0)
 end
 
 return pad

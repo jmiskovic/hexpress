@@ -152,6 +152,7 @@ function hexgrid:touchmoved(id, x, y, dx, dy, pressure)
 
     if self.touches[id] then
       if q == self.touches[id][1] and r == self.touches[id][2] then
+        self.table[q][r]:moved(dx, dy)
       else
         local qr, rr = unpack(self.touches[id])
         self.table[qr][rr]:released(qr, rr)

@@ -7,10 +7,6 @@ synth.count = 5
 
 -- init synth system
 function synth.load()
-  for i = 1, synth.count do
-    synth[i] = synth.new()
-  end
-
   love.audio.setEffect('myeffect',
     {type='ringmodulator',
      frequency=5,
@@ -18,6 +14,9 @@ function synth.load()
     })
   synth.effect = love.audio.getEffect('myeffect')
   synth.readTiltFunc = fetchReadTiltFunc()
+  for i = 1, synth.count do
+    synth[i] = synth.new()
+  end
 end
 
 function synth.new(a, d, s, r)
@@ -108,14 +107,12 @@ end
 
 -- get synth that's not playing, or has longest note duration (preferably already released note)
 function synth.get_unused()
-  local synths_sorted = {}
-  for i = 1, synth.count do synths_sorted[i] = synth[i] end
-  table.sort(synths_sorted, function(a, b)
+  table.sort(synth, function(a, b)
     ac = (a.noteOn or math.huge) + (a.noteOff and 15 or 0)
     bc = (b.noteOn or math.huge) + (b.noteOff and 15 or 0)
     return ac > bc
     end)
-  return synths_sorted[1]
+  return synth[1]
 end
 
 return synth
