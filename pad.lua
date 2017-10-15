@@ -75,6 +75,9 @@ function pad:pressed_tonepad()
   for p,s in pairs(pad.synth_mapping) do
     if s == synth then pad.synth_mapping[p] = nil end
   end
+  if pad.synth_mapping[self] then
+    self:released_tonepad()
+  end
   pad.synth_mapping[self] = synth
   synth:startNote(self.pitch)
 end
