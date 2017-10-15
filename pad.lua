@@ -1,12 +1,13 @@
 pad = {}
 pad.__index = pad
 
-local synth = require('synth')
+local synths = require('synths')
 local log = require('log')
 local min = math.min
 local max = math.max
 pad.moved = function(self, dx, dy) end -- stub
 
+pad.synth_mapping = {}
 pad.font_color = {0.13, 0.13, 0.13, 0.5}
 note_names = {'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'}
 pad.note_offset = 4
@@ -22,8 +23,8 @@ local scheme = {
 
 local octave_tracker = 0
 local octave_pressed = false
-local octave_hi = synth.new(0.3)
-local octave_lo = synth.new(0.3)
+local octave_hi = synths.new(0.3)
+local octave_lo = synths.new(0.3)
 
 
 -- harmonic note grid from QR coordinate
@@ -32,7 +33,7 @@ function pad.hex_to_note(q, r)
 end
 
 function modify_pitch(synth, mod)
-  local pitch = synth.sample:getPitch() * mod
+  local pitch = synths.sample:getPitch() * mod
   synth.sample:setPitch(pitch)
 end
 
@@ -52,14 +53,14 @@ function pad.new_tonepad(q, r)
   local note = pad.hex_to_note(q, r)
   self.name = note_names[note % 12 +1]
   self.pitch = math.pow(math.pow(2, 1/12), note)
-  self.synth = nil -- index of selected synth, valid while pad is pressed
+  pad.synth_mapping[self] = nil -- index of selected synth, valid while pad is pressed
   return self
 end
 
 function pad:draw_tonepad(x, y)
   love.graphics.setFont(self.font)
   love.graphics.translate(x, y)
-  love.graphics.scale(1 - (self.synth and 0.2 * self.synth:adsr() or 0))
+  love.graphics.scale(1 - (pad.synth_mapping[self] and 0.2 * pad.synth_mapping[self]:adsr() or 0))
   local gray = string.len(self.name) > 1 and scheme.dark_gray or scheme.light_gray
   love.graphics.setColor(gray)
   love.graphics.polygon('fill', self.hexapoly)
@@ -69,24 +70,27 @@ function pad:draw_tonepad(x, y)
 end
 
 function pad:pressed_tonepad()
-  self.synth = synth.get_unused()
-  self.synth:startNote(self.pitch)
+  local synth = synths.get_unused()
+  -- remove previous association with pad
+  for p,s in pairs(pad.synth_mapping) do
+    if s == synth then pad.synth_mapping[p] = nil end
+  end
+  pad.synth_mapping[self] = synth
+  synth:startNote(self.pitch)
 end
 
 function pad:moved_tonepad(dx,dy)
-  if false and self.synth and octave_pressed then
+  if false and pad.synth_mapping[self] and octave_pressed then
     local dp = (1 - dy / 250)
-    modify_pitch(self.synth, dp)
+    modify_pitch(pad.synth_mapping[self], dp)
     modify_pitch(octave_lo, dp)
     modify_pitch(octave_hi, dp)
   end
 end
 
-
 function pad:released_tonepad()
-  if self.synth then
-    self.synth:stopNote()
-    self.synth = nil
+  if pad.synth_mapping[self] then
+    pad.synth_mapping[self]:stopNote(self)
   end
 end
 
@@ -144,8 +148,8 @@ end
 function pad:pressed_button()
   octave_tracker = 0
   octave_pressed = true
-  octave_hi.sample:setPitch(synth[1].sample:getPitch() * 2)
-  octave_lo.sample:setPitch(synth[1].sample:getPitch() / 2)
+  octave_hi.sample:setPitch(synths[1].sample:getPitch() * 2)
+  octave_lo.sample:setPitch(synths[1].sample:getPitch() / 2)
 end
 
 function pad:moved_button(dx, dy)

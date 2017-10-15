@@ -1,5 +1,5 @@
 local hexgrid = require('hexgrid')
-local synth = require('synth')
+local synths = require('synths')
 
 
 local sw, sh = love.graphics.getDimensions()
@@ -8,7 +8,7 @@ local hexgrid_center = {sw/2, sh/2}
 local grid = hexgrid.new(sw / 12.42, 5)
 
 function love.load()
-  synth.load()
+  synths.load()
 end
 
 function love.resize()
@@ -26,7 +26,7 @@ function love.draw()
 end
 
 function love.update(dt)
-  synth.update(dt)
+  synths.update(dt)
 end
 
 local lastnote = 0

@@ -1,30 +1,31 @@
-local synth = {}
+local synths = {}
 
-synth.__index = synth
+synths.__index = synths
 
-synth.effect = nil
-synth.count = 5
+synths.effect = nil
+synths.count = 5
 
 -- init synth system
-function synth.load()
+function synths.load()
   love.audio.setEffect('myeffect',
     {type='ringmodulator',
      frequency=5,
      volume=1,
     })
-  synth.effect = love.audio.getEffect('myeffect')
-  synth.readTiltFunc = fetchReadTiltFunc()
-  for i = 1, synth.count do
-    synth[i] = synth.new()
+  synths.effect = love.audio.getEffect('myeffect')
+  synths.readTiltFunc = fetchReadTiltFunc()
+  for i = 1, synths.count do
+    synths[i] = synths.new()
   end
 end
 
-function synth.new(a, d, s, r)
-  local self = setmetatable({}, synth)
-  self.A = a or 0.15 -- attack
+function synths.new(a, d, s, r)
+  local self = setmetatable({}, synths)
+  self.A = a or 0.35 -- attack
   self.D = d or 0.10 -- decay
-  self.S = s or 0.65 -- sustain
+  self.S = s or 0.75 -- sustain
   self.R = r or 0.55 -- release
+  self.pad = nil
   self.noteOn = nil
   self.noteOff = nil
   local sample_path = 'samples/brite.wav'
@@ -50,18 +51,19 @@ local func
   return func
 end
 
-function synth:startNote(pitch)
+function synths:startNote(pitch)
   self.noteOn = 0
   self.noteOff = nil
   self.sample:setPitch(pitch)
+  return s
 end
 
-function synth:stopNote()
+function synths:stopNote()
   self.noteOff = self.noteOn
 end
 
 -- https://www.desmos.com/calculator/wp88j1ojhu
-function synth:adsr()
+function synths:adsr()
   local vol = 0
   local state = 'mute'
   --if self.NoteOff then
@@ -96,23 +98,23 @@ function synth:adsr()
   return vol, state
 end
 
-function synth.update(dt)
-  for i,s in ipairs(synth) do
+function synths.update(dt)
+  for i,s in ipairs(synths) do
     s.noteOn = s.noteOn and s.noteOn + dt or nil
     s.sample:setVolume(s:adsr()) -- update volume according to ADSR envelope
   end
-  synth.effect.frequency = 10 * (1 - synth.readTiltFunc())
-  love.audio.setEffect('myeffect', synth.effect)
+  synths.effect.frequency = 10 * (1 - synths.readTiltFunc())
+  love.audio.setEffect('myeffect', synths.effect)
 end
 
 -- get synth that's not playing, or has longest note duration (preferably already released note)
-function synth.get_unused()
-  table.sort(synth, function(a, b)
+function synths.get_unused()
+  table.sort(synths, function(a, b)
     ac = (a.noteOn or math.huge) + (a.noteOff and 15 or 0)
     bc = (b.noteOn or math.huge) + (b.noteOff and 15 or 0)
     return ac > bc
     end)
-  return synth[1]
+  return synths[1]
 end
 
-return synth
+return synths
