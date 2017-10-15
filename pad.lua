@@ -60,7 +60,7 @@ end
 function pad:draw_tonepad(x, y)
   love.graphics.setFont(self.font)
   love.graphics.translate(x, y)
-  love.graphics.scale(1 - (pad.synth_mapping[self] and 0.2 * pad.synth_mapping[self]:adsr() or 0))
+  love.graphics.scale(1 - (pad.synth_mapping[self] and 0.2 * pad.synth_mapping[self].volume or 0))
   local gray = string.len(self.name) > 1 and scheme.dark_gray or scheme.light_gray
   love.graphics.setColor(gray)
   love.graphics.polygon('fill', self.hexapoly)
@@ -90,7 +90,7 @@ end
 
 function pad:released_tonepad()
   if pad.synth_mapping[self] then
-    pad.synth_mapping[self]:stopNote(self)
+    pad.synth_mapping[self]:stopNote()
   end
 end
 

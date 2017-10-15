@@ -21,17 +21,25 @@ end
 
 function synths.new(a, d, s, r)
   local self = setmetatable({}, synths)
-  self.A = a or 0.35 -- attack
-  self.D = d or 0.10 -- decay
-  self.S = s or 0.75 -- sustain
-  self.R = r or 0.55 -- release
+  self.envelope = {
+    A = a or 0.45, -- attack
+    D = d or 0.20, -- decay
+    S = s or 0.85, -- sustain
+    R = r or 0.35, -- release
+  }
+  self.k = {
+    R = - self.envelope.S / self.envelope.R,
+    A = 1 / self.envelope.A,
+    D = -(1 - self.envelope.S) / self.envelope.D,
+  }
+
   self.pad = nil
-  self.noteOn = nil
-  self.noteOff = nil
+  self.duration = nil -- note on duration, nil if not pressed
+  self.volume = 0
   local sample_path = 'samples/brite.wav'
   self.sample = love.audio.newSource(love.sound.newDecoder(sample_path))
   self.sample:setLooping(true)
-  self.sample:setVolume(0)
+  self.sample:setVolume(self.volume)
   self.sample:setEffect('myeffect')
   self.sample:play()
   return self
@@ -52,56 +60,36 @@ local func
 end
 
 function synths:startNote(pitch)
-  self.noteOn = 0
-  self.noteOff = nil
+  self.duration = 0
+  self.volume = 0 --reset any leftover envelope from last note
   self.sample:setPitch(pitch)
   return s
 end
 
 function synths:stopNote()
-  self.noteOff = self.noteOn
+  self.duration = nil
 end
 
 -- https://www.desmos.com/calculator/wp88j1ojhu
-function synths:adsr()
-  local vol = 0
-  local state = 'mute'
-  --if self.NoteOff then
-  --  if self.NoteOff > self.R then -- mute
-  --    vol = 0
-  --    self.noteOn = nil
-  --    self.noteOff = nil
-  --    state = 'mute'
-  --  else -- release
-  --    vol = (self.R - self.NoteOff) / self.R
-  --    state = 'release'
-  --  end
-  --elseif self.noteOn and self.noteOn > self.A then -- decay and sustain
-  --  vol = math.max(self.S, 1 - (1 - self.S) * (self.D - self.noteOn + self.A) / self.D)
-  --  state = 'decay/sustain'
-  --elseif self.noteOn then -- attack
-  --  vol = 1 - (self.A - self.noteOn) / self.A
-  --  state = 'attack'
-  --end
+function synths:adsr(dt)
+  if not self.duration then
+    return math.max(self.volume + self.k.R * dt, 0)
+  end -- the rest of function is else case
 
-  if not self.noteOn then return 0, 'mute' end
-
-  local A = self.noteOn / self.A
-  local D = (self.S - 1) / self.D * (self.noteOn - self.A) + 1
-  local S = self.S
-  local O = self.noteOff and self.noteOff or 15
-  local R = -self.S / self.R * (self.noteOn - O) + self.S
-  vol = math.max(math.min(A, math.max(D, math.min(S, R))), 0)
-
-  state = (self.noteOn and 'On' or '__') .. (self.noteOff and 'Off' or '___')
-
-  return vol, state
+  if self.duration < self.envelope.A then
+    return self.volume + self.k.A * dt
+  elseif self.duration < self.envelope.A + self.envelope.D then
+    return self.volume + self.k.D * dt
+  else
+    return self.volume
+  end
 end
 
 function synths.update(dt)
   for i,s in ipairs(synths) do
-    s.noteOn = s.noteOn and s.noteOn + dt or nil
-    s.sample:setVolume(s:adsr()) -- update volume according to ADSR envelope
+    s.duration = s.duration and s.duration + dt or nil
+    s.volume = s:adsr(dt) -- update volume according to ADSR envelope
+    s.sample:setVolume(s.volume)
   end
   synths.effect.frequency = 10 * (1 - synths.readTiltFunc())
   love.audio.setEffect('myeffect', synths.effect)
@@ -110,8 +98,10 @@ end
 -- get synth that's not playing, or has longest note duration (preferably already released note)
 function synths.get_unused()
   table.sort(synths, function(a, b)
-    ac = (a.noteOn or math.huge) + (a.noteOff and 15 or 0)
-    bc = (b.noteOn or math.huge) + (b.noteOff and 15 or 0)
+    -- prefer unused synth with lowest volume,
+    -- otherwise select synth that was used the longest
+    ac = (a.duration or (500 - a.volume))
+    bc = (b.duration or (500 - b.volume))
     return ac > bc
     end)
   return synths[1]
