@@ -36,22 +36,15 @@ DOINs:
     * special handling of 4 side tiles to custom buttons, tap/hold
 
 TODOs:
-    * 4 corner tiles to speaker mesh (visual gimick, key still produces tone)
-    * tile note names impressed (choose font), C major tiles lighter than other tiles
-    * tiles visually pressed (depth as per ADSR)
     * random effect key, reverb enable/disable
-    * move C to lower-left G# position
     * tweak ADSR to allow for chords and melodies
     * make a decent sound or 5
     * record sample
     * save/recall instrument & effect
     * persist across sessions
     * stereo utilization
-    * back button exits app
     * touchmove to pitch-shift -> vibrato?
     * tilt to volume?
-    * remove configuration
-    * handle different screen resolutions
     * checking for EFX/latency/recording capabilities
     * package love scripts for deployment
     * sign apk and deliver to store

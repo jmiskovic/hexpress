@@ -36,7 +36,7 @@ function hexgrid.new(size, radius)
       -1/2 * size,   -size*math.sqrt(3)/2,
       1/2 * size,    -size*math.sqrt(3)/2
     }
-  pad.font = love.graphics.newFont("Ubuntu-B.ttf", size)
+  pad.init_fonts(size)
   self.touches = {}
 
   local special_pads = table.autotable(2)
