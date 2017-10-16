@@ -44,12 +44,12 @@ function hexgrid.new(size, radius)
   special_pads[-4][ 4] = {constructor='new_grille', arguments={}}
   special_pads[ 4][-4] = {constructor='new_grille', arguments={}}
   special_pads[ 4][ 0] = {constructor='new_grille', arguments={}}
-  special_pads[-4][ 1] = {constructor='new_button', arguments={'SND'}}
-  special_pads[-4][ 2] = {constructor='new_button', arguments={'FX'}}
-  special_pads[-4][ 3] = {constructor='new_button', arguments={'PAD'}}
-  special_pads[ 4][-3] = {constructor='new_button', arguments={'P1'}}
-  special_pads[ 4][-2] = {constructor='new_button', arguments={'P2'}}
-  special_pads[ 4][-1] = {constructor='new_button', arguments={'P3'}}
+--  special_pads[-4][ 1] = {constructor='new_button', arguments={'SND'}}
+--  special_pads[-4][ 2] = {constructor='new_button', arguments={'FX'}}
+--  special_pads[-4][ 3] = {constructor='new_button', arguments={'PAD'}}
+--  special_pads[ 4][-3] = {constructor='new_button', arguments={'P1'}}
+--  special_pads[ 4][-2] = {constructor='new_button', arguments={'P2'}}
+--  special_pads[ 4][-1] = {constructor='new_button', arguments={'P3'}}
 
   for q, r in spiral_iter(0, 0, self.radius) do
     local special_pad = special_pads[q][r]
