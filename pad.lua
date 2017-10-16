@@ -2,7 +2,6 @@ pad = {}
 pad.__index = pad
 
 local synths = require('synths')
-local log = require('log')
 local min = math.min
 local max = math.max
 pad.moved = function(self, dx, dy) end -- stub

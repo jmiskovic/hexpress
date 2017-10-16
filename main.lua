@@ -11,6 +11,10 @@ function love.load()
   synths.load()
 end
 
+function love.focus()
+  synths.load()
+end
+
 function love.resize()
   sw, sh = love.graphics.getDimensions()
   hexgrid_center = {sw/2, sh/2}
