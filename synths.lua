@@ -39,7 +39,7 @@ function synths.new(a, d, s, r)
   self.pad = nil
   self.duration = nil -- note on duration, nil if not pressed
   self.volume = 0
-  local sample_path = 'samples/brite.wav'
+  local sample_path = 'samples/brite48000.wav'
   self.sample = love.audio.newSource(love.sound.newDecoder(sample_path))
   self.sample:setLooping(true)
   self.sample:setVolume(self.volume)
