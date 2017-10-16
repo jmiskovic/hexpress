@@ -7,12 +7,15 @@ synths.count = 6
 
 -- init synth system
 function synths.load()
-  love.audio.setEffect('myeffect',
+  love.audio.setEffect('reverb',
+    {type='reverb',
+    })
+  love.audio.setEffect('modulation',
     {type='ringmodulator',
      frequency=5,
      volume=1,
     })
-  synths.effect = love.audio.getEffect('myeffect')
+  synths.effect = love.audio.getEffect('modulation')
   synths.readTiltFunc = fetchReadTiltFunc()
   for i = 1, synths.count do
     synths[i] = synths.new()
@@ -40,7 +43,8 @@ function synths.new(a, d, s, r)
   self.sample = love.audio.newSource(love.sound.newDecoder(sample_path))
   self.sample:setLooping(true)
   self.sample:setVolume(self.volume)
-  self.sample:setEffect('myeffect')
+  self.sample:setEffect('modulation')
+  self.sample:setEffect('reverb')
   self.sample:play()
   return self
 end
@@ -68,7 +72,7 @@ function synths:startNote(pitch)
   self.volume = 0 --reset any leftover envelope from last note
   self.sample:setPitch(pitch)
   -- map note pitch to physical location (stereo pan)
-  self.sample:setPosition(remap(0, 3, -1, 1, pitch), 0, 1.5)
+  self.sample:setPosition(remap(0, 3, -1, 1, pitch), 0, 2.5)
   return s
 end
 
@@ -98,7 +102,7 @@ function synths.update(dt)
     s.sample:setVolume(math.max(0, math.min(1, s.volume)))
   end
   synths.effect.frequency = 10 * (1 - synths.readTiltFunc())
-  love.audio.setEffect('myeffect', synths.effect)
+  love.audio.setEffect('modulation', synths.effect)
 end
 
 -- get synth that's not playing, or has longest note duration (preferably already released note)
