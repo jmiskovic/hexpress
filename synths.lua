@@ -3,7 +3,7 @@ local synths = {}
 synths.__index = synths
 
 synths.effect = nil
-synths.count = 5
+synths.count = 6
 
 -- init synth system
 function synths.load()
@@ -59,10 +59,16 @@ local func
   return func
 end
 
+function remap(minA, maxA, minB, maxB, amount)
+  return minB + (amount - minA) * (maxB - minB) / (maxA - minA)
+end
+
 function synths:startNote(pitch)
   self.duration = 0
   self.volume = 0 --reset any leftover envelope from last note
   self.sample:setPitch(pitch)
+  -- map note pitch to physical location (stereo pan)
+  self.sample:setPosition(remap(0, 3, -1, 1, pitch), 0, 1.5)
   return s
 end
 
@@ -89,7 +95,7 @@ function synths.update(dt)
   for i,s in ipairs(synths) do
     s.duration = s.duration and s.duration + dt or nil
     s.volume = s:adsr(dt) -- update volume according to ADSR envelope
-    s.sample:setVolume(s.volume)
+    s.sample:setVolume(math.max(0, math.min(1, s.volume)))
   end
   synths.effect.frequency = 10 * (1 - synths.readTiltFunc())
   love.audio.setEffect('myeffect', synths.effect)
