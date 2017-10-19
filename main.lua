@@ -1,6 +1,7 @@
 local hexgrid = require('hexgrid')
 local synths = require('synths')
 
+require ('log')
 
 local sw, sh = love.graphics.getDimensions()
 local hexgrid_center = {sw/2, sh/2}
