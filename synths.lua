@@ -2,7 +2,6 @@ local synths = {}
 
 synths.__index = synths
 
-synths.effect = nil
 synths.count = 6
 
 -- init synth system
@@ -15,11 +14,11 @@ function synths.load()
      frequency=5,
      volume=1,
     })
-  synths.effect = love.audio.getEffect('modulation')
-  synths.readTiltFunc = fetchReadTiltFunc()
+  synths.modulation = love.audio.getEffect('modulation')
   for i = 1, synths.count do
     synths[i] = synths.new()
   end
+  synths.readTilt = fetchReadTiltFunc()
 end
 
 function synths.new(a, d, s, r)
@@ -30,12 +29,11 @@ function synths.new(a, d, s, r)
     S = s or 0.85, -- sustain
     R = r or 0.35, -- release
   }
-  self.k = {
-    R = - self.envelope.S / self.envelope.R,
+  self.slope = {
     A = 1 / self.envelope.A,
     D = -(1 - self.envelope.S) / self.envelope.D,
+    R = - self.envelope.S / self.envelope.R,
   }
-
   self.pad = nil
   self.duration = nil -- note on duration, nil if not pressed
   self.volume = 0
@@ -45,26 +43,7 @@ function synths.new(a, d, s, r)
   self.sample:setVolume(self.volume)
   self.sample:setEffect('modulation')
   self.sample:setEffect('reverb')
-  self.sample:play()
   return self
-end
-
-function fetchReadTiltFunc()
--- finding acc
-local func
-  local joysticks = love.joystick.getJoysticks()
-  for i, joystick in ipairs(joysticks) do
-    if joystick:getName() == 'Android Accelerometer' then
-      func = function() return joystick:getAxis(2) end
-      break
-    end
-  end
-  func = func or function() return 0 end
-  return func
-end
-
-function remap(minA, maxA, minB, maxB, amount)
-  return minB + (amount - minA) * (maxB - minB) / (maxA - minA)
 end
 
 function synths:startNote(pitch)
@@ -73,6 +52,8 @@ function synths:startNote(pitch)
   self.sample:setPitch(pitch)
   -- map note pitch to physical location (stereo pan)
   self.sample:setPosition(remap(0, 3, -1, 1, pitch), 0, 2.5)
+  self.sample:stop()
+  self.sample:play()
   return s
 end
 
@@ -83,15 +64,15 @@ end
 -- https://www.desmos.com/calculator/wp88j1ojhu
 function synths:adsr(dt)
   if not self.duration then
-    return math.max(self.volume + self.k.R * dt, 0)
+    return math.max(self.volume + self.slope.R * dt, 0)            -- R
   end -- the rest of function is else case
 
   if self.duration < self.envelope.A then
-    return self.volume + self.k.A * dt
+    return self.volume + self.slope.A * dt                         -- A
   elseif self.duration < self.envelope.A + self.envelope.D then
-    return self.volume + self.k.D * dt
+    return self.volume + self.slope.D * dt                         -- D
   else
-    return self.volume
+    return self.volume                                             -- S
   end
 end
 
@@ -101,8 +82,9 @@ function synths.update(dt)
     s.volume = s:adsr(dt) -- update volume according to ADSR envelope
     s.sample:setVolume(math.max(0, math.min(1, s.volume)))
   end
-  synths.effect.frequency = 10 * (1 - synths.readTiltFunc())
-  love.audio.setEffect('modulation', synths.effect)
+  local tilt = {synths.readTilt()}
+  synths.modulation.frequency = 3 * remap_clamp(0.8, -1, 0, 10, tilt[2])
+  love.audio.setEffect('modulation', synths.modulation)
 end
 
 -- get synth that's not playing, or has longest note duration (preferably already released note)
@@ -115,6 +97,28 @@ function synths.get_unused()
     return ac > bc
     end)
   return synths[1]
+end
+
+function fetchReadTiltFunc()
+-- finding acc
+local func
+  local joysticks = love.joystick.getJoysticks()
+  for i, joystick in ipairs(joysticks) do
+    if joystick:getName() == 'Android Accelerometer' then
+      func = function() return joystick:getAxis(1), joystick:getAxis(2), joystick:getAxis(3) end
+      break
+    end
+  end
+  func = func or function() return 0,0,0 end
+  return func
+end
+
+function remap(minA, maxA, minB, maxB, amount)
+  return minB + (amount - minA) * (maxB - minB) / (maxA - minA)
+end
+
+function remap_clamp(minA, maxA, minB, maxB, amount)
+  return math.max(minB, math.min(maxB, minB + (amount - minA) * (maxB - minB) / (maxA - minA)))
 end
 
 return synths
