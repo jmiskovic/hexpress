@@ -19,7 +19,7 @@ end
 function love.resize()
   sw, sh = love.graphics.getDimensions()
   hexgrid_center = {sw/2, sh/2}
-  grid = hexgrid.new(sw / 12.42, 7)
+  grid = hexgrid.new(sw / 12.42, 5)
 end
 
 function love.draw()
