@@ -1,5 +1,5 @@
 local log_entries = {}
-local log_lines = 40
+local log_lines = 60
 
 local trace_entries = {}
 
@@ -12,18 +12,23 @@ local actualLoveDraw
 local font
 local fontSize = 16
 
+local draw_functions = {}
+
 local function imposterLoveDraw()
   actualLoveDraw()
-  local fader = 255
+  local fader = 1
   love.graphics.setFont(font)
   for i = #log_entries, #log_entries - log_lines, -1 do
-      love.graphics.setColor(255, 255, 200, fader)
+      love.graphics.setColor(1, 1, 1, fader)
       love.graphics.print(log_entries[i] or '', 5, 5 + (#log_entries - i) * fontSize)
-      fader = fader - 255 / log_lines
+      fader = fader - 1 / log_lines
+  end
+  for _,v in ipairs(draw_functions) do
+    v()
   end
 end
 
-function init()
+local function init()
   moduleInitialized = true
   actualLoveDraw = love.draw
   print(actualLoveDraw)
@@ -32,10 +37,13 @@ function init()
 end
 
 function log(s, ...)
-  if not moduleInitialized then
-    init()
-  end
+  if not moduleInitialized then init() end
   local line = string.format(s, ...)
   print(line)
   log_entries[#log_entries + 1] = line
+end
+
+function addDraw(f)
+  if not moduleInitialized then init() end
+  table.insert(draw_functions, f)
 end
