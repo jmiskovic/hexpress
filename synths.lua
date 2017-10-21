@@ -1,5 +1,7 @@
 local synths = {}
 
+local controls = require('controls')
+
 synths.__index = synths
 
 synths.count = 6
@@ -18,7 +20,6 @@ function synths.load()
   for i = 1, synths.count do
     synths[i] = synths.new()
   end
-  synths.readTilt = fetchReadTiltFunc()
 end
 
 function synths.new(a, d, s, r)
@@ -82,8 +83,7 @@ function synths.update(dt)
     s.volume = s:adsr(dt) -- update volume according to ADSR envelope
     s.sample:setVolume(math.max(0, math.min(1, s.volume)))
   end
-  local tilt = {synths.readTilt()}
-  synths.modulation.frequency = 3 * remap_clamp(0.8, -1, 0, 10, tilt[2])
+  synths.modulation.frequency = 3 * remap_clamp(0.8, -1, 0, 10, controls.tilt[2])
   love.audio.setEffect('modulation', synths.modulation)
 end
 
@@ -97,20 +97,6 @@ function synths.get_unused()
     return ac > bc
     end)
   return synths[1]
-end
-
-function fetchReadTiltFunc()
--- finding acc
-local func
-  local joysticks = love.joystick.getJoysticks()
-  for i, joystick in ipairs(joysticks) do
-    if joystick:getName() == 'Android Accelerometer' then
-      func = function() return joystick:getAxis(1), joystick:getAxis(2), joystick:getAxis(3) end
-      break
-    end
-  end
-  func = func or function() return 0,0,0 end
-  return func
 end
 
 function remap(minA, maxA, minB, maxB, amount)

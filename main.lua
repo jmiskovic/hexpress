@@ -1,5 +1,6 @@
 local hexgrid = require('hexgrid')
 local synths = require('synths')
+local controls = require('controls')
 
 require ('log')
 
@@ -9,6 +10,7 @@ local hexgrid_center = {sw/2, sh/2}
 local grid = hexgrid.new(sw / 12.42, 5)
 
 function love.load()
+  controls.load()
   synths.load()
 end
 
@@ -24,13 +26,10 @@ end
 
 function love.draw()
   grid:draw(hexgrid_center[1], hexgrid_center[2])
-
-  --local x, y = love.mouse.getPosition()
-  --local q,r = grid:pixel_to_hex(x - hexgrid_center[1], y - hexgrid_center[2])
-  --love.graphics.print(q..','..r, 0,0)
 end
 
 function love.update(dt)
+  controls.update(dt)
   synths.update(dt)
 end
 
@@ -53,4 +52,3 @@ function love.keypressed(key)
       love.event.quit()
   end
 end
-
