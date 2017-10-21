@@ -24,10 +24,10 @@ local scheme = {
   red        = {0.686, 0.058, 0.117},
 }
 
-local octave_tracker = 0
-local octave_pressed = false
-local octave_hi = synths.new(0.3)
-local octave_lo = synths.new(0.3)
+--local octave_tracker = 0
+--local octave_pressed = false
+--local octave_hi = synths.new(0.3)
+--local octave_lo = synths.new(0.3)
 
 function pad.init(size)
   pad.size = size

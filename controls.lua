@@ -18,7 +18,6 @@ function controls.load()
   end
 
   readTilt = readTilt or function() return 0,0,0 end
-  print(readTilt)
 end
 
 function controls.update(dt)

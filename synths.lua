@@ -7,7 +7,7 @@ synths.__index = synths
 synths.count = 6
 
 -- init synth system
-function synths.load()
+function synths.load(preset)
   love.audio.setEffect('reverb',
     {type='reverb',
     })
@@ -18,19 +18,18 @@ function synths.load()
     })
   synths.modulation = love.audio.getEffect('modulation')
   for i = 1, synths.count do
-    synths[i] = synths.new()
+    if synths[i] then
+      synths[i].sample:stop()
+    end
+    synths[i] = synths.new(preset)
   end
 end
 
-function synths.new(a, d, s, r)
+function synths.new(preset)
+  print(preset)
   local self = setmetatable({}, synths)
-  self.envelope = {
-    A = a or 0.45, -- attack
-    D = d or 0.20, -- decay
-    S = s or 0.85, -- sustain
-    R = r or 0.35, -- release
-  }
-  self.slope = {
+  self.envelope = preset.envelope
+  self.slopes = {
     A = 1 / self.envelope.A,
     D = -(1 - self.envelope.S) / self.envelope.D,
     R = - self.envelope.S / self.envelope.R,
@@ -38,7 +37,8 @@ function synths.new(a, d, s, r)
   self.pad = nil
   self.duration = nil -- note on duration, nil if not pressed
   self.volume = 0
-  local sample_path = 'samples/brite48000.wav'
+
+  local sample_path = preset.samples['C'] -- TODO: multiple samples across octaves
   self.sample = love.audio.newSource(love.sound.newDecoder(sample_path))
   self.sample:setLooping(true)
   self.sample:setVolume(self.volume)
@@ -65,13 +65,13 @@ end
 -- https://www.desmos.com/calculator/wp88j1ojhu
 function synths:adsr(dt)
   if not self.duration then
-    return math.max(self.volume + self.slope.R * dt, 0)            -- R
+    return math.max(self.volume + self.slopes.R * dt, 0)            -- R
   end -- the rest of function is else case
 
   if self.duration < self.envelope.A then
-    return self.volume + self.slope.A * dt                         -- A
+    return self.volume + self.slopes.A * dt                         -- A
   elseif self.duration < self.envelope.A + self.envelope.D then
-    return self.volume + self.slope.D * dt                         -- D
+    return self.volume + self.slopes.D * dt                         -- D
   else
     return self.volume                                             -- S
   end

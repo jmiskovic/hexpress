@@ -1,6 +1,7 @@
 local hexgrid = require('hexgrid')
 local synths = require('synths')
 local controls = require('controls')
+local presets = require('presets')
 
 require ('log')
 
@@ -8,14 +9,15 @@ local sw, sh = love.graphics.getDimensions()
 local hexgrid_center = {sw/2, sh/2}
 
 local grid = hexgrid.new(sw / 12.42, 5)
+local preset_selection = presets.organ
 
 function love.load()
   controls.load()
-  synths.load()
+  love.focus()
 end
 
 function love.focus()
-  synths.load()
+  synths.load(preset_selection)
 end
 
 function love.resize()
@@ -49,6 +51,13 @@ end
 
 function love.keypressed(key)
   if key == 'escape' then
-      love.event.quit()
+    love.event.quit()
+  elseif key == 'menu' or key == 'tab' then
+    if preset_selection == presets.organ then
+      preset_selection = presets.rhodes
+    else
+      preset_selection = presets.organ
+    end
+    synths.load(preset_selection)
   end
 end
