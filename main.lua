@@ -8,7 +8,7 @@ require ('log')
 local sw, sh = love.graphics.getDimensions()
 local hexgrid_center = {sw/2, sh/2}
 
-local grid = hexgrid.new(sw / 12.42, 5)
+local grid = hexgrid.new(sw / 15.4, 5)
 local preset_selection = presets.organ
 
 function love.load()
@@ -23,7 +23,7 @@ end
 function love.resize()
   sw, sh = love.graphics.getDimensions()
   hexgrid_center = {sw/2, sh/2}
-  grid = hexgrid.new(sw / 12.42, 5)
+  grid = hexgrid.new(sw / 15.4, 5)
 end
 
 function love.draw()

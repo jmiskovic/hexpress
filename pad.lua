@@ -15,14 +15,25 @@ pad.note_offset = 4
 pad.tonepad_images = {}
 
 local scheme = {
+  background  = {0.28, 0.27, 0.35, 1.00},
+  pad_active  = {0.96, 0.49, 0.26, 1.00},
+  pad_passive = {0.35, 0.37, 0.44, 1.00},
+  pad_surface = {0.21, 0.21, 0.27, 1.00},
+  white       = {1.00, 1.00, 1.00},
+
+  grille_metal   = {0.59, 0.59, 0.59},
+  grille_speaker = {0.23, 0.23, 0.23},
+
+
   dark_gray  = {0.219, 0.200, 0.215},
   orange     = {0.768, 0.443, 0.184},
   green      = {0.388, 0.501, 0.372},
   light_gray = {0.733, 0.690, 0.694},
   gray       = {0.337, 0.329, 0.329, 0.3},
-  white      = {0.837, 0.829, 0.829, 0.7},
   red        = {0.686, 0.058, 0.117},
 }
+
+love.graphics.setBackgroundColor(scheme.background)
 
 --local octave_tracker = 0
 --local octave_pressed = false
@@ -67,25 +78,36 @@ function pad.prepare_tonepad(text)
   love.graphics.setFont(pad.font)
   local gray = string.len(text) > 1 and scheme.dark_gray or scheme.light_gray
   love.graphics.setCanvas(canvas)
-  love.graphics.setColor(scheme.white)
-  love.graphics.translate(pad.size + 2, pad.size + 6)
-  love.graphics.polygon('fill', pad.hexapoly)
-  love.graphics.origin()
-  love.graphics.setColor(gray)
   love.graphics.translate(pad.size, pad.size)
+  love.graphics.scale(0.95)
+  love.graphics.setLineWidth(16)
+  love.graphics.setColor(scheme.pad_passive)
+  love.graphics.polygon('line', pad.hexapoly)
+  love.graphics.setColor(scheme.pad_surface)
   love.graphics.polygon('fill', pad.hexapoly)
   love.graphics.origin()
-  love.graphics.setColor(scheme.gray)
+  love.graphics.setColor(scheme.background)
   love.graphics.print(text, pad.size - pad.font:getWidth(text)/2, pad.size - pad.font:getHeight()/2)
   love.graphics.setCanvas()
   return canvas
 end
 
+function lerp(a, b, v)
+  return a + (b - a) * v
+end
+
 function pad:draw_tonepad(x, y)
   local image = pad.tonepad_images[self.name]
   love.graphics.translate(x, y)
-  love.graphics.scale(1 - (pad.synth_mapping[self] and 0.1 * pad.synth_mapping[self].volume or 0))
+  local volume = (pad.synth_mapping[self] and pad.synth_mapping[self].volume or 0)
+  love.graphics.scale(1 - 0.1 * volume)
+  love.graphics.setColor(scheme.white)
   love.graphics.draw(image, - image:getWidth() / 2, - image:getHeight() / 2)
+  if volume > 0 then
+    scheme.pad_active[4] = volume
+    love.graphics.setColor(scheme.pad_active)
+    love.graphics.polygon('line', pad.hexapoly)
+  end
   love.graphics.origin()
 end
 
@@ -119,23 +141,53 @@ end
 
 --- grille ---
 
-local grille_image = love.graphics.newImage('grille.png')
+local grille_image -- = love.graphics.newImage('grille.png')
+
+function pad.prepare_grille()
+  local canvas = love.graphics.newCanvas(pad.size * 2, pad.size * 2)
+  love.graphics.setCanvas(canvas)
+  love.graphics.translate(pad.size, pad.size)
+  love.graphics.setColor(scheme.grille_metal)
+  love.graphics.polygon('fill', pad.hexapoly)
+  love.graphics.setColor(scheme.grille_speaker)
+  local d = 20
+  for x =-5,5 do
+    for y =-5,5 do
+      if y % 2 == 0 then
+        love.graphics.circle('fill', x * d, y * d, d / 2.1)
+      else
+        love.graphics.circle('fill', (x + 0.5) * d, y * d, d / 2.1)
+      end
+    end
+  end
+
+  --love.graphics.setLineWidth(16)
+  --love.graphics.setColor(0.5, 0.5, 0.5, 0.4)
+  --love.graphics.polygon('line', pad.hexapoly)
+  love.graphics.origin()
+  love.graphics.setCanvas()
+  return canvas
+end
 
 function pad.new_grille(q, r)
   self = pad.new_tonepad(q, r)
   self.draw     = pad.draw_grille
+  if not grille_image then
+    grille_image = pad.prepare_grille()
+  end
   return self
 end
 
 function pad:draw_grille(x, y)
   love.graphics.translate(x, y)
-  love.graphics.setColor(1, 1, 1, 1)
   love.graphics.stencil(
     function ()
       love.graphics.polygon('fill', self.hexapoly)
     end, "replace", 1)
   love.graphics.setStencilTest("greater", 0)
+  love.graphics.setColor(1, 1, 1, 1)
   local w, h = grille_image:getDimensions()
+
   love.graphics.draw(grille_image, - w/2, - h/2)
   love.graphics.setStencilTest()
   love.graphics.origin()

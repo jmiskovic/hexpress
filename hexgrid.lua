@@ -40,10 +40,10 @@ function hexgrid.new(size, radius)
   self.touches = {}
 
   local special_pads = table.autotable(2)
-  special_pads[-4][ 0] = {constructor='new_grille', arguments={}}
-  special_pads[-4][ 4] = {constructor='new_grille', arguments={}}
-  special_pads[ 4][-4] = {constructor='new_grille', arguments={}}
-  special_pads[ 4][ 0] = {constructor='new_grille', arguments={}}
+--  special_pads[-4][ 0] = {constructor='new_grille', arguments={}}
+--  special_pads[-4][ 4] = {constructor='new_grille', arguments={}}
+--  special_pads[ 4][-4] = {constructor='new_grille', arguments={}}
+--  special_pads[ 4][ 0] = {constructor='new_grille', arguments={}}
 --  special_pads[-4][ 1] = {constructor='new_button', arguments={'SND'}}
 --  special_pads[-4][ 2] = {constructor='new_button', arguments={'FX'}}
 --  special_pads[-4][ 3] = {constructor='new_button', arguments={'PAD'}}
