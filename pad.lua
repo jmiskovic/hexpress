@@ -80,9 +80,6 @@ function pad.prepare_tonepad(text)
   love.graphics.setCanvas(canvas)
   love.graphics.translate(pad.size, pad.size)
   love.graphics.scale(0.95)
-  love.graphics.setLineWidth(16)
-  love.graphics.setColor(scheme.pad_passive)
-  love.graphics.polygon('line', pad.hexapoly)
   love.graphics.setColor(scheme.pad_surface)
   love.graphics.polygon('fill', pad.hexapoly)
   love.graphics.origin()
@@ -106,6 +103,8 @@ function pad:draw_tonepad(x, y)
   if volume > 0 then
     scheme.pad_active[4] = volume
     love.graphics.setColor(scheme.pad_active)
+    love.graphics.scale(0.8)
+    love.graphics.setLineWidth(16)
     love.graphics.polygon('line', pad.hexapoly)
   end
   love.graphics.origin()

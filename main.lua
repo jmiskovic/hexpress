@@ -3,27 +3,25 @@ local synths = require('synths')
 local controls = require('controls')
 local presets = require('presets')
 
-require ('log')
-
-local sw, sh = love.graphics.getDimensions()
-local hexgrid_center = {sw/2, sh/2}
-
-local grid = hexgrid.new(sw / 15.4, 5)
 local preset_selection = presets.organ
+local sw, sh
+local hexgrid_center
+
+function love.resize()
+  sw, sh = love.graphics.getDimensions()
+  hexgrid_center = {sw/2, sh/2}
+  grid = hexgrid.new(sw / 13.5, 5)
+end
 
 function love.load()
+  require('toolset') -- import module only after love.draw is defined
+  love.resize() -- force layout re-configuration
   controls.load()
   love.focus()
 end
 
 function love.focus()
   synths.load(preset_selection)
-end
-
-function love.resize()
-  sw, sh = love.graphics.getDimensions()
-  hexgrid_center = {sw/2, sh/2}
-  grid = hexgrid.new(sw / 15.4, 5)
 end
 
 function love.draw()
