@@ -50,11 +50,19 @@ end
 -- tilt sensor visualization
 function drawTilt()
   if not controls.tilt then return end
-
+  local mx, my = love.mouse.getPosition()
+  if love.keyboard.isDown('lshift') then
+    controls.tilt[1] = remap(mx, 0, sw, -1, 1)
+    controls.tilt[2] = remap(my, 0, sh, 1, - 1)
+  elseif love.keyboard.isDown('lctrl') then
+    controls.tilt[3] = remap(my, 0, sh, 1, - 1)
+  end
   local barsize = 40
   love.graphics.setFont(font)
   -- vertical bar for tilt[2] (pitch)
   love.graphics.translate(sw - 2 * barsize, sh / 2)
+  local tx = mx - (sw - 2 * barsize)
+  local ty = my - sh/2
   love.graphics.scale(0.7)
   love.graphics.setColor(1, 1, 1, 0.2)
   love.graphics.rectangle('fill', 0, -sh / 2, barsize, sh)
@@ -77,7 +85,7 @@ function drawTilt()
   love.graphics.setColor(1, 1, 1, 0.2)
   love.graphics.rectangle('fill', -barsize / 2, -barsize / 2, barsize, barsize)
   love.graphics.setColor(1, 1, 0, 0.5)
-  barsize = barsize * (controls.tilt[3] + 1)/2 -- remap -1,1 to 0,1
+  barsize = remap(controls.tilt[3], -1, 1, 0, barsize)
   love.graphics.rectangle('fill', -barsize / 2, -barsize / 2, barsize, barsize)
   love.graphics.print(controls.tilt[3], 0, 0)
   love.graphics.origin()
@@ -85,4 +93,8 @@ end
 
 if love.system.getOS() ~= 'Android' then
   addDraw(drawTilt)
+end
+
+function remap(amount, minA, maxA, minB, maxB)
+  return minB + (amount - minA) * (maxB - minB) / (maxA - minA)
 end

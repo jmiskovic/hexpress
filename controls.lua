@@ -17,7 +17,7 @@ function controls.load()
     end
   end
 
-  readTilt = readTilt or function() return 0,0,0 end
+  readTilt = readTilt or function() return unpack(controls.tilt) end
 end
 
 function controls.update(dt)

@@ -67,7 +67,7 @@ function synths:startNote(pitch)
   self.volume = 0 --reset any leftover envelope from last note
   self.sample:setPitch(pitch)
   -- map note pitch to physical location (stereo pan)
-  self.sample:setPosition(remap(0, 3, 0, 1, pitch), 0, 9.5)
+  self.sample:setPosition(remap(pitch, 0, 3, -1, 1), 0, 1.5)
   self.sample:stop()
   self.sample:play()
   return s
@@ -93,7 +93,7 @@ function synths:adsr(dt)
 end
 
 function synths.update_effects(dt)
-  synths.effects[1].frequency = 3 * remap_clamp(0.8, -1, 0, 10, controls.tilt[2])
+  synths.effects[1].frequency = 3 * remap_clamp(controls.tilt[1], -0.3, 0.3, 0, 8)
 
   for _,e in ipairs(synths.effects) do
     love.audio.setEffect(e.type, e)
@@ -121,11 +121,11 @@ function synths.get_unused()
   return synths[1]
 end
 
-function remap(minA, maxA, minB, maxB, amount)
+function remap(amount, minA, maxA, minB, maxB)
   return minB + (amount - minA) * (maxB - minB) / (maxA - minA)
 end
 
-function remap_clamp(minA, maxA, minB, maxB, amount)
+function remap_clamp(amount, minA, maxA, minB, maxB)
   return math.max(minB, math.min(maxB, minB + (amount - minA) * (maxB - minB) / (maxA - minA)))
 end
 
