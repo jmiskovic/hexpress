@@ -3,7 +3,7 @@ local synths = require('synths')
 local controls = require('controls')
 local presets = require('presets')
 
-local preset_selection = presets.organ
+local preset_selection = presets[1]
 local sw, sh
 local hexgrid_center
 
@@ -51,11 +51,15 @@ function love.keypressed(key)
   if key == 'escape' then
     love.event.quit()
   elseif key == 'menu' or key == 'tab' then
-    if preset_selection == presets.organ then
-      preset_selection = presets.rhodes
-    else
-      preset_selection = presets.organ
+    local index = 0
+    for k,v in ipairs(presets) do
+      if preset_selection == v then
+        index = k
+        break
+      end
     end
+    index = (index % #presets) + 1
+    preset_selection = presets[index]
     synths.load(preset_selection)
   end
 end

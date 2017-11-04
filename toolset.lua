@@ -3,7 +3,7 @@ local controls = require('controls')
 local sw, sh = love.graphics.getDimensions()
 
 local log_entries = {}
-local log_lines = 60
+local log_lines = 20
 
 local trace_entries = {}
 
@@ -56,6 +56,8 @@ function drawTilt()
     controls.tilt[2] = remap(my, 0, sh, 1, - 1)
   elseif love.keyboard.isDown('lctrl') then
     controls.tilt[3] = remap(my, 0, sh, 1, - 1)
+  else
+    return
   end
   local barsize = 40
   love.graphics.setFont(font)
