@@ -15,22 +15,13 @@ pad.note_offset = 4
 pad.tonepad_images = {}
 
 local scheme = {
-  background  = {0.28, 0.27, 0.35, 1.00},
-  pad_active  = {0.96, 0.49, 0.26, 1.00},
-  pad_passive = {0.35, 0.37, 0.44, 1.00},
-  pad_surface = {0.21, 0.21, 0.27, 1.00},
-  white       = {1.00, 1.00, 1.00},
+  background    = {0.28, 0.27, 0.35, 1.00},
+  pad_highlight = {0.96, 0.49, 0.26, 1.00},
+  pad_surface   = {0.21, 0.21, 0.27, 1.00},
+  white         = {1.00, 1.00, 1.00, 1.00},
 
   grille_metal   = {0.59, 0.59, 0.59},
   grille_speaker = {0.23, 0.23, 0.23},
-
-
-  dark_gray  = {0.219, 0.200, 0.215},
-  orange     = {0.768, 0.443, 0.184},
-  green      = {0.388, 0.501, 0.372},
-  light_gray = {0.733, 0.690, 0.694},
-  gray       = {0.337, 0.329, 0.329, 0.3},
-  red        = {0.686, 0.058, 0.117},
 }
 
 love.graphics.setBackgroundColor(scheme.background)
@@ -76,7 +67,6 @@ end
 function pad.prepare_tonepad(text)
   local canvas = love.graphics.newCanvas(pad.size * 2, pad.size * 2)
   love.graphics.setFont(pad.font)
-  local gray = string.len(text) > 1 and scheme.dark_gray or scheme.light_gray
   love.graphics.setCanvas(canvas)
   love.graphics.translate(pad.size, pad.size)
   love.graphics.scale(0.95)
@@ -97,12 +87,12 @@ function pad:draw_tonepad(x, y)
   local image = pad.tonepad_images[self.name]
   love.graphics.translate(x, y)
   local volume = (pad.synth_mapping[self] and pad.synth_mapping[self].volume or 0)
-  love.graphics.scale(1 - 0.1 * volume)
+  love.graphics.scale(1 + 0.15 * volume)
   love.graphics.setColor(scheme.white)
   love.graphics.draw(image, - image:getWidth() / 2, - image:getHeight() / 2)
   if volume > 0 then
-    scheme.pad_active[4] = volume
-    love.graphics.setColor(scheme.pad_active)
+    scheme.pad_highlight[4] = volume
+    love.graphics.setColor(scheme.pad_highlight)
     love.graphics.scale(0.8)
     love.graphics.setLineWidth(16)
     love.graphics.polygon('line', pad.hexapoly)
