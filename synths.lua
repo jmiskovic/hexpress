@@ -75,7 +75,7 @@ function synths.new(preset)
 
   local sample_path = preset.samples['C'] -- TODO: multiple samples across octaves
   self.sample = love.audio.newSource(love.sound.newDecoder(sample_path))
-  self.sample:setLooping(true)
+  self.sample:setLooping(preset.looping or false)
   self.sample:setVolume(self.volume)
   self.sample:setFilter(synths.filters[1])
   return self
