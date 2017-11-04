@@ -9,34 +9,52 @@ synths.count = 6
 synths.effects = {
   {
     type='ringmodulator',
+    volume=1.0,
     frequency=5,
-    volume=1,
   },
   {
-    type='echo',
-    feedback=0.2,
-    delay=0.05,
-    tapdelay=0.08,
-    damping=0.3,
-    spread=0.5,
-    volume=1,
+    type='reverb',
+    volume=0.3,
+    gain=0.8,
+    density=0.7,
+    diffusion=0.5,
+    decayhighratio=0.8,
   },
 }
 
+synths.filters = {
+  {
+    type='lowpass',
+    volume=0.3,
+    highgain=1.0,
+  },
+}
+
+function synths.update_effects(dt)
+  synths.effects[1].frequency = remap_clamp(controls.tilt[1], -0.3, 0.3, 0, 15)
+  synths.effects[2].highgain  = remap_clamp(controls.tilt[2], 1, -1, 0, 1)
+  synths.effects[2].decaytime = remap_clamp(controls.tilt[2], 1, -1, 0.3, 20)
+
+  love.audio.setEffect(synths.effects[1].type, synths.effects[1])
+  love.audio.setEffect(synths.effects[2].type, synths.effects[2])
+end
+
 -- init synth system
 function synths.load(preset)
-
-  local filters = {
-  }
-
+  log('Synth %s', preset.samples.C)
   synths.update_effects(0.03)
 
+  -- initialize effects
+  for _,e in ipairs(synths.effects) do
+    love.audio.setEffect(e.type, e)
+  end
+  -- initialize synths
   for i = 1, synths.count do
     if synths[i] then
       synths[i].sample:stop()
     end
     synths[i] = synths.new(preset)
-
+    -- apply effects to synths
     for _,e in ipairs(synths.effects) do
       synths[i].sample:setEffect(e.type)
     end
@@ -59,6 +77,7 @@ function synths.new(preset)
   self.sample = love.audio.newSource(love.sound.newDecoder(sample_path))
   self.sample:setLooping(true)
   self.sample:setVolume(self.volume)
+  self.sample:setFilter(synths.filters[1])
   return self
 end
 
@@ -67,7 +86,7 @@ function synths:startNote(pitch)
   self.volume = 0 --reset any leftover envelope from last note
   self.sample:setPitch(pitch)
   -- map note pitch to physical location (stereo pan)
-  self.sample:setPosition(remap(pitch, 0, 3, -1, 1), 0, 1.5)
+  self.sample:setPosition(remap(pitch, 0, 3, -1, 1), 0, 0.5)
   self.sample:stop()
   self.sample:play()
   return s
@@ -83,30 +102,24 @@ function synths:adsr(dt)
     return math.max(self.volume + self.slopes.R * dt, 0)            -- R
   end -- the rest of function is else case
 
-  if self.duration < self.envelope.A then
+  if self.envelope.A == 0 and self.duration == 0 then
+    return self.envelope.S
+  elseif self.duration < self.envelope.A then
     return self.volume + self.slopes.A * dt                         -- A
   elseif self.duration < self.envelope.A + self.envelope.D then
     return self.volume + self.slopes.D * dt                         -- D
   else
-    return self.volume                                             -- S
-  end
-end
-
-function synths.update_effects(dt)
-  synths.effects[1].frequency = 3 * remap_clamp(controls.tilt[1], -0.3, 0.3, 0, 8)
-
-  for _,e in ipairs(synths.effects) do
-    love.audio.setEffect(e.type, e)
+    return self.volume                                              -- S
   end
 end
 
 function synths.update(dt)
+  synths.update_effects(dt)
   for i,s in ipairs(synths) do
-    s.duration = s.duration and s.duration + dt or nil
     s.volume = s:adsr(dt) -- update volume according to ADSR envelope
+    s.duration = s.duration and s.duration + dt or nil
     s.sample:setVolume(math.max(0, math.min(1, s.volume)))
   end
-  synths.update_effects(dt)
 end
 
 -- get synth that's not playing, or has longest note duration (preferably already released note)
