@@ -2,21 +2,38 @@ local no_envelope = { A = 0.04, D = 0.05, S = 0.99, R = 0.30}
 
 local presets = {
 
+{envelope = no_envelope, samples = {C='samples/nsynth/bass_synthetic_034-060-050.wav', }, },
+{envelope = no_envelope, samples = {C='samples/nsynth/brass_acoustic_016-060-050.wav', }, },
+{envelope = no_envelope, samples = {C='samples/nsynth/bass_synthetic_068-060-050.wav', }, },
+{envelope = no_envelope, samples = {C='samples/nsynth/string_acoustic_056-060-075.wav', }, },
+{envelope = no_envelope, samples = {C='samples/nsynth/organ_electronic_057-060-025.wav', }, },
+{envelope = no_envelope, samples = {C='samples/nsynth/brass_acoustic_059-060-100.wav', }, },
+{envelope = no_envelope, samples = {C='samples/nsynth/string_acoustic_057-060-127.wav', }, },
+
+{ -- organ
+  looping = true,
+  envelope = {
+    A = 0.40,
+    D = 0.20,
+    S = 0.85,
+    R = 0.35,
+  },
+  samples = {
+    C = 'samples/brite48000.wav',
+  },
+},
+
 {envelope = no_envelope, samples = {C='samples/nsynth/bass_electronic_018-060-075.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/bass_synthetic_009-060-100.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/bass_synthetic_033-060-025.wav', }, },
-{envelope = no_envelope, samples = {C='samples/nsynth/bass_synthetic_034-060-050.wav', }, },
-{envelope = no_envelope, samples = {C='samples/nsynth/bass_synthetic_068-060-050.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/bass_synthetic_098-060-127.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/bass_synthetic_134-060-050.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/bass_synthetic_135-060-127.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/brass_acoustic_006-060-100.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/brass_acoustic_015-060-127.wav', }, },
-{envelope = no_envelope, samples = {C='samples/nsynth/brass_acoustic_016-060-050.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/brass_acoustic_016-060-075.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/brass_acoustic_016-060-127.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/brass_acoustic_059-060-075.wav', }, },
-{envelope = no_envelope, samples = {C='samples/nsynth/brass_acoustic_059-060-100.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/flute_synthetic_000-060-025.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/guitar_acoustic_010-060-100.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/guitar_acoustic_010-060-127.wav', }, },
@@ -41,7 +58,6 @@ local presets = {
 {envelope = no_envelope, samples = {C='samples/nsynth/organ_electronic_007-060-025.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/organ_electronic_007-060-127.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/organ_electronic_028-060-075.wav', }, },
-{envelope = no_envelope, samples = {C='samples/nsynth/organ_electronic_057-060-025.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/organ_electronic_057-060-075.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/organ_electronic_104-060-075.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/organ_electronic_104-060-100.wav', }, },
@@ -55,26 +71,11 @@ local presets = {
 {envelope = no_envelope, samples = {C='samples/nsynth/reed_acoustic_037-060-100.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/reed_acoustic_037-060-127.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/string_acoustic_014-060-025.wav', }, },
-{envelope = no_envelope, samples = {C='samples/nsynth/string_acoustic_056-060-075.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/string_acoustic_056-060-127.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/string_acoustic_057-060-100.wav', }, },
-{envelope = no_envelope, samples = {C='samples/nsynth/string_acoustic_057-060-127.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/vocal_acoustic_000-060-050.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/vocal_acoustic_000-060-075.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/vocal_synthetic_003-060-100.wav', }, },
-
-{ -- organ
-  looping = true,
-  envelope = {
-    A = 0.40,
-    D = 0.20,
-    S = 0.85,
-    R = 0.35,
-  },
-  samples = {
-    C = 'samples/brite48000.wav',
-  },
-},
 
 }
 return presets
