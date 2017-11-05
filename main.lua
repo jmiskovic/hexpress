@@ -30,6 +30,8 @@ function love.focus()
   synths.load(preset_selection)
 end
 
+local headphones = love.graphics.newImage('headphones.png')
+
 function love.draw()
   grid:draw(hexgrid_center[1], hexgrid_center[2])
   if time - lastBackTime < backInterval then
@@ -41,6 +43,7 @@ function love.draw()
     love.graphics.print(exitText, x, y)
   end
   love.graphics.setColor(1, 1, 1, 0.8 - time + 2)
+  love.graphics.draw(headphones, sw/2 - headphones:getWidth() / 2, sh/2 - headphones:getHeight() / 2)
 end
 
 function love.update(dt)
