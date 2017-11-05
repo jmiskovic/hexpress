@@ -1,7 +1,6 @@
 local controls = {
 
 tilt = {0,0,0},
-shaker = 0,
 
 }
 
@@ -23,9 +22,6 @@ end
 function controls.update(dt)
   controls.ptilt = {controls.tilt[1], controls.tilt[2], controls.tilt[3]}
   controls.tilt = {readTilt()}
-
-  controls.shaker = controls.shaker + math.abs(controls.tilt[1] - controls.ptilt[1]) + math.abs(controls.tilt[2] - controls.ptilt[2])
-  controls.shaker = 0.93 * controls.shaker
 end
 
 return controls

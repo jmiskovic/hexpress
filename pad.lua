@@ -48,7 +48,7 @@ end
 
 --- tonepad ---
 
-function pad.new_tonepad(q, r)
+function pad.new_tonepad(id, q, r)
   local self = setmetatable({}, pad)
   self.draw     = pad.draw_tonepad
   self.pressed  = pad.pressed_tonepad
@@ -57,6 +57,7 @@ function pad.new_tonepad(q, r)
   local note = pad.hex_to_note(q, r)
   self.name = note_names[note % 12 +1]
   self.pitch = math.pow(math.pow(2, 1/12), note)
+  self.id = id
   pad.synth_mapping[self] = nil -- index of selected synth, valid while pad is pressed
   if not pad.tonepad_images[self.name] then
     pad.tonepad_images[self.name] = pad.prepare_tonepad(self.name)
@@ -96,6 +97,18 @@ function pad:draw_tonepad(x, y)
     love.graphics.scale(0.8)
     love.graphics.setLineWidth(16)
     love.graphics.polygon('line', pad.hexapoly)
+  end
+  if instrumentSelect then
+    love.graphics.scale(0.7)
+    love.math.setRandomSeed(self.id)
+    love.graphics.setColor(love.math.random(), love.math.random(), love.math.random(), 0.2)
+    love.graphics.polygon('fill', pad.hexapoly)
+    if self.id == presetIndex then
+      scheme.pad_highlight[4] = 0.5
+      love.graphics.setColor(scheme.pad_highlight)
+      love.graphics.setLineWidth(16)
+      love.graphics.polygon('line', pad.hexapoly)
+    end
   end
   love.graphics.origin()
 end
@@ -158,8 +171,8 @@ function pad.prepare_grille()
   return canvas
 end
 
-function pad.new_grille(q, r)
-  self = pad.new_tonepad(q, r)
+function pad.new_grille(id, q, r)
+  self = pad.new_tonepad(id, q, r)
   self.draw     = pad.draw_grille
   if not grille_image then
     grille_image = pad.prepare_grille()
@@ -184,7 +197,7 @@ end
 
 --- button ---
 
-function pad.new_button(q, r, name)
+function pad.new_button(id, q, r, name)
   local self = setmetatable({}, pad)
   self.name = name
   self.draw     = pad.draw_button

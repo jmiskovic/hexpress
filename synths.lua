@@ -41,7 +41,7 @@ end
 
 -- init synth system
 function synths.load(preset)
-  log('Synth %s', preset.samples.C)
+  --log('Synth %s', preset.samples.C)
   synths.update_effects(0.03)
 
   -- initialize effects

@@ -51,13 +51,15 @@ function hexgrid.new(size, radius)
 --  special_pads[ 4][-2] = {constructor='new_button', arguments={'P2'}}
 --  special_pads[ 4][-1] = {constructor='new_button', arguments={'P3'}}
 
+  local id = 1
   for q, r in spiral_iter(0, 0, self.radius) do
     local special_pad = special_pads[q][r]
     if special_pad then
-      self.table[q][r] = pad[special_pad.constructor](q, r, unpack(special_pad.arguments))
+      self.table[q][r] = pad[special_pad.constructor](id, q, r, unpack(special_pad.arguments))
     else
-      self.table[q][r] = pad.new_tonepad(q, r)
+      self.table[q][r] = pad.new_tonepad(id, q, r)
     end
+    id = id + 1
   end
   return self
 end

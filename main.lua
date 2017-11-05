@@ -3,14 +3,20 @@ local synths = require('synths')
 local controls = require('controls')
 local presets = require('presets')
 
-local preset_selection = presets[1]
+time = 0
+instrumentSelect = false
+presetIndex = 1
+local preset_selection = presets[presetIndex]
 local sw, sh
 local hexgrid_center
+local backInterval = 0.5
+local lastBackTime = -10
+local startAppTime = love.timer.getTime()
 
 function love.resize()
   sw, sh = love.graphics.getDimensions()
   hexgrid_center = {sw/2, sh/2}
-  grid = hexgrid.new(sw / 13.5, 5)
+  grid = hexgrid.new(sh / 7.8, 6)
 end
 
 function love.load()
@@ -26,16 +32,38 @@ end
 
 function love.draw()
   grid:draw(hexgrid_center[1], hexgrid_center[2])
+  if time - lastBackTime < backInterval then
+    exitText = 'Press again to exit'
+    local font = love.graphics.getFont()
+    local x = sw / 2 - font:getWidth(exitText) / 2
+    local y = sh - font:getHeight() * 4
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.print(exitText, x, y)
+  end
+  love.graphics.setColor(1, 1, 1, 0.8 - time + 2)
 end
 
 function love.update(dt)
+  time = love.timer.getTime() - startAppTime
   controls.update(dt)
   synths.update(dt)
 end
 
-local lastnote = 0
-
 function love.touchpressed(id, x, y, dx, dy, pressure)
+  if instrumentSelect == true then
+    instrumentSelect = false
+    local q, r = grid:pixel_to_hex(x - hexgrid_center[1], y - hexgrid_center[2])
+    presetIndex = ((grid.table[q][r].id - 1) % #presets) + 1
+    preset_selection = presets[presetIndex]
+    synths.load(preset_selection)
+    love.math.setRandomSeed(grid.table[q][r].id)
+    local background    = {0.28, 0.27, 0.35}
+    local color = {love.math.random(), love.math.random(), love.math.random()}
+    for i,v in ipairs(color) do
+      color[i] = background[i] * 0.95 + color[i] * 0.05
+    end
+    love.graphics.setBackgroundColor(color)
+  end
   grid:touchpressed(id, x - hexgrid_center[1], y - hexgrid_center[2], dx, dy, pressure)
 end
 
@@ -49,7 +77,12 @@ end
 
 function love.keypressed(key)
   if key == 'escape' then
-    love.event.quit()
+    instrumentSelect = true
+    local backTime = time
+    if backTime - lastBackTime < backInterval then
+      love.event.quit()
+    end
+    lastBackTime = backTime
   elseif key == 'menu' or key == 'tab' then
     local index = 0
     for k,v in ipairs(presets) do
