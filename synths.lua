@@ -32,8 +32,15 @@ synths.filters = {
 
 function synths.update_effects(dt)
   synths.effects[1].frequency = remap_clamp(controls.tilt[1], -0.3, 0.3, 0, 15)
-  synths.effects[2].highgain  = remap_clamp(controls.tilt[2], 1, -1, 0, 1)
-  synths.effects[2].decaytime = remap_clamp(controls.tilt[2], 1, -1, 0.3, 20)
+  synths.effects[2].volume    = remap_clamp(controls.tilt[2],  1, 0.6, 0, 0.3)
+  synths.effects[2].highgain  = remap_clamp(controls.tilt[2], -1, 0.8, 0, 1)
+  synths.effects[2].decaytime = remap_clamp(controls.tilt[2], 0.8, -1, 2, 20)
+  local A = remap_clamp(controls.tilt[2], 0.5, -1, 0, 5)
+  local slopeA = 1 / A
+  for _,s in ipairs(synths) do
+    s.envelope.A = A
+    s.slopes.A = slopeA
+  end
 
   love.audio.setEffect(synths.effects[1].type, synths.effects[1])
   love.audio.setEffect(synths.effects[2].type, synths.effects[2])
