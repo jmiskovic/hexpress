@@ -43,7 +43,10 @@ function love.draw()
     love.graphics.print(exitText, x, y)
   end
   love.graphics.setColor(1, 1, 1, 0.8 - time + 2)
-  love.graphics.draw(headphones, sw/2 - headphones:getWidth() / 2, sh/2 - headphones:getHeight() / 2)
+  love.graphics.translate(sw/2, sh/2)
+  love.graphics.scale(0.6 * sh / headphones:getHeight())
+  love.graphics.draw(headphones, -headphones:getWidth() / 2, -headphones:getHeight() / 2)
+  love.graphics.origin()
 end
 
 function love.update(dt)

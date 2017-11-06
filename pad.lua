@@ -88,14 +88,14 @@ function pad:draw_tonepad(x, y)
   local image = pad.tonepad_images[self.name]
   love.graphics.translate(x, y)
   local volume = (pad.synth_mapping[self] and pad.synth_mapping[self].volume or 0)
-  love.graphics.scale(1 + 0.15 * volume)
+  love.graphics.scale(1 + 0.1 * volume)
   love.graphics.setColor(scheme.white)
   love.graphics.draw(image, - image:getWidth() / 2, - image:getHeight() / 2)
   if volume > 0 then
     scheme.pad_highlight[4] = volume
     love.graphics.setColor(scheme.pad_highlight)
     love.graphics.scale(0.8)
-    love.graphics.setLineWidth(16)
+    love.graphics.setLineWidth(12)
     love.graphics.polygon('line', pad.hexapoly)
   end
   if instrumentSelect then
