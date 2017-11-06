@@ -31,6 +31,7 @@ synths.filters = {
 }
 
 function synths.update_effects(dt)
+  synths.effects[1].volume    = remap_clamp(controls.tilt[2], -0.4, 0.3, 0, 1)
   synths.effects[1].frequency = remap_clamp(controls.tilt[1], -0.3, 0.3, 0, 15)
   synths.effects[2].volume    = remap_clamp(controls.tilt[2],  1, 0.6, 0, 0.3)
   synths.effects[2].highgain  = remap_clamp(controls.tilt[2], -1, 0.8, 0, 1)
@@ -124,8 +125,9 @@ function synths.update(dt)
   synths.update_effects(dt)
   for i,s in ipairs(synths) do
     s.volume = s:adsr(dt) -- update volume according to ADSR envelope
+    s.volume = math.max(0, math.min(1, s.volume))
     s.duration = s.duration and s.duration + dt or nil
-    s.sample:setVolume(math.max(0, math.min(1, s.volume)))
+    s.sample:setVolume(s.volume)
   end
 end
 
