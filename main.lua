@@ -1,4 +1,4 @@
-local hexgrid = require('hexgrid')
+local GridHex = require('GridHex')
 local synths = require('synths')
 local controls = require('controls')
 local presets = require('presets')
@@ -16,7 +16,7 @@ local startAppTime = love.timer.getTime()
 function love.resize()
   sw, sh = love.graphics.getDimensions()
   hexgrid_center = {sw/2, sh/2}
-  grid = hexgrid.new(sh / 7.8, 6)
+  grid = GridHex.new(sh / 7.8, 6)
 end
 
 function love.load()
@@ -32,8 +32,18 @@ end
 
 local headphones = love.graphics.newImage('headphones.png')
 
+-- iterate through and draw pad grid
+function drawGrid(cx, cy)
+  for q, r in grid:spiralIter(0, 0, 6) do
+    if grid.table[q][r] then
+      local x, y = grid:hexToPixel(q, r)
+      grid.table[q][r]:draw(x + cx, y + cy)
+    end
+  end
+end
+
 function love.draw()
-  grid:draw(hexgrid_center[1], hexgrid_center[2])
+  drawGrid(hexgrid_center[1], hexgrid_center[2])
   if time - lastBackTime < backInterval then
     exitText = 'Press again to exit'
     local font = love.graphics.getFont()
