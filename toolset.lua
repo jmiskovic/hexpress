@@ -37,8 +37,13 @@ end
 
 function log(s, ...)
   if not moduleInitialized then init() end
-  local line = string.format(s, ...)
-  print(line)
+  local line
+  if type(s) == 'table' then
+    line = table.concat(s, ", ")
+  else
+    line = string.format(s, ...)
+  end
+  --print(line)
   log_entries[#log_entries + 1] = line
 end
 
@@ -95,6 +100,7 @@ end
 
 if love.system.getOS() ~= 'Android' then
   addDraw(drawTilt)
+  log_lines = 50
 end
 
 function remap(amount, minA, maxA, minB, maxB)
