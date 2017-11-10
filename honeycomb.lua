@@ -26,18 +26,14 @@ local scheme = {
 
 love.graphics.setBackgroundColor(scheme.background)
 
--- harmonic note grid from QR coordinate
-function hexToNoteMapping(q, r)
-    return q*4 + (-q-r)*7 + honeycomb.note_offset
-end
-
 -- specify new grid with cell size and grid span ('radius' from center cell)
-function honeycomb.new(cx, cy, size, radius)
+function honeycomb.new(cx, cy, size, radius, note_offset)
   local self = setmetatable({}, honeycomb)
 
   self.size = size or 10
   self.radius = radius or 5
   self.cx, self.cy = cx, cy
+  self.note_offset = note_offset or 0
   self.font = love.graphics.newFont("Ubuntu-B.ttf", size/2)
   self.touches = {}
   self.predrawnPads = {}
@@ -49,6 +45,16 @@ function honeycomb.new(cx, cy, size, radius)
     id = id + 1
   end
   return self
+end
+
+function honeycomb:hexToNoteMapping(q, r)
+  -- harmonic table layout is defined by two neighbor interval jumps:
+  --  +4 semitones when going in NE direction (direction index 1)
+  --  +7 semitones when going in N  direction (direction index 2)
+  -- the rest of intervals follow from these two
+  local intervalNE = 4
+  local intervalN  = 7
+  return self.note_offset + q * intervalNE + (-q - r) * intervalN
 end
 
 function honeycomb:touchpressed(id, x, y, dx, dy, pressure)
@@ -91,7 +97,7 @@ function honeycomb:draw()
 end
 
 function honeycomb:newPad(id, q, r)
-  local note = hexToNoteMapping(q, r)
+  local note = self:hexToNoteMapping(q, r)
   local pad = {}
   pad.name = note_names[note % 12 +1]
   pad.pitch = math.pow(math.pow(2, 1/12), note)
@@ -140,19 +146,6 @@ function honeycomb:drawPad(q, r, pad)
     love.graphics.scale(self.size)
     love.graphics.polygon('line', honeycomb.hexapoly)
   end
-  --if instrumentSelect then
-  --  love.graphics.scale(0.7)
-  --  love.math.setRandomSeed(self.id)
-  --  love.graphics.setColor(love.math.random(), love.math.random(), love.math.random(), 0.2)
-  --  love.graphics.scale(self.size)
-  --  love.graphics.polygon('fill', honeycomb.hexapoly)
-  --  if self.id == presetIndex then
-  --    scheme.pad_highlight[4] = 0.5
-  --    love.graphics.setColor(scheme.pad_highlight)
-  --    love.graphics.setLineWidth(16 / self.size)
-  --    love.graphics.polygon('line', honeycomb.hexapoly)
-  --  end
-  --end
   love.graphics.origin()
 end
 

@@ -36,6 +36,7 @@ local axial_directions = {
 }
 
 -- get QR of cell in specified direction from QR cell
+-- direction 1 is NE, 2 is N, 3 is NW...
 local function hexNeighbor(q, r, direction)
   local dir = axial_directions[direction]
   return q + dir[1], r + dir[2]

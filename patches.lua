@@ -1,6 +1,6 @@
 local no_envelope = { A = 0.04, D = 0.05, S = 0.99, R = 0.30}
 
-local presets = {
+local patches = {
 
 {envelope = no_envelope, samples = {C='samples/nsynth/bass_synthetic_034-060-050.wav', }, },
 {envelope = no_envelope, samples = {C='samples/nsynth/brass_acoustic_016-060-050.wav', }, },
@@ -78,4 +78,4 @@ local presets = {
 {envelope = no_envelope, samples = {C='samples/nsynth/vocal_synthetic_003-060-100.wav', }, },
 
 }
-return presets
+return patches

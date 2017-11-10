@@ -3,21 +3,22 @@ local l = require('lume')
 local honeycomb = require('honeycomb')
 local synths = require('synths')
 local controls = require('controls')
-local presets = require('presets')
+local patches = require('patches')
 
-time = 0
-instrumentSelect = false
-presetIndex = 1
-local preset_selection = presets[presetIndex]
+time = 0  -- yes, time is global
+
 local sw, sh = love.graphics.getDimensions()
 local grid
-local backInterval = 0.5
-local lastBackTime = -10
+local currentPatch = patches[1]
 local startAppTime = love.timer.getTime()
+local doubleBackInterval = 0.5
+local lastBackTime = -10
+
+local splash = love.graphics.newImage('splash.png')
 
 function love.resize()
   sw, sh = love.graphics.getDimensions()
-  grid = honeycomb.new(sw / 2, sh / 2, sh / 7.8, 6)
+  grid = honeycomb.new(sw / 2, sh / 2, sh / 7.8, 6, 4)
 end
 
 function love.load()
@@ -28,16 +29,14 @@ function love.load()
 end
 
 function love.focus()
-  synths.load(preset_selection)
+  synths.load(currentPatch)
 end
-
-local headphones = love.graphics.newImage('headphones.png')
 
 -- iterate through and draw pad grid
 
 function love.draw()
   grid:draw()
-  if time - lastBackTime < backInterval then
+  if time - lastBackTime < doubleBackInterval then
     exitText = 'Press again to exit'
     local font = love.graphics.getFont()
     local x = sw / 2 - font:getWidth(exitText) / 2
@@ -47,7 +46,7 @@ function love.draw()
   end
   love.graphics.setColor(1, 1, 1, l.remap(time, 2.5, 2, 0, 1, 'clamp'))
   love.graphics.translate(sw/2, sh/2)
-  love.graphics.draw(headphones, -headphones:getWidth() / 2, -headphones:getHeight() / 2)
+  love.graphics.draw(splash, -splash:getWidth() / 2, -splash:getHeight() / 2)
   love.graphics.origin()
 end
 
@@ -58,20 +57,6 @@ function love.update(dt)
 end
 
 function love.touchpressed(id, x, y, dx, dy, pressure)
-  --if instrumentSelect and false == true then
-  --  instrumentSelect = false
-  --  local q, r = grid:pixelToHex(x, y)
-  --  presetIndex = ((grid.table[q][r].id - 1) % #presets) + 1
-  --  preset_selection = presets[presetIndex]
-  --  synths.load(preset_selection)
-  --  love.math.setRandomSeed(grid.table[q][r].id)
-  --  local background    = {0.28, 0.27, 0.35}
-  --  local color = {love.math.random(), love.math.random(), love.math.random()}
-  --  for i,v in ipairs(color) do
-  --    color[i] = background[i] * 0.95 + color[i] * 0.05
-  --  end
-  --  love.graphics.setBackgroundColor(color)
-  --end
   grid:touchpressed(id, x, y, dx, dy, pressure)
 end
 
@@ -85,22 +70,10 @@ end
 
 function love.keypressed(key)
   if key == 'escape' then
-    instrumentSelect = true
     local backTime = time
-    if backTime - lastBackTime < backInterval then
+    if backTime - lastBackTime < doubleBackInterval then
       love.event.quit()
     end
     lastBackTime = backTime
-  elseif key == 'menu' or key == 'tab' then
-    local index = 0
-    for k,v in ipairs(presets) do
-      if preset_selection == v then
-        index = k
-        break
-      end
-    end
-    index = (index % #presets) + 1
-    preset_selection = presets[index]
-    synths.load(preset_selection)
   end
 end
