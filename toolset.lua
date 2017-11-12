@@ -40,24 +40,24 @@ local function init()
   font = love.graphics.newFont("Ubuntu-B.ttf", fontSize)
 end
 
--- usage:   log('speed: %1.2f m/s', speed)
--- usage:   log(speed, x, y)
--- usage:   log({1, 3, 4})
-function log(s, ...)
+-- usage:   log(speed)
+-- usage:   log('data: ', speed, x, y)
+function log(...)
   local arg={...}
   if not moduleInitialized then init() end
   local line
-  if type(s) == 'table' then
-    line = table.concat(s, ", ")
-  elseif type(s) == 'string' and #arg > 0 then
-    line = string.format(s, ...)
-  elseif #arg == 1 then
-    line = s .. ' ' .. arg[1]
-  elseif #arg > 1 then
-    line = s .. ' ' .. table.concat(..., ", ")
+  if #arg > 1 then
+    line = table.concat(arg, ", ")
   else
-    line = tostring(s)
+    line = tostring(arg[1])
   end
+  print(line)
+  log_entries[#log_entries + 1] = line
+end
+
+-- usage:   logf('speed: %1.2f m/s', speed)
+function logf(s, ...)
+  line = string.format(s, ...)
   print(line)
   log_entries[#log_entries + 1] = line
 end

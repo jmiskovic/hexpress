@@ -127,6 +127,7 @@ function synths.update(dt)
     s.volume = math.max(0, math.min(1, s.volume))
     s.duration = s.duration and s.duration + dt or nil
     s.sample:setVolume(s.volume)
+    if i == 1 then track(s.volume) end
   end
 end
 

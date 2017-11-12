@@ -26,13 +26,13 @@ function hexpad:process(stream)
     local q, r = hexgrid.pixelToHex(x, y, self.cx, self.cy, self.scale)
     local noteIndex = self:hexToNoteIndex(q, r)
 
-    -- retrigger note if it's new touch or if existing touch has crossed into another cell
-    touch.noteRetrigger = not touchToQR[id] or (touchToQR[id][1] ~= q and touchToQR[id][2] ~= r)
+
     touch.qr = {q, r}
     touch.noteName = noteIndexToName[noteIndex % 12 + 1]
     touch.pitch    = math.pow(math.pow(2, 1/12), noteIndex)
-    -- if note not the same, reset duration
-    -- else update
+    -- retrigger note if it's new touch or if existing touch has crossed into another cell
+    touch.noteRetrigger = not touchToQR[id] or (touchToQR[id][1] ~= q or touchToQR[id][2] ~= r)
+    touchToQR[id] = touch.qr -- store touch qr for next iteration
   end
 
   -- clean up perished touches
@@ -40,8 +40,6 @@ function hexpad:process(stream)
     local touch = stream.touches[id]
     if not touch then
       touchToQR[id] = nil
-    else
-      touchToQR[id] = touch.qr
     end
   end
 
