@@ -2,7 +2,8 @@ local l = require('lume')
 
 local controls = require('controls')
 local interpreting = require('interpreting')
-local shaping = require('shaping')
+
+
 
 local honeycomb = require('honeycomb')
 local synths = require('synths')
@@ -11,7 +12,7 @@ local patches = require('patches')
 local pipeline = {
   controls,
   interpreting,
-  shaping,
+  require('patches/organ'),
 }
 
 local time = 0
