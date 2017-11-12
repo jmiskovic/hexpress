@@ -4,8 +4,7 @@ local sw, sh = love.graphics.getDimensions()
 
 local log_entries = {}
 local log_lines = 20
-
-local trace_entries = {}
+local tracking = {}
 
 local moduleInitialized = false -- log module is initialized lazily
 local actualLoveDraw
@@ -19,9 +18,15 @@ local function imposterLoveDraw()
   local fader = 1
   love.graphics.setFont(font)
   for i = #log_entries, #log_entries - log_lines, -1 do
-      love.graphics.setColor(1, 1, 1, fader)
-      love.graphics.print(log_entries[i] or '', 5, 5 + (#log_entries - i) * fontSize)
-      fader = fader - 1 / log_lines
+    love.graphics.setColor(1, 1, 1, fader)
+    love.graphics.print(log_entries[i] or '', 5, 5 + (#log_entries - i) * fontSize)
+    fader = fader - 1 / log_lines
+  end
+  love.graphics.setColor(1, 1, 1)
+  local line = 0
+  for k,v in pairs(tracking) do
+    love.graphics.print(string.format(k,v), sw*4/5, 5 + line * fontSize)
+    line = line + 1
   end
   for _,v in ipairs(draw_functions) do
     v()
@@ -35,16 +40,57 @@ local function init()
   font = love.graphics.newFont("Ubuntu-B.ttf", fontSize)
 end
 
+-- usage:   log('speed: %1.2f m/s', speed)
+-- usage:   log(speed, x, y)
+-- usage:   log({1, 3, 4})
 function log(s, ...)
+  local arg={...}
   if not moduleInitialized then init() end
   local line
   if type(s) == 'table' then
     line = table.concat(s, ", ")
-  else
+  elseif type(s) == 'string' and #arg > 0 then
     line = string.format(s, ...)
+  elseif #arg == 1 then
+    line = s .. ' ' .. arg[1]
+  elseif #arg > 1 then
+    line = s .. ' ' .. table.concat(..., ", ")
+  else
+    line = tostring(s)
   end
-  --print(line)
+  print(line)
   log_entries[#log_entries + 1] = line
+end
+
+-- usage:   track('speed: %1.2f m/s', self.speed)
+function track(format, value)
+  tracking[format] = value
+end
+
+function drawTable(t, x, y)
+  local tabSize = 20 -- px
+  local x = x or sw * 4 / 5
+  local y = y or 5 + 4 * fontSize
+  love.graphics.setFont(font)
+  love.graphics.setColor(1, 1, 1)
+  for k,v in pairs(t) do
+    if type(v) == 'table' then
+      love.graphics.print(tostring(k), x, y)
+      y = y + fontSize
+      x, y = drawTable(v, x + tabSize, y)
+      x = x - tabSize
+    else
+      local line
+      if type(v) == 'number' then
+        line = string.format('%s: %1.3f', k, v)
+      else
+        line = string.format('%s: %1s', k, v)
+      end
+      love.graphics.print(line, x, y)
+    end
+    y = y + fontSize
+  end
+  return x, y
 end
 
 function addDraw(f)
@@ -58,7 +104,7 @@ function drawTilt()
   local mx, my = love.mouse.getPosition()
   if love.keyboard.isDown('lshift') then
     controls.tilt[1] = remap(mx, 0, sw, -1, 1)
-    controls.tilt[2] = remap(my, 0, sh, 1, - 1)
+    controls.tilt[2] = remap(my, 0, sh, -1, 1)
   elseif love.keyboard.isDown('lctrl') then
     controls.tilt[3] = remap(my, 0, sh, 1, - 1)
   else
@@ -99,10 +145,11 @@ function drawTilt()
 end
 
 if love.system.getOS() ~= 'Android' then
-  addDraw(drawTilt)
   log_lines = 50
 end
 
 function remap(amount, minA, maxA, minB, maxB)
   return minB + (amount - minA) * (maxB - minB) / (maxA - minA)
 end
+
+addDraw(drawTilt)

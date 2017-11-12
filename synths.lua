@@ -77,7 +77,6 @@ function synths.new(preset)
     D = -(1 - self.envelope.S) / self.envelope.D,
     R = - self.envelope.S / self.envelope.R,
   }
-  self.pad = nil
   self.duration = nil -- note on duration, nil if not pressed
   self.volume = 0
 
@@ -96,7 +95,7 @@ function synths:startNote(pitch)
   -- map note pitch to physical location (stereo pan)
   self.sample:setPosition(remap(pitch, 0, 3, -1, 1), 0, 0.5)
   self.sample:stop()
-  self.sample:play()
+  --self.sample:play()
   return s
 end
 

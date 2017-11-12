@@ -1,11 +1,20 @@
 local l = require('lume')
 
+local controls = require('controls')
+local interpreting = require('interpreting')
+local shaping = require('shaping')
+
 local honeycomb = require('honeycomb')
 local synths = require('synths')
-local controls = require('controls')
 local patches = require('patches')
 
-time = 0  -- yes, time is global
+local pipeline = {
+  controls,
+  interpreting,
+  shaping,
+}
+
+local time = 0
 
 local sw, sh = love.graphics.getDimensions()
 local grid
@@ -24,7 +33,10 @@ end
 function love.load()
   require('toolset') -- import module only after love.draw is defined
   love.resize() -- force layout re-configuration
-  controls.load()
+  local settings = {}
+  for _, element in ipairs(pipeline) do
+    element.load(settings)
+  end
   love.focus()
 end
 
@@ -32,7 +44,7 @@ function love.focus()
   synths.load(currentPatch)
 end
 
--- iterate through and draw pad grid
+local stream = {}
 
 function love.draw()
   grid:draw()
@@ -44,15 +56,28 @@ function love.draw()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.print(exitText, x, y)
   end
+  drawTable(stream)
   love.graphics.setColor(1, 1, 1, l.remap(time, 2.5, 2, 0, 1, 'clamp'))
   love.graphics.translate(sw/2, sh/2)
   love.graphics.draw(splash, -splash:getWidth() / 2, -splash:getHeight() / 2)
   love.graphics.origin()
 end
 
+
 function love.update(dt)
+  time = time + dt
+
+  stream = {   --spring
+    dt = dt,
+    time = time,
+  }
+
+  for _, element in ipairs(pipeline) do
+    stream = element.process(stream)
+  end
+
   time = love.timer.getTime() - startAppTime
-  controls.update(dt)
+  --controls.observe(dt)
   synths.update(dt)
 end
 

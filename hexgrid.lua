@@ -2,6 +2,9 @@ local hexgrid = {}
 
 hexgrid.__index = hexgrid
 
+-- vertices for tile shape that spans from -1 to 1 (has to be scaled to needed size)
+hexgrid.shape = { 1,  0, 1/2, math.sqrt(3)/2, -1/2, math.sqrt(3)/2, -1,  0, -1/2, -math.sqrt(3)/2, 1/2, -math.sqrt(3)/2 }
+
 -- QR from XYZ coordinates
 local function cubeToAxial(x, y, z)
   return x, z
