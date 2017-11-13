@@ -12,7 +12,7 @@ local patches = require('patches')
 local pipeline = {
   controls,
   interpreting,
-  require('patches/organ'),
+  require('patches/strings'),
 }
 
 local time = 0

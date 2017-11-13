@@ -6,29 +6,21 @@ local samplerLoop, samplerStart
 
 function patch.load()
   samplerLoop = sampler.new({
-    path='samples/briteLoop.wav',
-    looped = true,
-    envelope = {
-      attack  = 0.20,
-      decay   = 0.50,
-      sustain = 0.85,
-      release = 0.35,
-    },
+    path='samples/stringsStart.wav',
+    looped = false,
   })
 
   samplerStart = sampler.new({
-    path='samples/briteLoop.wav',
-    transpose = 4,
-    looped = false,
+    path='samples/stringsLoop.wav',
+    looped = true,
     envelope = {
-      attack  = 1.40,
+      attack  = 1.00,
       decay   = 0.20,
-      sustain = 0.35,
+      sustain = 0.95,
       release = 0.35,
     },
   })
 end
-
 
 function patch.process(stream)
   samplerLoop:update(stream.dt, stream.touches)

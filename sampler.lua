@@ -7,14 +7,14 @@ function sampler.new(settings)
 
   self.synths = {} -- collection of sources in a map indexed by touch ID
   self.transpose    = settings.transpose or 0
-  local sourceCount = settings.sourceCount or 10
-  local path        = settings.path or 'samples/brite48000.wav'
-  local looped      = settings.looped or true
+  local sourceCount = settings.sourceCount or 6
+  local path        = settings.path
+  local looped      = settings.looped or false
 
   self.envelope = settings.envelope or {
-    attack  = 0.40,
-    decay   = 0.20,
-    sustain = 0.85,
+    attack  = 0,
+    decay   = 0,
+    sustain = 1,
     release = 0.35,
   }
   self.slopes = self:getSlopes(self.envelope)
@@ -38,13 +38,13 @@ function sampler.new(settings)
   return self
 end
 
-function sampler:process(stream)
+function sampler:update(dt, touches)
   -- hunt for new touches and play them
-  for id, touch in pairs(stream.touches) do
+  for id, touch in pairs(touches) do
     if touch.noteRetrigger then
       local synth = self.synths[id]
       if not synth then
-        synth = self:assignSynth(stream, id)
+        synth = self:assignSynth(id)
       end
       synth.duration = 0
       synth.volume = 0
@@ -55,21 +55,20 @@ function sampler:process(stream)
   end
   -- update sources for existing touches
   for id, synth in pairs(self.synths) do
-    touch = stream.touches[id]
+    touch = touches[id]
     if touch then                          -- update existing notes
       local pitch = math.pow(math.pow(2, 1/12), touch.note + self.transpose)
       synth.source:setPitch(pitch)
     else
       synth.active = false                 -- not pressed, let envelope release
     end
-    synth.volume = self:applyEnvelope(stream, synth)
+    synth.volume = self:applyEnvelope(synth, dt)
     synth.source:setVolume(synth.volume)
-    synth.duration = synth.duration + stream.dt
+    synth.duration = synth.duration + dt
   end
-  return stream
 end
 
-function sampler:assignSynth(stream, touchId)
+function sampler:assignSynth(touchId)
   -- find synth with longest duration
   maxDuration = -1
   selectedId = nil
@@ -97,16 +96,16 @@ function sampler:getSlopes(envelope)
   }
 end
 
-function sampler:applyEnvelope(stream, synth)
+function sampler:applyEnvelope(synth, dt)
   if not synth.active then                                                -- release
-    return math.max(0, synth.volume + self.slopes.release * stream.dt)
+    return math.max(0, synth.volume + self.slopes.release * dt)
   else
     if self.envelope.attack == 0 and synth.duration == 0 then
       return self.envelope.sustain
   elseif synth.duration < self.envelope.attack then                       -- attack
-      return synth.volume + self.slopes.attack * stream.dt
+      return synth.volume + self.slopes.attack * dt
   elseif synth.duration < self.envelope.attack + self.envelope.decay then -- decay
-      return synth.volume + self.slopes.decay * stream.dt
+      return synth.volume + self.slopes.decay * dt
   else                                                                    -- sustain
       return synth.volume
     end
