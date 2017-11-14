@@ -28,18 +28,17 @@ end
 local selector = require('selector')
 
 function love.load()
-  selector.place(sw/2, sh/2)
   require('toolset') -- import module only after love.draw is defined
   love.resize() -- force layout re-configuration
   local settings = {}
   for _, element in ipairs(pipeline) do
     element.load(settings)
   end
-  selector.load('patches')
+  selector.load('patches', sw, sh)
 end
 
 function love.draw()
-  selector.draw()
+  selector.draw(time)
 --  grid:draw()
 --  drawTable(stream)
 --  love.graphics.setColor(1, 1, 1, l.remap(time, 2.5, 2, 0, 1, 'clamp'))

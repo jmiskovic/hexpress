@@ -1,4 +1,5 @@
 local controls = require('controls')
+local l = require('lume')
 
 local sw, sh = love.graphics.getDimensions()
 
@@ -138,7 +139,7 @@ function drawTilt()
   love.graphics.setColor(1, 1, 1, 0.2)
   love.graphics.rectangle('fill', -barsize / 2, -barsize / 2, barsize, barsize)
   love.graphics.setColor(1, 1, 0, 0.5)
-  barsize = remap(controls.tilt[3], -1, 1, 0, barsize)
+  barsize = l.remap(controls.tilt[3], -1, 1, 0, barsize)
   love.graphics.rectangle('fill', -barsize / 2, -barsize / 2, barsize, barsize)
   love.graphics.print(controls.tilt[3], 0, 0)
   love.graphics.origin()
@@ -146,10 +147,6 @@ end
 
 if love.system.getOS() ~= 'Android' then
   log_lines = 50
-end
-
-function remap(amount, minA, maxA, minB, maxB)
-  return minB + (amount - minA) * (maxB - minB) / (maxA - minA)
 end
 
 addDraw(drawTilt)

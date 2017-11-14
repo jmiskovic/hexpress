@@ -31,10 +31,6 @@ function sampler.new(settings)
     self.synths[i].source:setLooping(looped)
     self.synths[i].source:stop()
   end
-  addDraw(function ()
-    drawTable(self.synths, 400, 20)
-  end)
-
   return self
 end
 
