@@ -5,12 +5,12 @@ local sampler = require('sampler')
 local samplerLoop, samplerStart
 
 function patch.load()
-  samplerLoop = sampler.new({
-    path='samples/stringsStart.wav',
+  punch = sampler.new({
+    path='samples/strings.wav',
     looped = false,
   })
 
-  samplerStart = sampler.new({
+  loop = sampler.new({
     path='samples/stringsLoop.wav',
     looped = true,
     envelope = {
@@ -23,8 +23,8 @@ function patch.load()
 end
 
 function patch.process(stream)
-  samplerLoop:update(stream.dt, stream.touches)
-  samplerStart:update(stream.dt, stream.touches)
+  punch:update(stream.dt, stream.touches)
+  loop:update(stream.dt, stream.touches)
   return stream
 end
 

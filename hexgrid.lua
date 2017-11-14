@@ -97,4 +97,9 @@ function hexgrid.pixelToHex(x, y, cx, cy, size)
   return cubeToAxial(hexRounder(axialToCube(q, r)))
 end
 
+function hexgrid.distanceFromCenter(q, r)
+  local a, b, c = axialToCube(q, r)
+  return (math.abs(a) + math.abs(b) + math.abs(c))/2
+end
+
 return hexgrid

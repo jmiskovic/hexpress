@@ -1,12 +1,13 @@
 local interpreting = {}
 
-local sw, sh = love.graphics.getDimensions()
-local hexpad = require('hexpad').new(sw / 2, sh / 2, sh / 7.8, 6, 4)
+local hexpad = require('hexpad')
 
 local tiltP = {0,0,0}
+local keyboard
 
 function interpreting.load()
-
+  local sw, sh = love.graphics.getDimensions()
+  keyboard = hexpad.new(sw / 2, sh / 2, sh / 7.8, 6, 4)
 end
 
 function interpreting.process(stream)
@@ -18,7 +19,7 @@ function interpreting.process(stream)
     tiltP[i] = stream.tilt[i]
   end
 
-  stream = hexpad:process(stream)
+  stream = keyboard:process(stream)
 
   return stream
 end
