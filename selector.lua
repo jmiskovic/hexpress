@@ -95,4 +95,3 @@ function stencilFunc()
 end
 
 return selector
-

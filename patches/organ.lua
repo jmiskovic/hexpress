@@ -38,7 +38,7 @@ end
 function patch.icon(time)
   local width = 0.5
   local off = math.sin(time) * 0.05
-  for x=-1, 1, width do
+  for x=-1, 1-width, width do
     -- pipe
     love.graphics.setColor(0.95, 0.9, 0.3)
     love.graphics.rectangle('fill', x, -1, width*0.9, 2)

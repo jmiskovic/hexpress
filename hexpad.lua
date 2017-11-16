@@ -24,13 +24,15 @@ function hexpad:process(stream)
   for id, touch in pairs(stream.touches) do
     local x, y = unpack(touch)
     local q, r = hexgrid.pixelToHex(x, y, self.cx, self.cy, self.scale)
-    local noteIndex = self:hexToNoteIndex(q, r)
-    touch.qr = {q, r}
-    touch.note     = noteIndex
-    touch.noteName = noteIndexToName[noteIndex % 12 + 1]
-    -- retrigger note if it's new touch or if existing touch has crossed into another cell
-    touch.noteRetrigger = not touchToQR[id] or (touchToQR[id][1] ~= q or touchToQR[id][2] ~= r)
-    touchToQR[id] = touch.qr -- store touch qr for next iteration
+    if hexgrid.distanceFromCenter(q, r) <= self.radius then
+      local noteIndex = self:hexToNoteIndex(q, r)
+      touch.qr = {q, r}
+      touch.note     = noteIndex
+      touch.noteName = noteIndexToName[noteIndex % 12 + 1]
+      -- retrigger note if it's new touch or if existing touch has crossed into another cell
+      touch.noteRetrigger = not touchToQR[id] or (touchToQR[id][1] ~= q or touchToQR[id][2] ~= r)
+      touchToQR[id] = touch.qr -- store touch qr for next iteration
+    end
   end
 
   -- clean up perished touches
