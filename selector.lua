@@ -1,4 +1,8 @@
+local l = require('lume')
+
 local selector = {}
+local splashImage
+
 
 require('autotable')
 local hexgrid = require('hexgrid')
@@ -12,6 +16,7 @@ local cx, cy = 0, 0
 local patches = table.autotable(2)
 
 function selector.load(path, sw, sh)
+  splashImage = love.graphics.newImage('splash.png')
   local i = 1
   local fileList = love.filesystem.getDirectoryItems(path)
   for q, r in hexgrid.spiralIter(0, 0, math.huge) do
@@ -40,16 +45,18 @@ function selector.load(path, sw, sh)
   cx, cy = sw/2, sh/2
 end
 
-function selector.place(x, y)
-end
-
-function selector.update(dt)
+function selector.selected()
+  selected = nil  -- default return value for when nothing's selected yet
   for _,id in ipairs(love.touch.getTouches()) do
     local x, y = love.touch.getPosition(id)
     local q, r = hexgrid.pixelToHex(x, y, cx, cy, scale + gap)
 
-    if hexgrid.distanceFromCenter(q,r) < radius + 1 then log(q,r, hexgrid.distanceFromCenter(q,r)) end
+    if hexgrid.distanceFromCenter(q,r) < radius + 1 then
+      selected = patches[q][r]
+      break
+    end
   end
+  return selected
 end
 
 function selector.draw(time)
@@ -73,6 +80,12 @@ function selector.draw(time)
       love.graphics.origin()
     end
   end
+  -- draw the splashscreen with fade out
+  local splashToScreenRatio = 0.6
+  love.graphics.setColor(1, 1, 1)
+  --love.graphics.scale(cx  /splashImage:getWidth() * splashToScreenRatio, cx, cy)
+  love.graphics.draw(splashImage, -splashImage:getWidth() / 2, -splashImage:getHeight() / 2)
+
 end
 
 function selector.defaultIcon(q, r)

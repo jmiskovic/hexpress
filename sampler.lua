@@ -52,7 +52,7 @@ function sampler:update(dt, touches)
   -- update sources for existing touches
   for id, synth in pairs(self.synths) do
     touch = touches[id]
-    if touch then                          -- update existing notes
+    if touch and touch.note then                          -- update existing notes
       local pitch = math.pow(math.pow(2, 1/12), touch.note + self.transpose)
       synth.source:setPitch(pitch)
     else

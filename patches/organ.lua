@@ -13,6 +13,7 @@ function patch.load()
     path='samples/briteLoop.wav', looped = true,
     envelope = { attack = 0.20, decay = 0.50, sustain = 0.85, release = 0.35 },
   })
+
   samplerStart = sampler.new({
     transpose = 14,
     path='samples/briteLoop.wav', looped = true,

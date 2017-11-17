@@ -1,31 +1,33 @@
 local patch = {}
 
 local sampler = require('sampler')
+local hexpad = require('hexpad')
 
-local samplerLoop, samplerStart
+local keyboard
+local punch, loop
 
 function patch.load()
+  keyboard = hexpad.new()
   punch = sampler.new({
-    path='samples/strings.wav',
-    looped = false,
+    path='samples/strings.wav', looped = false,
   })
 
   loop = sampler.new({
-    path='samples/stringsLoop.wav',
-    looped = true,
-    envelope = {
-      attack  = 1.00,
-      decay   = 0.20,
-      sustain = 0.95,
-      release = 0.35,
-    },
+    path='samples/stringsLoop.wav', looped = true,
+    -- looped sample slowly fades in and takes over
+    envelope = {attack= 1.00, decay = 0.20, sustain = 0.95, release = 0.35},
   })
 end
 
 function patch.process(stream)
+  keyboard:interpret(stream)
   punch:update(stream.dt, stream.touches)
   loop:update(stream.dt, stream.touches)
   return stream
+end
+
+function patch.draw(stream)
+  keyboard:draw()
 end
 
 function patch.icon(time)
