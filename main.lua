@@ -1,16 +1,6 @@
 local l = require('lume')
 
 local controls = require('controls')
-local interpreting = require('interpreting')
-
-
-local honeycomb = require('honeycomb')
-
-local pipeline = {
-  controls,
-  interpreting,
-  require('patches/strings'),
-}
 
 local time = 0
 
@@ -22,7 +12,6 @@ local stream = {}
 
 function love.resize()
   sw, sh = love.graphics.getDimensions()
-  grid = honeycomb.new(sw / 2, sh / 2, sh / 7.8, 6, 4)
 end
 
 local selector = require('selector')
@@ -30,21 +19,26 @@ local selector = require('selector')
 function love.load()
   require('toolset') -- import module only after love.draw is defined
   love.resize() -- force layout re-configuration
-  local settings = {}
-  for _, element in ipairs(pipeline) do
-    element.load(settings)
-  end
+  controls.load()
+
   selector.load('patches', sw, sh)
 end
 
 function love.draw()
   selector.draw(time)
 --  grid:draw()
---  drawTable(stream)
---  love.graphics.setColor(1, 1, 1, l.remap(time, 2.5, 2, 0, 1, 'clamp'))
---  love.graphics.translate(sw/2, sh/2)
---  love.graphics.draw(splash, -splash:getWidth() / 2, -splash:getHeight() / 2)
---  love.graphics.origin()
+
+  -- draw and fade out splashscreen
+  local splashToScreenRatio = 0.6
+  local fadeOutAfter = 2.0
+  local fadeOutTime  = 0.5
+  if time < fadeOutAfter then
+    love.graphics.setColor(1, 1, 1, l.remap(time, fadeOutAfter + fadeOutTime, fadeOutAfter, 0, 1, 'clamp'))
+    love.graphics.translate(sw/2, sh/2)
+    love.graphics.scale(sw/splash:getWidth() * splashToScreenRatio)
+    love.graphics.draw(splash, -splash:getWidth() / 2, -splash:getHeight() / 2)
+    love.graphics.origin()
+  end
 end
 
 
@@ -57,9 +51,7 @@ function love.update(dt)
     time = time,
   }
 
-  for _, element in ipairs(pipeline) do
-    stream = element.process(stream)
-  end
+  controls.process(stream)
 end
 
 function love.keypressed(key)

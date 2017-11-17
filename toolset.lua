@@ -52,7 +52,7 @@ function log(...)
   else
     line = tostring(arg[1])
   end
-  print(line)
+  --print(line)
   log_entries[#log_entries + 1] = line
 end
 
@@ -104,10 +104,10 @@ function drawTilt()
   if not controls.tilt then return end
   local mx, my = love.mouse.getPosition()
   if love.keyboard.isDown('lshift') then
-    controls.tilt[1] = remap(mx, 0, sw, -1, 1)
-    controls.tilt[2] = remap(my, 0, sh, -1, 1)
+    controls.tilt[1] = l.remap(mx, 0, sw, -1, 1)
+    controls.tilt[2] = l.remap(my, 0, sh, -1, 1)
   elseif love.keyboard.isDown('lctrl') then
-    controls.tilt[3] = remap(my, 0, sh, 1, - 1)
+    controls.tilt[3] = l.remap(my, 0, sh, 1, - 1)
   else
     return
   end

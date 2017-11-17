@@ -34,10 +34,10 @@ function selector.load(path, sw, sh)
 
     radius = hexgrid.distanceFromCenter(q, r)
     i = i+1
-    scale = sh / radius / 8
-    gap = scale * 0.3
-    cx, cy = sw/2, sh/2
   end
+  scale = sh / radius / 8
+  gap = scale * 0.3
+  cx, cy = sw/2, sh/2
 end
 
 function selector.place(x, y)
