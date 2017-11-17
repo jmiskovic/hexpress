@@ -82,9 +82,9 @@ function selector.draw(time)
   end
   -- draw the splashscreen with fade out
   local splashToScreenRatio = 0.6
+  local scale = cx * 2 / splashImage:getWidth() * splashToScreenRatio
   love.graphics.setColor(1, 1, 1)
-  --love.graphics.scale(cx  /splashImage:getWidth() * splashToScreenRatio, cx, cy)
-  love.graphics.draw(splashImage, -splashImage:getWidth() / 2, -splashImage:getHeight() / 2)
+  love.graphics.draw(splashImage, cx/2, 0, 0, scale, scale)
 
 end
 

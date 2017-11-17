@@ -1,5 +1,13 @@
 local l = require('lume')
 
+local colorScheme = {
+  background    = {0.28, 0.27, 0.35, 1.00},
+  pad_highlight = {0.96, 0.49, 0.26, 1.00},
+  pad_surface   = {0.21, 0.21, 0.27, 1.00},
+  white         = {1.00, 1.00, 1.00, 1.00},
+}
+
+
 local controls = require('controls')
 local selector = require('selector')
 
@@ -17,6 +25,7 @@ function love.load()
   love.resize() -- force layout re-configuration
   controls.load()
   selector.load('patches', sw, sh)
+  love.graphics.setBackgroundColor(colorScheme.background)
 end
 
 function love.draw()
@@ -41,7 +50,7 @@ function love.update(dt)
     patch = selector.selected()
     if patch then
       log('a new patch is selected')
-      patch.load()
+      patch.load(colorScheme)
     end
   end
 end
