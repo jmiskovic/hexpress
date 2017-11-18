@@ -4,7 +4,6 @@ sampler.__index = sampler
 function sampler.new(settings)
   local self = setmetatable({}, sampler)
 
-
   self.synths = {} -- collection of sources in a map indexed by touch ID
   self.transpose    = settings.transpose or 0
   local sourceCount = settings.sourceCount or 6
@@ -26,7 +25,7 @@ function sampler.new(settings)
       source = love.audio.newSource(decoder),
       volume = 0,
       active = false,
-      duration = 0,
+      duration = math.huge,
     }
     self.synths[i].source:setLooping(looped)
     self.synths[i].source:stop()
@@ -39,9 +38,11 @@ function sampler:update(dt, touches)
   for id, touch in pairs(touches) do
     if touch.noteRetrigger then
       local synth = self.synths[id]
-      if not synth then
-        synth = self:assignSynth(id)
+      self.synths[id] = self:assignSynth(id)
+      if synth then
+        self.synths[#self.synths + 1] = synth
       end
+      synth = self.synths[id]
       synth.duration = 0
       synth.volume = 0
       synth.active = true
@@ -52,8 +53,8 @@ function sampler:update(dt, touches)
   -- update sources for existing touches
   for id, synth in pairs(self.synths) do
     touch = touches[id]
-    if touch and touch.note then                          -- update existing notes
-      local pitch = math.pow(math.pow(2, 1/12), touch.note + self.transpose)
+    if touch and touch.note then -- update existing notes
+      local pitch = self:noteToPitch(touch.note)
       synth.source:setPitch(pitch)
     else
       synth.active = false                 -- not pressed, let envelope release
@@ -64,15 +65,16 @@ function sampler:update(dt, touches)
   end
 end
 
+function sampler:noteToPitch(note)
+  return math.pow(math.pow(2, 1/12), note + self.transpose)
+end
+
 function sampler:assignSynth(touchId)
   -- find synth with longest duration
   maxDuration = -1
   selectedId = nil
   for id, synth in pairs(self.synths) do
-    if type(id) == 'number' then        -- not yet assigned
-      selectedId = id
-      break
-    elseif synth.duration > maxDuration then
+    if synth.duration > maxDuration then
       maxDuration = synth.duration
       selectedId = id
     end

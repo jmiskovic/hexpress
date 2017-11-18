@@ -26,7 +26,7 @@ function hexpad:interpret(stream)
     local q, r = hexgrid.pixelToHex(x, y, self.cx, self.cy, self.cellSize)
     if hexgrid.distanceFromCenter(q, r) <= self.radius then
       local noteIndex = self:hexToNoteIndex(q, r)
-      touch.qr = {q, r}
+      touch.qr       = {q, r}
       touch.note     = noteIndex
       touch.noteName = noteIndexToName[noteIndex % 12 + 1]
       -- retrigger note if it's new touch or if existing touch has crossed into another cell

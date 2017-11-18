@@ -49,7 +49,6 @@ function love.update(dt)
   else
     patch = selector.selected()
     if patch then
-      log('a new patch is selected')
       patch.load(colorScheme)
     end
   end
@@ -59,7 +58,7 @@ function love.keypressed(key)
   if key == 'escape' then
     if patch then
       patch = nil
-      log('patch unloaded')
+      love.audio.stop()
     else
       love.event.quit()
     end
