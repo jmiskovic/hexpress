@@ -1,6 +1,9 @@
 sampler = {}
 sampler.__index = sampler
 
+local efx = require('efx')
+
+
 function sampler.new(settings)
   local self = setmetatable({}, sampler)
 
@@ -17,10 +20,11 @@ function sampler.new(settings)
     release = 0.35,
   }
   self.slopes = self:getSlopes(self.envelope)
+  self.masterVolume = 1
 
   -- self.synths is filled as array, but it's a map with touchId as keys
   for i=1, sourceCount do
-    local decoder     = love.sound.newDecoder(path)
+    local decoder = love.sound.newDecoder(path)
     self.synths[i] = {
       source = love.audio.newSource(decoder),
       volume = 0,
@@ -29,6 +33,7 @@ function sampler.new(settings)
     }
     self.synths[i].source:setLooping(looped)
     self.synths[i].source:stop()
+    efx.applyFilter(self.synths[i].source)
   end
   return self
 end
@@ -60,12 +65,13 @@ function sampler:update(dt, touches)
       synth.active = false                 -- not pressed, let envelope release
     end
     synth.volume = self:applyEnvelope(synth, dt)
-    synth.source:setVolume(synth.volume)
+    synth.source:setVolume(synth.volume * self.masterVolume)
     synth.duration = synth.duration + dt
   end
 end
 
 function sampler:noteToPitch(note)
+  -- equal temperament
   return math.pow(math.pow(2, 1/12), note + self.transpose)
 end
 

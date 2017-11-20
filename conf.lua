@@ -1,6 +1,7 @@
 
 function love.conf(t)
   local resolutions = {
+    [0] = {640, 360},
     [1] = {854, 480},
     [2] = {1024, 576},
     [3] = {1280, 720},  -- Redmi 3S

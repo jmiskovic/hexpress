@@ -1,28 +1,34 @@
 local patch = {}
-
+local l = require("lume")
 local sampler = require('sampler')
 local hexpad = require('hexpad')
 
 local keyboard
-local punch, loop
+local cello, doublebass
 
 function patch.load()
-  keyboard = hexpad.new()
-  punch = sampler.new({
-    path='samples/strings.wav', looped = false,
+  keyboard = hexpad.new(4)
+
+  cello = sampler.new({
+    path='samples/cello_C2_mf_g.wav', looped = true,
+    envelope = {attack= 0.3, decay = 0.10, sustain = 1, release = 0.35},
   })
 
-  loop = sampler.new({
-    path='samples/stringsLoop.wav', looped = true,
-    -- looped sample slowly fades in and takes over
-    envelope = {attack= 1.00, decay = 0.20, sustain = 0.95, release = 0.35},
+  doublebass = sampler.new({
+    path='samples/doublebass_pluck_c2_vl3_rr3.wav', looped = false,
+    envelope = {attack= 0, decay = 0.20, sustain = 1, release = 0.35},
   })
 end
 
 function patch.process(stream)
   keyboard:interpret(stream)
-  punch:update(stream.dt, stream.touches)
-  loop:update(stream.dt, stream.touches)
+  -- crossfade between instruments
+  doublebass.masterVolume = l.remap(stream.tilt[2], 0.2, 0.3, 0, 1, 'clamp')
+  cello.masterVolume      = l.remap(stream.tilt[2], 0.4, 0.3, 0, 1, 'clamp')
+  track('tilt %1.2f', stream.tilt[2])
+  track('volume %1.2f', cello.masterVolume)
+  cello:update(stream.dt, stream.touches)
+  doublebass:update(stream.dt, stream.touches)
   return stream
 end
 
@@ -47,10 +53,11 @@ function patch.icon(time)
   love.graphics.setLineWidth(0.1)
   local tilt = -0.2 + math.sin(time) * 0.1
   local gap = 0.15
+  local span = 1.2
   love.graphics.setColor(0.6, 0.6, 0.6)
-  love.graphics.line(-1, tilt + gap, 1, - tilt + gap)
+  love.graphics.line(-span, tilt + gap, span, - tilt + gap)
   love.graphics.setColor(0.3, 0.1, 0)
-  love.graphics.line(-1, tilt, 1, -tilt)
+  love.graphics.line(-span, tilt, span, -tilt)
 end
 
 return patch

@@ -3,6 +3,12 @@ local l = require('lume')
 local selector = {}
 local splashImage
 
+local colorScheme = {
+  background    = {0.28, 0.27, 0.35, 1.00},
+  pad_highlight = {0.96, 0.49, 0.26, 1.00},
+  pad_surface   = {0.21, 0.21, 0.27, 1.00},
+  white         = {1.00, 1.00, 1.00, 1.00},
+}
 
 require('autotable')
 local hexgrid = require('hexgrid')
@@ -13,9 +19,10 @@ local scale = 100
 local gap = 30
 local cx, cy = 0, 0
 
-local patches = table.autotable(2)
+local patches = {}
 
 function selector.load(path, sw, sh)
+  patches = table.autotable(2)
   splashImage = love.graphics.newImage('splash.png')
   local i = 1
   local fileList = love.filesystem.getDirectoryItems(path)
@@ -60,6 +67,7 @@ function selector.selected()
 end
 
 function selector.draw(time)
+  love.graphics.setBackgroundColor(colorScheme.background)
   for q, t in pairs(patches) do
     for r, patch in pairs(t) do
       local x, y = hexgrid.hexToPixel(q, r, cx, cy, scale + gap)
@@ -84,7 +92,9 @@ function selector.draw(time)
   local splashToScreenRatio = 0.6
   local scale = cx * 2 / splashImage:getWidth() * splashToScreenRatio
   love.graphics.setColor(1, 1, 1)
-  love.graphics.draw(splashImage, cx/2, 0, 0, scale, scale)
+  local x = cx * 1.95 - splashImage:getWidth() * scale
+  local y = cy * 1.95 - splashImage:getHeight() * scale
+  love.graphics.draw(splashImage, x, y, 0, scale, scale)
 
 end
 

@@ -1,15 +1,8 @@
 local l = require('lume')
 
-local colorScheme = {
-  background    = {0.28, 0.27, 0.35, 1.00},
-  pad_highlight = {0.96, 0.49, 0.26, 1.00},
-  pad_surface   = {0.21, 0.21, 0.27, 1.00},
-  white         = {1.00, 1.00, 1.00, 1.00},
-}
-
-
 local controls = require('controls')
 local selector = require('selector')
+local efx      = require('efx')
 
 local time = 0
 local sw, sh
@@ -18,22 +11,31 @@ local stream = {}
 
 function love.resize()
   sw, sh = love.graphics.getDimensions()
+  require('toolset') -- import module only after love.draw is defined
+  controls.load()
+  selector.load('patches', sw, sh)
+  efx.load()
 end
 
 function love.load()
-  require('toolset') -- import module only after love.draw is defined
   love.resize() -- force layout re-configuration
-  controls.load()
-  selector.load('patches', sw, sh)
-  love.graphics.setBackgroundColor(colorScheme.background)
+  log('screen', sw, sh)
+  log('desktop', love.window.getDesktopDimensions())
 end
 
 function love.draw()
+  if patch and patch.icon then
+    love.graphics.translate(sw / 2, sh / 2)
+    love.graphics.scale(sw/2)
+    patch.icon(time)
+    love.graphics.origin()
+  end
   if patch and patch.draw then
     patch.draw(stream)
   else
     selector.draw(time)
   end
+  --drawTable(stream)
 end
 
 function love.update(dt)
@@ -49,7 +51,7 @@ function love.update(dt)
   else
     patch = selector.selected()
     if patch then
-      patch.load(colorScheme)
+      patch.load()
     end
   end
 end
