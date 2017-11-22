@@ -24,12 +24,6 @@ function love.load()
 end
 
 function love.draw()
-  if patch and patch.icon then
-    love.graphics.translate(sw / 2, sh / 2)
-    love.graphics.scale(sw/2)
-    patch.icon(time)
-    love.graphics.origin()
-  end
   if patch and patch.draw then
     patch.draw(stream)
   else

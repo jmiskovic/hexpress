@@ -4,10 +4,14 @@ local selector = {}
 local splashImage
 
 local colorScheme = {
+  {0.53, 0.35, 0.34}, -- orange
+  {0.53, 0.45, 0.34}, -- yellow
+  {0.31, 0.38, 0.55}, -- blue
+  {0.31, 0.53, 0.47}, -- green
+  {0.52, 0.31, 0.55}, -- purple
+
   background    = {0.28, 0.27, 0.35, 1.00},
-  pad_highlight = {0.96, 0.49, 0.26, 1.00},
-  pad_surface   = {0.21, 0.21, 0.27, 1.00},
-  white         = {1.00, 1.00, 1.00, 1.00},
+  frame         = {1.00, 1.00, 1.00, 0.30},
 }
 
 require('autotable')
@@ -83,7 +87,7 @@ function selector.draw(time)
       end
       love.graphics.setStencilTest()
       love.graphics.setLineWidth(0.2)
-      love.graphics.setColor(1,1,1,0.3)
+      love.graphics.setColor(colorScheme.frame)
       love.graphics.circle('line', 0, 0, 1)
       love.graphics.origin()
     end
@@ -92,8 +96,8 @@ function selector.draw(time)
   local splashToScreenRatio = 0.6
   local scale = cx * 2 / splashImage:getWidth() * splashToScreenRatio
   love.graphics.setColor(1, 1, 1)
-  local x = cx * 1.95 - splashImage:getWidth() * scale
-  local y = cy * 1.95 - splashImage:getHeight() * scale
+  local x = 5
+  local y = 5
   love.graphics.draw(splashImage, x, y, 0, scale, scale)
 
 end

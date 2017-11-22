@@ -21,14 +21,14 @@ function patch.load()
   })
 end
 
-function patch.process(stream)
-  keyboard:interpret(stream)
-  samplerLoop:update(stream.dt, stream.touches)
-  samplerStart:update(stream.dt, stream.touches)
-  return stream
+function patch.process(s)
+  keyboard:interpret(s)
+  samplerLoop:update(s.dt, s.touches)
+  samplerStart:update(s.dt, s.touches)
+  return s
 end
 
-function patch.draw(stream)
+function patch.draw(s)
   keyboard:draw()
 end
 

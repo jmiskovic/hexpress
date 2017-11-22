@@ -17,20 +17,20 @@ function controls.load()
   end
 end
 
-function controls.process(stream)
-  stream.touches = {}
-  stream.tilt = {0,0,0}
+function controls.process(s)
+  s.touches = {}
+  s.tilt = {0,0,0}
 
   local touches = love.touch.getTouches()
   for _,id in ipairs(touches) do
     local x, y = love.touch.getPosition(id)
-    stream.touches[id] = {x, y}
-    stream.touches[id].pressure = love.touch.getPressure(id)
+    s.touches[id] = {x, y}
+    s.touches[id].pressure = love.touch.getPressure(id)
   end
 
-  stream.tilt = {controls.readTilt()}
+  s.tilt = {controls.readTilt()}
 
-  return stream
+  return s
 end
 
 -- legacy

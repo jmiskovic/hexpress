@@ -20,20 +20,20 @@ function patch.load()
   })
 end
 
-function patch.process(stream)
-  keyboard:interpret(stream)
+function patch.process(s)
+  keyboard:interpret(s)
   -- crossfade between instruments
-  doublebass.masterVolume = l.remap(stream.tilt[2], 0.2, 0.3, 0, 1, 'clamp')
-  cello.masterVolume      = l.remap(stream.tilt[2], 0.4, 0.3, 0, 1, 'clamp')
-  track('tilt %1.2f', stream.tilt[2])
+  doublebass.masterVolume = l.remap(s.tilt[2], 0.2, 0.3, 0, 1, 'clamp')
+  cello.masterVolume      = l.remap(s.tilt[2], 0.4, 0.3, 0, 1, 'clamp')
+  track('tilt %1.2f', s.tilt[2])
   track('volume %1.2f', cello.masterVolume)
-  cello:update(stream.dt, stream.touches)
-  doublebass:update(stream.dt, stream.touches)
-  return stream
+  cello:update(s.dt, s.touches)
+  doublebass:update(s.dt, s.touches)
+  return s
 end
 
-function patch.draw(stream)
-  keyboard:draw()
+function patch.draw(s)
+  keyboard:draw(s)
 end
 
 function patch.icon(time)
