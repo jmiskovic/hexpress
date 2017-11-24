@@ -103,7 +103,7 @@ end
 function hexpad:drawTouch(touch, s)
   local size = 0.8
   love.graphics.push()
-  colorScheme.padHighlight[4] = touch[1] / 500
+  -- colorScheme.padHighlight[4] =
   love.graphics.setColor(colorScheme.padHighlight)
   love.graphics.scale(size)
   love.graphics.setLineWidth(1/6)

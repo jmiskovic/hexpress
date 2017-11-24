@@ -1,7 +1,7 @@
 local l = require('lume')
 
 local selector = {}
-local splashImage
+local logo, hexpressText
 
 local colorScheme = {
   {0.53, 0.35, 0.34}, -- orange
@@ -24,10 +24,12 @@ local gap = 30
 local cx, cy = 0, 0
 
 local patches = {}
+local frame
 
 function selector.load(path, sw, sh)
   patches = table.autotable(2)
-  splashImage = love.graphics.newImage('splash.png')
+  logo = love.graphics.newImage('logo.png')
+  hexpressText = love.graphics.newImage('hexpress.png')
   local i = 1
   local fileList = love.filesystem.getDirectoryItems(path)
   for q, r in hexgrid.spiralIter(0, 0, math.huge) do
@@ -54,9 +56,11 @@ function selector.load(path, sw, sh)
   scale = sh / radius / 8
   gap = scale * 0.3
   cx, cy = sw/2, sh/2
+
+  frame = love.graphics.newCanvas(width, height, texture_type, fsaa)
 end
 
-function selector.selected()
+function selector.process(s)
   selected = nil  -- default return value for when nothing's selected yet
   for _,id in ipairs(love.touch.getTouches()) do
     local x, y = love.touch.getPosition(id)
@@ -70,7 +74,7 @@ function selector.selected()
   return selected
 end
 
-function selector.draw(time)
+function selector.draw(s)
   love.graphics.setBackgroundColor(colorScheme.background)
   for q, t in pairs(patches) do
     for r, patch in pairs(t) do
@@ -80,7 +84,7 @@ function selector.draw(time)
       love.graphics.setColor(1, 1, 1, 1)
       love.graphics.stencil(stencilFunc, "replace", 1)
       love.graphics.setStencilTest("greater", 0)
-      local ok, err = pcall(patch.icon, time)
+      local ok, err = pcall(patch.icon, s.time)
       if not ok then
         selector.defaultIcon(q, r)
         log(err)
@@ -92,14 +96,36 @@ function selector.draw(time)
       love.graphics.origin()
     end
   end
-  -- draw the splashscreen with fade out
-  local splashToScreenRatio = 0.6
-  local scale = cx * 2 / splashImage:getWidth() * splashToScreenRatio
+  -- draw the fake 3D logo to encourage interaction with tilt
+  local logoSize = 0.2  -- in relation to screen height
+  love.graphics.push()
+  love.graphics.translate(s.sw / 2, 0)
+  love.graphics.scale(logoSize * s.sh / logo:getHeight())
+  love.graphics.translate(0, logo:getHeight() / 2)
   love.graphics.setColor(1, 1, 1)
-  local x = 5
-  local y = 5
-  love.graphics.draw(splashImage, x, y, 0, scale, scale)
+  selector.fake3d(s.tilt.lp, logo, 1.2, 4)
+  love.graphics.pop()
+end
 
+function selector.fake3d(tilt, drawable, expandTo, slices)
+  local expandTo = expandTo or 1.5
+  local slices = slices or 3
+  local fraction = (expandTo - 1) / slices
+
+  for slice = 1, slices do
+    love.graphics.push()
+    local sX = 2600 * (slice - 1) * fraction   -- sX and sY define distance from center
+    local sY = 1600 * (slice - 1) * fraction
+    local x = fraction * l.remap(tilt[1], -0.30,  0.30, -sX, sX)
+    local y = fraction * l.remap(tilt[3],  0.60,  0.35, -sY, sY)
+    local s = l.remap(slice, 1, slices, 1, expandTo)
+    love.graphics.scale(s)
+    love.graphics.translate(x, y)
+    love.graphics.translate(-drawable:getWidth()/2, -drawable:getHeight()/2)
+    love.graphics.setColor(1, 1, 1, math.exp(-0.5 * (slice - 1) /slices))
+    love.graphics.draw(drawable)
+    love.graphics.pop()
+  end
 end
 
 function selector.defaultIcon(q, r)
