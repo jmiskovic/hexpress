@@ -17,7 +17,8 @@ function mock.process(s)
   if love.keyboard.isDown('lshift') then
     mockTilt[1] = l.remap(mx, 0, s.sw, -1, 1)
     mockTilt[2] = l.remap(my, 0, s.sh, -1, 1)
-  elseif love.keyboard.isDown('lctrl') then
+  end
+  if love.keyboard.isDown('lctrl') then
     mockTilt[3] = l.remap(my, 0, s.sh, 1, - 1)
   end
   s.tilt = {

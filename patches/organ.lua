@@ -29,7 +29,7 @@ function patch.process(s)
 end
 
 function patch.draw(s)
-  keyboard:draw()
+  keyboard:draw(s)
 end
 
 function patch.icon(time)

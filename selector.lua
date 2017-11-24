@@ -9,9 +9,8 @@ local colorScheme = {
   {0.31, 0.38, 0.55}, -- blue
   {0.31, 0.53, 0.47}, -- green
   {0.52, 0.31, 0.55}, -- purple
-
+  darker        = {l.color('#2e2e3baa')},
   background    = {0.28, 0.27, 0.35, 1.00},
-  frame         = {1.00, 1.00, 1.00, 0.30},
 }
 
 require('autotable')
@@ -56,7 +55,14 @@ function selector.load(path, sw, sh)
   gap = scale * 0.3
   cx, cy = sw/2, sh/2
 
-  frame = love.graphics.newCanvas(width, height, texture_type, fsaa)
+  frame = love.graphics.newCanvas(scale * 2, scale * 2, {width=scale * 2, height=scale * 2, format='srgba8'})
+  love.graphics.setCanvas(frame)
+  love.graphics.translate(scale, scale)
+  love.graphics.scale(scale)
+  love.graphics.setLineWidth(0.03)
+  love.graphics.setColor(colorScheme.darker)
+  love.graphics.circle('line', 0, 0, 0.8)
+  love.graphics.setCanvas()
 end
 
 function selector.process(s)
@@ -78,6 +84,7 @@ function selector.draw(s)
   for q, t in pairs(patches) do
     for r, patch in pairs(t) do
       local x, y = hexgrid.hexToPixel(q, r, cx, cy, scale + gap)
+      love.graphics.push()
       love.graphics.translate(x, y)
       love.graphics.scale(scale)
       love.graphics.setColor(1, 1, 1, 1)
@@ -89,10 +96,13 @@ function selector.draw(s)
         log(err)
       end
       love.graphics.setStencilTest()
-      love.graphics.setLineWidth(0.2)
-      love.graphics.setColor(colorScheme.frame)
-      love.graphics.circle('line', 0, 0, 1)
-      love.graphics.origin()
+      love.graphics.pop()
+      -- frame
+      love.graphics.push()
+      love.graphics.translate(x, y)
+      love.graphics.scale(1.3)
+      selector.fake3d(s.tilt.lp, frame, 0.967, 2)
+      love.graphics.pop()
     end
   end
   -- draw the fake 3D logo to encourage interaction with tilt
@@ -115,6 +125,10 @@ function selector.fake3d(tilt, drawable, expandTo, slices)
     love.graphics.push()
     local sX = 2600 * (slice - 1) * fraction   -- sX and sY define distance from center
     local sY = 1600 * (slice - 1) * fraction
+    if expandTo < 1 then
+      sY = -sY
+      sX = -sX
+    end
     local x = fraction * l.remap(tilt[1], -0.30,  0.30, -sX, sX)
     local y = fraction * l.remap(tilt[3],  0.60,  0.35, -sY, sY)
     local s = l.remap(slice, 1, slices, 1, expandTo)
