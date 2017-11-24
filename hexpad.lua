@@ -72,6 +72,7 @@ function hexpad:draw(s)
   end
   if s.touches then
     for id, touch in pairs(s.touches) do
+      if not touch.qr then break end
       local x, y = hexgrid.hexToPixel(touch.qr[1], touch.qr[2], self.cx, self.cy, self.cellSize)
       love.graphics.translate(x,y)
       love.graphics.scale(self.cellSize)
@@ -103,7 +104,7 @@ end
 function hexpad:drawTouch(touch, s)
   local size = 0.8
   love.graphics.push()
-  -- colorScheme.padHighlight[4] =
+  colorScheme.padHighlight[4] = touch.volume
   love.graphics.setColor(colorScheme.padHighlight)
   love.graphics.scale(size)
   love.graphics.setLineWidth(1/6)
