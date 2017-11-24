@@ -3,6 +3,7 @@ local l = require('lume')
 local controls = require('controls')
 local selector = require('selector')
 local efx      = require('efx')
+local mock     = require('mock')
 
 local time = 0
 local sw, sh
@@ -19,35 +20,44 @@ end
 
 function love.load()
   love.resize() -- force layout re-configuration
-  log('screen', sw, sh)
-  log('desktop', love.window.getDesktopDimensions())
+  mock.load()
+--  log('screen', sw, sh)
+--  log('desktop', love.window.getDesktopDimensions())
+end
+
+function love.update(dt)
+  time = time + dt
+
+  stream = {   --spring
+    dt = dt,
+    time = time,
+    sw = sw,
+    sh = sh,
+  }
+  controls.process(stream)
+
+  if love.system.getOS() ~= 'Android' then
+    mock.process(stream)
+  end
+
+  if patch then
+    patch.process(stream)
+  else
+    patch = selector.process(stream)
+    if patch then
+      patch.load()
+    end
+  end
 end
 
 function love.draw()
   if patch and patch.draw then
     patch.draw(stream)
   else
-    selector.draw(time)
+    selector.draw(stream)
   end
+  mock.draw(stream)
   --drawTable(stream)
-end
-
-function love.update(dt)
-  time = time + dt
-
-  if patch then
-    stream = {   --spring
-      dt = dt,
-      time = time,
-    }
-    controls.process(stream)
-    patch.process(stream)
-  else
-    patch = selector.selected()
-    if patch then
-      patch.load()
-    end
-  end
 end
 
 function love.keypressed(key)

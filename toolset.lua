@@ -99,54 +99,7 @@ function addDraw(f)
   table.insert(draw_functions, f)
 end
 
--- tilt sensor visualization
-function drawTilt()
-  if not controls.tilt then return end
-  local mx, my = love.mouse.getPosition()
-  if love.keyboard.isDown('lshift') then
-    controls.tilt[1] = l.remap(mx, 0, sw, -1, 1)
-    controls.tilt[2] = l.remap(my, 0, sh, -1, 1)
-  elseif love.keyboard.isDown('lctrl') then
-    controls.tilt[3] = l.remap(my, 0, sh, 1, - 1)
-  else
-    return
-  end
-  local barsize = 40
-  love.graphics.setFont(font)
-  -- vertical bar for tilt[2] (pitch)
-  love.graphics.translate(sw - 2 * barsize, sh / 2)
-  local tx = mx - (sw - 2 * barsize)
-  local ty = my - sh/2
-  love.graphics.scale(0.7)
-  love.graphics.setColor(1, 1, 1, 0.2)
-  love.graphics.rectangle('fill', 0, -sh / 2, barsize, sh)
-  love.graphics.setColor(1, 1, 0, 0.5)
-  love.graphics.rectangle('fill', 0, 0, barsize, -sh / 2 * controls.tilt[2])
-  love.graphics.print(controls.tilt[2], barsize * 1.1, -sh / 2 * controls.tilt[2])
-  love.graphics.origin()
-  -- horizontal bar for tilt[1] (yaw)
-  love.graphics.translate(sw / 2, sh - 2 * barsize)
-  love.graphics.scale(0.7)
-  love.graphics.setColor(1, 1, 1, 0.2)
-  love.graphics.rectangle('fill', -sw / 2, 0, sw, barsize)
-  love.graphics.setColor(1, 1, 0, 0.5)
-  love.graphics.rectangle('fill', 0, 0, sw / 2 * controls.tilt[1], barsize)
-  love.graphics.print(controls.tilt[1], sw / 2 * controls.tilt[1], barsize * 1.1)
-  love.graphics.origin()
-  -- scaling square for tilt[3] (roll)
-  local barsize = 80
-  love.graphics.translate(sw - 2 * barsize, sh - 2 * barsize)
-  love.graphics.setColor(1, 1, 1, 0.2)
-  love.graphics.rectangle('fill', -barsize / 2, -barsize / 2, barsize, barsize)
-  love.graphics.setColor(1, 1, 0, 0.5)
-  barsize = l.remap(controls.tilt[3], -1, 1, 0, barsize)
-  love.graphics.rectangle('fill', -barsize / 2, -barsize / 2, barsize, barsize)
-  love.graphics.print(controls.tilt[3], 0, 0)
-  love.graphics.origin()
-end
 
 if love.system.getOS() ~= 'Android' then
   log_lines = 50
 end
-
-addDraw(drawTilt)

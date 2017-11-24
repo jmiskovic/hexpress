@@ -1,6 +1,7 @@
 local controls = {}
 
 controls.readTilt = function() return 0, 0, 0 end -- stub
+local tiltP = {0,0,0}
 
 function controls.load()
   -- finding accelerometer
@@ -27,8 +28,15 @@ function controls.process(s)
     s.touches[id] = {x, y}
     s.touches[id].pressure = love.touch.getPressure(id)
   end
-
   s.tilt = {controls.readTilt()}
+
+  -- simple IIR low-pass filtering of tilt
+  local a0 = 0.001
+  s.tilt.lp = {}
+  for i,v in ipairs(s.tilt) do
+    s.tilt.lp[i] = s.tilt[i] * a0 + tiltP[i] * (1 - a0)
+    tiltP[i] = s.tilt[i]
+  end
 
   return s
 end

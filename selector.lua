@@ -1,7 +1,7 @@
 local l = require('lume')
 
 local selector = {}
-local logo, hexpressText
+local logo
 
 local colorScheme = {
   {0.53, 0.35, 0.34}, -- orange
@@ -29,7 +29,6 @@ local frame
 function selector.load(path, sw, sh)
   patches = table.autotable(2)
   logo = love.graphics.newImage('logo.png')
-  hexpressText = love.graphics.newImage('hexpress.png')
   local i = 1
   local fileList = love.filesystem.getDirectoryItems(path)
   for q, r in hexgrid.spiralIter(0, 0, math.huge) do
