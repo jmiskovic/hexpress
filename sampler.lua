@@ -86,9 +86,10 @@ function sampler:assignSynth(touchId)
     end
   end
   -- move source to correct key
-  self.synths[touchId] = self.synths[selectedId]
+  local s = self.synths[selectedId]
   self.synths[selectedId] = nil
-  return self.synths[touchId]
+  self.synths[touchId] = s
+  return s
 end
 
 function sampler:getSlopes(envelope)
