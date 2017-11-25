@@ -9,7 +9,7 @@ function sampler.new(settings)
 
   self.synths = {} -- collection of sources in a map
   self.transpose    = settings.transpose or 0
-  local sourceCount = settings.sourceCount or 6
+  local synthCount  = settings.synthCount or 6
   local path        = settings.path
   local looped      = settings.looped or false
 
@@ -22,10 +22,12 @@ function sampler.new(settings)
   self.slopes = self:getSlopes(self.envelope)
   self.masterVolume = 1
 
-  for i=1, sourceCount do
-    local decoder = love.sound.newDecoder(path)
+  local decoder = love.sound.newDecoder(path)
+  local soundData = love.sound.newSoundData(decoder)
+
+  for i=1, synthCount do
     self.synths[i] = {
-      source = love.audio.newSource(decoder),
+      source = love.audio.newSource(soundData),
       volume = 0,
       active = false,
       duration = math.huge,
@@ -46,7 +48,6 @@ function sampler:update(dt, touches)
       synth.touchId = id
       synth.duration = 0
       synth.enveloped = 0
-      synth.volume   = 0
       synth.active = true
       synth.source:stop()
       synth.source:play()
@@ -63,10 +64,10 @@ function sampler:update(dt, touches)
       synth.active = false                 -- not pressed, let envelope release
     end
     synth.enveloped = self:applyEnvelope(dt, synth.enveloped, synth.active, synth.duration)
-    synth.volume = synth.enveloped * self.masterVolume
-    synth.source:setVolume(synth.volume)
+    local volume = synth.enveloped * self.masterVolume
+    synth.source:setVolume(volume)
     if touches[synth.touchId] then
-      touches[synth.touchId].volume = synth.volume
+      touches[synth.touchId].volume = volume
     end
     synth.duration = synth.duration + dt
   end
@@ -79,10 +80,10 @@ end
 
 function sampler:assignSynth(touchId)
   -- find synth with longest duration
-  maxDuration = -1
+  maxDuration = -100
   selected = nil
   for i, synth in ipairs(self.synths) do
-    if synth.duration > maxDuration then
+    if synth.duration > maxDuration + (synth.active and 10 or 0) then
       maxDuration = synth.duration
       selected = i
     end

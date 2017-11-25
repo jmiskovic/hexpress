@@ -1,5 +1,6 @@
 local patch = { name = 'minimal' }
 
+local l = require('lume')
 local sampler = require('sampler')
 local hexpad = require('hexpad')
 
