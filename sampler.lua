@@ -7,18 +7,14 @@ local samples = {}
 
 function sampler.new(settings)
   local self = setmetatable({}, sampler)
-
-  self.synths = {} -- collection of sources in a map
-  local synthCount  = settings.synthCount or 6
-  local path        = settings.path
-
-  self.looped       = settings.looped or false
+  self.synths = {} -- collection of sources in an array
   self.masterVolume = 1
-
-  self.envelope = settings.envelope or { attack  = 0,
-                                         decay   = 0,
+  self.looped       = settings.looped or false
+  self.envelope = settings.envelope or { attack  = 0,     -- default envelope best suited for
+                                         decay   = 0,     -- one-shot samples, not for loopes
                                          sustain = 1,
                                          release = 0.35 }
+  local synthCount  = settings.synthCount or 6
 
   -- prepare samples that will be used by synths
   for i,sample in ipairs(settings) do
@@ -29,7 +25,7 @@ function sampler.new(settings)
     table.insert(samples, sample)
   end
 
-  -- initialize synths
+  -- initialize synths which will take care of playing samples as per notes
   for i=1, synthCount do
     self.synths[i] = {
       source = nil,
@@ -43,31 +39,30 @@ function sampler.new(settings)
 end
 
 function sampler:update(dt, touches)
-  -- update sources for existing touches
-  for i, synth in ipairs(self.synths) do
-    local touch = touches[synth.touchId]
-
-    if touch and touch.note then           -- update existing notes
-      local pitch = self:noteToPitch(touch.note, synth.transpose)
-      synth.source:setPitch(pitch)
-    else
-      synth.active = false                 -- not pressed, let envelope release
-    end
-    synth.enveloped = self:applyEnvelope(dt, synth.enveloped, synth.active, synth.duration)
-    local volume = synth.enveloped * self.masterVolume
-    if synth.source then
-      synth.source:setVolume(volume)
-    end
-    if touches[synth.touchId] then
-      touches[synth.touchId].volume = volume
-    end
-    synth.duration = synth.duration + dt
-  end
   -- hunt for new touches and play them
   for id, touch in pairs(touches) do
     if touch.noteRetrigger then
       self:assignSynth(id, touch)
     end
+  end
+  -- update sources for existing touches
+  for i, synth in ipairs(self.synths) do
+    local touch = touches[synth.touchId]
+
+    if synth.source then
+      synth.enveloped = self:applyEnvelope(dt, synth.enveloped, synth.active, synth.duration)
+      local volume = synth.enveloped * self.masterVolume
+
+      synth.source:setVolume(volume)
+      if touch and touch.note then           -- update existing notes
+        local pitch = self:noteToPitch(touch.note, synth.transpose)
+        synth.source:setPitch(pitch)
+        touch.volume = math.max(volume, touch.volume or 0) -- report max volume
+      else
+        synth.active = false                 -- not pressed, let envelope release
+      end
+    end
+    synth.duration = synth.duration + dt
   end
 end
 
@@ -107,10 +102,11 @@ function sampler:assignSynth(touchId, touch)
 end
 
 function sampler:assignSample(note, velocity)
+  -- first look for closest pitch, then for closest sample velocity
   local bestFitness = math.huge
   local selected = nil
   for i, sample in ipairs(samples) do
-    local fitness = math.abs(-sample.transpose - note) + math.abs(sample.velocity - velocity)
+    local fitness = 10 * math.abs(-sample.transpose - note) + math.abs(sample.velocity - velocity)
     if fitness < bestFitness then
       selected = i
       bestFitness = fitness
