@@ -1,4 +1,4 @@
-sampler = {}
+local sampler = {}
 sampler.__index = sampler
 
 local efx = require('efx')

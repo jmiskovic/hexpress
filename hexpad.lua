@@ -1,4 +1,4 @@
-hexpad = {}
+local hexpad = {}
 hexpad.__index = hexpad
 
 local hexgrid = require('hexgrid')
@@ -6,9 +6,9 @@ local hexgrid = require('hexgrid')
 local noteIndexToName = {'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'}
 local touchToQR = {}
 
-local font = love.graphics.newFont("Ubuntu-B.ttf", 24)
+hexpad.font = love.graphics.newFont("Ubuntu-B.ttf", 24)
 
-local colorScheme = {
+hexpad.colorScheme = {
   background   = {0.28, 0.27, 0.35, 1.00},
   padHighlight = {0.96, 0.49, 0.26, 1.00},
   padSurface   = {0.20, 0.20, 0.26, 1.00},
@@ -61,38 +61,40 @@ end
 function hexpad:draw(s)
   for q, r in hexgrid.spiralIter(0, 0, self.radius) do
     local x, y = hexgrid.hexToPixel(q, r, self.cx, self.cy, self.cellSize)
+    love.graphics.push()
     love.graphics.translate(x,y)
     love.graphics.scale(self.cellSize)
     self:drawCell(q, r, s)
     love.graphics.scale(1/self.cellSize)
-    love.graphics.origin()
+    love.graphics.pop()
   end
   if s.touches then
     for id, touch in pairs(s.touches) do
+      love.graphics.push()
       if not touch.qr then break end
       local x, y = hexgrid.hexToPixel(touch.qr[1], touch.qr[2], self.cx, self.cy, self.cellSize)
       love.graphics.translate(x,y)
       love.graphics.scale(self.cellSize)
       hexpad:drawTouch(touch, s)
       love.graphics.scale(1 / self.cellSize)
-      love.graphics.origin()
+      love.graphics.pop()
     end
   end
 end
 
 function hexpad:drawCell(q, r, s)
   -- shape
-  love.graphics.setColor(colorScheme.padSurface)
+  love.graphics.setColor(self.colorScheme.padSurface)
   love.graphics.push()
   love.graphics.scale(0.90)
   love.graphics.polygon('fill', hexgrid.shape)
-  love.graphics.setColor(colorScheme.background)
+  love.graphics.setColor(self.colorScheme.background)
   -- note name text
   local note = self:hexToNoteIndex(q, r)
   local text = noteIndexToName[note % 12 + 1]
-  love.graphics.setFont(font)
-  local h = font:getHeight()
-  local w = font:getHeight()
+  love.graphics.setFont(self.font)
+  local h = self.font:getHeight()
+  local w = self.font:getHeight()
   love.graphics.scale(0.03)
   love.graphics.print(text, -w / 2 + 5, -h / 2) -- +5, because of some obscure getWidth() bug
   love.graphics.pop()
@@ -101,12 +103,12 @@ end
 function hexpad:drawTouch(touch, s)
   local size = 0.8
   love.graphics.push()
-  colorScheme.padHighlight[4] = touch.volume
-  love.graphics.setColor(colorScheme.padHighlight)
+  self.colorScheme.padHighlight[4] = touch.volume
+  love.graphics.setColor(self.colorScheme.padHighlight)
   love.graphics.scale(size)
   love.graphics.setLineWidth(1/6)
   love.graphics.polygon('line', hexgrid.shape)
-  love.graphics.setColor(colorScheme.background)
+  love.graphics.setColor(self.colorScheme.background)
   love.graphics.pop()
 end
 

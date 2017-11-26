@@ -1,4 +1,4 @@
-faultyPatch = {}
+local faultyPatch = {}
 faultyPatch.__index = faultyPatch
 
 function faultyPatch.new(errorText)

@@ -16,7 +16,6 @@ local colorScheme = {
 require('autotable')
 local hexgrid = require('hexgrid')
 local faultyPatch = require('faultyPatch')
-
 local radius = 0    -- inflated to actual size while loading patches
 local scale = 100
 local gap = 30
@@ -66,17 +65,18 @@ function selector.load(path, sw, sh)
 end
 
 function selector.process(s)
-  selected = nil  -- default return value for when nothing's selected yet
   for _,id in ipairs(love.touch.getTouches()) do
     local x, y = love.touch.getPosition(id)
     local q, r = hexgrid.pixelToHex(x, y, cx, cy, scale + gap)
 
     if hexgrid.distanceFromCenter(q,r) < radius + 1 then
-      selected = patches[q][r]
-      break
+      local selected = patches[q][r]
+      if selected then
+        loadPatch(selected)
+        break
+      end
     end
   end
-  return selected
 end
 
 function selector.draw(s)
@@ -90,7 +90,8 @@ function selector.draw(s)
       love.graphics.setColor(1, 1, 1, 1)
       love.graphics.stencil(stencilFunc, "replace", 1)
       love.graphics.setStencilTest("greater", 0)
-      local ok, err = pcall(patch.icon, s.time)
+
+      local ok, err = pcall(patch.icon, s.time, s)
       if not ok then
         selector.defaultIcon(q, r)
         log(err)
@@ -101,7 +102,7 @@ function selector.draw(s)
       love.graphics.push()
       love.graphics.translate(x, y)
       love.graphics.scale(1.3)
-      selector.fake3d(s.tilt.lp, frame, 0.967, 2)
+      selector.fake3d(s.tilt.lp, frame, 0.955, 4)
       love.graphics.pop()
     end
   end
@@ -112,19 +113,21 @@ function selector.draw(s)
   love.graphics.scale(logoSize * s.sh / logo:getHeight())
   love.graphics.translate(0, logo:getHeight() / 2)
   love.graphics.setColor(1, 1, 1)
-  selector.fake3d(s.tilt.lp, logo, 1.2, 4)
+  local extrude = l.remap(s.time, 0, 1, 1, 1.3, 'clamp')
+  selector.fake3d(s.tilt.lp, logo, extrude, 3, 3.5)
   love.graphics.pop()
 end
 
-function selector.fake3d(tilt, drawable, expandTo, slices)
+function selector.fake3d(tilt, drawable, expandTo, slices, falloff)
   local expandTo = expandTo or 1.5
   local slices = slices or 3
+  local falloff = falloff or 0.2
   local fraction = (expandTo - 1) / slices
 
   for slice = 1, slices do
     love.graphics.push()
-    local sX = 2600 * (slice - 1) * fraction   -- sX and sY define distance from center
-    local sY = 1600 * (slice - 1) * fraction
+    local sX = 3200 * (slice - 1) * fraction   -- sX and sY define distance from center
+    local sY = 1200 * (slice - 1) * fraction
     if expandTo < 1 then
       sY = -sY
       sX = -sX
@@ -135,7 +138,7 @@ function selector.fake3d(tilt, drawable, expandTo, slices)
     love.graphics.scale(s)
     love.graphics.translate(x, y)
     love.graphics.translate(-drawable:getWidth()/2, -drawable:getHeight()/2)
-    love.graphics.setColor(1, 1, 1, math.exp(-0.5 * (slice - 1) /slices))
+    love.graphics.setColor(1, 1, 1, math.exp(-falloff * (slice - 1) /slices))
     love.graphics.draw(drawable)
     love.graphics.pop()
   end

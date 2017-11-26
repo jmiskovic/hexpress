@@ -7,7 +7,7 @@ local mock     = require('mock')
 
 local time = 0
 local sw, sh
-local patch
+local patch = selector
 local stream = {}
 
 function love.resize()
@@ -21,8 +21,7 @@ function love.load()
   efx.load()
   love.resize() -- force layout re-configuration
   mock.load()
---  log('screen', sw, sh)
---  log('desktop', love.window.getDesktopDimensions())
+  love.audio.setPosition(0, -2, 0)
 end
 
 function love.update(dt)
@@ -34,21 +33,15 @@ function love.update(dt)
     sw = sw,
     sh = sh,
   }
+
   controls.process(stream)
 
   if love.system.getOS() ~= 'Android' then
     mock.process(stream)
   end
 
-  if patch then
-    patch.process(stream)
-    efx.process(stream)
-  else
-    patch = selector.process(stream)
-    if patch then
-      patch.load()
-    end
-  end
+  patch.process(stream)
+  efx.process(stream)
 end
 
 function love.draw()
@@ -61,13 +54,18 @@ function love.draw()
   --drawTable(stream)
 end
 
+function loadPatch(newPatch)
+  patch = newPatch
+  patch.load()
+end
+
 function love.keypressed(key)
   if key == 'escape' then
-    if patch then
-      patch = nil
-      love.audio.stop()
-    else
+    if patch == selector then
       love.event.quit()
+    else
+      patch = selector
+      love.audio.stop()
     end
   end
 end

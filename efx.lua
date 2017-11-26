@@ -1,4 +1,4 @@
-efx = {}
+local efx = {}
 
 efx.bandpass = {
   volume   = 1.0,

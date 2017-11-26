@@ -132,6 +132,9 @@ function lume.pingpong(x)
   return 1 - math_abs(1 - x % 2)
 end
 
+function lume.bell(x, u, o)
+  return math.exp(-(x - u)^2 / (2 * o^2))
+end
 
 function lume.distance(x1, y1, x2, y2, squared)
   local dx = x1 - x2
