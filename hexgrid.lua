@@ -82,18 +82,18 @@ function hexgrid.spiralIter(q, r, radius)
 end
 
 -- 2D XY center of cell from QR coordinates
-function hexgrid.hexToPixel(q, r, cx, cy, size)
-  local x = size * 3 / 2 * q + cx
-  local y = size * math.sqrt(3) * (r + q/2) + cy
+function hexgrid.hexToPixel(q, r)
+  local x = 3 / 2 * q
+  local y = math.sqrt(3) * (r + q/2)
   return x, y
 end
 
 -- QR cell from 2D XY coordinate
-function hexgrid.pixelToHex(x, y, cx, cy, size)
-  x = x - cx
-  y = y - cy
-  local q = x * 2/3 / size
-  local r = (y * math.sqrt(3)/3 - x/3) / size
+function hexgrid.pixelToHex(x, y)
+  x = x
+  y = y
+  local q = x * 2/3
+  local r = y * math.sqrt(3)/3 - x/3
   return cubeToAxial(hexRounder(axialToCube(q, r)))
 end
 

@@ -11,7 +11,7 @@ function love.conf(t)
     [7] = {2960, 1440}, -- Samsung Galaxy S8
   }
   t.window.title = "Hextrument"
-  t.window.width, t.window.height = unpack(resolutions[3])
+  t.window.width, t.window.height = unpack(resolutions[6])
   t.window.fullscreen = false
   t.window.resizable = true
   t.window.vsync = false

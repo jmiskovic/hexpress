@@ -10,7 +10,7 @@ local colorScheme = {
   {0.31, 0.53, 0.47}, -- green
   {0.52, 0.31, 0.55}, -- purple
   darker        = {l.color('#2e2e3baa')},
-  background    = {0.28, 0.27, 0.35, 1.00},
+  background    = {l.color('#28253dff')},
 }
 
 require('autotable')
@@ -18,15 +18,17 @@ local hexgrid = require('hexgrid')
 local faultyPatch = require('faultyPatch')
 local radius = 0    -- inflated to actual size while loading patches
 local scale = 100
-local gap = 30
+local gap = 1.3
 local cx, cy = 0, 0
 
 local patches = {}
 local frame
 
-function selector.load(path, sw, sh)
+function selector.load(path, cx, cy)
   patches = table.autotable(2)
   logo = love.graphics.newImage('logo.png')
+  cx = cx or 0
+  cy = cy or 0
   local i = 1
   local fileList = love.filesystem.getDirectoryItems(path)
   for q, r in hexgrid.spiralIter(0, 0, math.huge) do
@@ -50,9 +52,7 @@ function selector.load(path, sw, sh)
     radius = hexgrid.distanceFromCenter(q, r)
     i = i+1
   end
-  scale = sh / radius / 8
-  gap = scale * 0.3
-  cx, cy = sw/2, sh/2
+  scale = cy / radius / 8
 
   frame = love.graphics.newCanvas(scale * 2, scale * 2, {width=scale * 2, height=scale * 2, format='srgba8'})
   love.graphics.setCanvas(frame)
@@ -67,7 +67,9 @@ end
 function selector.process(s)
   for _,id in ipairs(love.touch.getTouches()) do
     local x, y = love.touch.getPosition(id)
-    local q, r = hexgrid.pixelToHex(x, y, cx, cy, scale + gap)
+    love.graphics.scale(scale * gap)
+    x, y = love.graphics.inverseTransformPoint(x, y)
+    local q, r = hexgrid.pixelToHex(x, y)
 
     if hexgrid.distanceFromCenter(q,r) < radius + 1 then
       local selected = patches[q][r]
@@ -83,38 +85,39 @@ function selector.draw(s)
   love.graphics.setBackgroundColor(colorScheme.background)
   for q, t in pairs(patches) do
     for r, patch in pairs(t) do
-      local x, y = hexgrid.hexToPixel(q, r, cx, cy, scale + gap)
+      local x, y = hexgrid.hexToPixel(q, r)
       love.graphics.push()
-      love.graphics.translate(x, y)
-      love.graphics.scale(scale)
-      love.graphics.setColor(1, 1, 1, 1)
-      love.graphics.stencil(stencilFunc, "replace", 1)
-      love.graphics.setStencilTest("greater", 0)
-
-      local ok, err = pcall(patch.icon, s.time, s)
-      if not ok then
-        selector.defaultIcon(q, r)
-        log(err)
-      end
-      love.graphics.setStencilTest()
-      love.graphics.pop()
-      -- frame
-      love.graphics.push()
-      love.graphics.translate(x, y)
-      love.graphics.scale(1.3)
-      selector.fake3d(s.tilt.lp, frame, 0.955, 4)
+        love.graphics.scale(scale * gap)
+        love.graphics.translate(x, y)
+        love.graphics.scale(1 / gap)
+        -- draw icon inside circle cutout
+        love.graphics.stencil(stencilFunc, "replace", 1)
+        love.graphics.setStencilTest("greater", 0)
+        love.graphics.push() -- guard against patch's transformations
+          local ok, err = pcall(patch.icon, s.time, s)
+        love.graphics.pop()
+        if not ok then
+          love.graphics.setColor(1, 1, 1, 1)
+          selector.defaultIcon(q, r)
+          log(err)
+        end
+        love.graphics.setStencilTest()
+        -- frame
+        love.graphics.scale(1/scale)
+        love.graphics.scale(1.3)
+        love.graphics.setColor(1, 1, 1, 1)
+        --love.graphics.
+        selector.fake3d(s.tilt.lp, frame, 0.955, 4)
       love.graphics.pop()
     end
   end
   -- draw the fake 3D logo to encourage interaction with tilt
   local logoSize = 0.2  -- in relation to screen height
   love.graphics.push()
-  love.graphics.translate(s.sw / 2, 0)
-  love.graphics.scale(logoSize * s.sh / logo:getHeight())
-  love.graphics.translate(0, logo:getHeight() / 2)
-  love.graphics.setColor(1, 1, 1)
-  local extrude = l.remap(s.time, 0, 1, 1, 1.3, 'clamp')
-  selector.fake3d(s.tilt.lp, logo, extrude, 3, 3.5)
+    love.graphics.translate(0, logo:getHeight())
+    love.graphics.setColor(1, 1, 1)
+    local extrude = l.remap(s.time, 0, 1, 1, 1.1, 'clamp')
+    selector.fake3d(s.tilt.lp, logo, extrude, 4, 0)
   love.graphics.pop()
 end
 
@@ -126,20 +129,20 @@ function selector.fake3d(tilt, drawable, expandTo, slices, falloff)
 
   for slice = 1, slices do
     love.graphics.push()
-    local sX = 3200 * (slice - 1) * fraction   -- sX and sY define distance from center
-    local sY = 1200 * (slice - 1) * fraction
-    if expandTo < 1 then
-      sY = -sY
-      sX = -sX
-    end
-    local x = fraction * l.remap(tilt[1], -0.30,  0.30, -sX, sX)
-    local y = fraction * l.remap(tilt[3],  0.60,  0.35, -sY, sY)
-    local s = l.remap(slice, 1, slices, 1, expandTo)
-    love.graphics.scale(s)
-    love.graphics.translate(x, y)
-    love.graphics.translate(-drawable:getWidth()/2, -drawable:getHeight()/2)
-    love.graphics.setColor(1, 1, 1, math.exp(-falloff * (slice - 1) /slices))
-    love.graphics.draw(drawable)
+      local sX = 3200 * (slice - 1) * fraction   -- sX and sY define distance from center
+      local sY = 1200 * (slice - 1) * fraction
+      if expandTo < 1 then
+        sY = -sY
+        sX = -sX
+      end
+      local x = fraction * l.remap(tilt[1], -0.30,  0.30, -sX, sX)
+      local y = fraction * l.remap(tilt[3],  0.60,  0.35, -sY, sY)
+      local s = l.remap(slice, 1, slices, 1, expandTo)
+      love.graphics.scale(s)
+      love.graphics.translate(x, y)
+      love.graphics.translate(-drawable:getWidth()/2, -drawable:getHeight()/2)
+      love.graphics.setColor(1, 1, 1, math.exp(-falloff * (slice - 1) /slices))
+      love.graphics.draw(drawable)
     love.graphics.pop()
   end
 end

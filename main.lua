@@ -22,9 +22,12 @@ function love.load()
   love.resize() -- force layout re-configuration
   mock.load()
   love.audio.setPosition(0, -2, 0)
+  love.graphics.translate(sw / 2, sh / 2)
 end
 
 function love.update(dt)
+  love.graphics.origin()
+  transform()
   time = time + dt
 
   stream = {   --spring
@@ -45,13 +48,21 @@ function love.update(dt)
 end
 
 function love.draw()
+  love.graphics.origin()
+  transform()
   if patch and patch.draw then
     patch.draw(stream)
   else
     selector.draw(stream)
   end
+  love.graphics.origin()
   mock.draw(stream)
-  --drawTable(stream)
+  drawTable(stream)
+end
+
+function transform()
+  -- use same set of transformations in both draw() and update() functions
+  love.graphics.translate(sw / 2, sh / 2)
 end
 
 function loadPatch(newPatch)
