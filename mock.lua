@@ -31,6 +31,19 @@ function mock.process(s)
       mockTilt[3],
     },
   }
+
+  if love.keyboard.isDown('a') then
+    s.pressureSupport = true
+    s.touches[1] = {250, 250, pressure = 0.1}
+  end
+  if love.keyboard.isDown('s') then
+    s.pressureSupport = true
+    s.touches[1] = {250, 250, pressure = 0.5}
+  end
+  if love.keyboard.isDown('d') then
+    s.pressureSupport = true
+    s.touches[1] = {250, 250, pressure = 0.9}
+  end
   return s
 end
 

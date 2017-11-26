@@ -72,7 +72,7 @@ function drawTable(t, x, y)
   local tabSize = 20 -- px
   local x = x or sw * 4 / 5
   local y = y or 5 + 4 * fontSize
-  love.graphics.setFont(font)
+  --love.graphics.setFont(font)
   love.graphics.setColor(1, 1, 1)
   for k,v in pairs(t) do
     if type(v) == 'table' then

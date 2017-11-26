@@ -28,9 +28,6 @@ function hexpad.new(noteOffset, cellSize, radius, cx, cy)
     }, hexpad)
   -- this is good enough estimate of radius needed to just fill the screen
   self.radius = radius or math.floor(self.cx / self.cellSize) - 2
-  log('screen', self.cx*2, self.cy*2)
-  log('radius', self.radius)
-  log('cell', self.cellSize)
   return self
 end
 
