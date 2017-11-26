@@ -15,10 +15,10 @@ function love.resize()
   require('toolset') -- import module only after love.draw is defined
   controls.load()
   selector.load('patches', sw, sh)
-  efx.load()
 end
 
 function love.load()
+  efx.load()
   love.resize() -- force layout re-configuration
   mock.load()
 --  log('screen', sw, sh)
@@ -42,6 +42,7 @@ function love.update(dt)
 
   if patch then
     patch.process(stream)
+    efx.process(stream)
   else
     patch = selector.process(stream)
     if patch then
