@@ -45,8 +45,16 @@ function hexpad:interpret(s)
       touch.note     = noteIndex
       touch.noteName = noteIndexToName[noteIndex % 12 + 1]
       -- retrigger note if it's new touch or if existing touch has crossed into another cell
-      touch.noteRetrigger = not touchToQR[id] or (touchToQR[id][1] ~= q or touchToQR[id][2] ~= r)
-      touchToQR[id] = touch.qr -- store touch qr for next iteration
+      if touchToQR[id] and touchToQR[id][1] == q and touchToQR[id][2] == r then
+        touch.noteRetrigger = false
+        touch.duration = s.time - touchToQR[id].startTime
+        touchToQR[id][1], touchToQR[id][2] = touch.qr[1], touch.qr[2]
+      else
+        touch.noteRetrigger = true
+        touch.duration = 0
+        touchToQR[id] = touch.qr
+        touchToQR[id].startTime = s.time
+      end
     end
   end
 
@@ -78,8 +86,6 @@ function hexpad:draw(s)
       love.graphics.push()
         love.graphics.scale(self.cellSize)
         local x, y = love.graphics.inverseTransformPoint(touch[1], touch[2])
-        love.graphics.setColor(1,0,0)
-        love.graphics.circle('fill', x, y, 0.1)
         local x, y = hexgrid.hexToPixel(touch.qr[1], touch.qr[2], self.cx, self.cy, self.cellSize)
         love.graphics.translate(x,y)
         hexpad:drawTouch(touch, s)
