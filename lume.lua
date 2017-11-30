@@ -123,7 +123,9 @@ end
 function lume.remap(amount, minA, maxA, minB, maxB, strategy)
   local n = minB + (amount - minA) * (maxB - minB) / (maxA - minA)
   if strategy == 'clamp' then
-    n = math.max(minB, math.min(maxB, n))
+    local min = math.min(minB, maxB)
+    local max = math.max(minB, maxB)
+    n = math.max(min, math.min(max, n))
   end
   return n
 end
@@ -772,8 +774,18 @@ function lume.color(str, mul)
   return r * mul, g * mul, b * mul, a * mul
 end
 
+function lume.rgba(color, mul)
+  mul = mul or 1
+  local r = math_floor((color / 16777216) % 256) / 256
+  local g = math_floor((color /    65536) % 256) / 256
+  local b = math_floor((color /      256) % 256) / 256
+  local a = math_floor((color) % 256) / 256
+  return r, g, b, a
+end
 
-function lume.rgba(color)
+
+function lume.argb(color, mul)
+  mul = mul or 1
   local a = math_floor((color / 16777216) % 256)
   local r = math_floor((color /    65536) % 256)
   local g = math_floor((color /      256) % 256)

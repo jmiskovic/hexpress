@@ -15,11 +15,11 @@ function mock.process(s)
   if not s.tilt then return end
   local mx, my = love.mouse.getPosition()
   if love.keyboard.isDown('lshift') then
-    mockTilt[1] = l.remap(mx, 0, s.sw, -1, 1)
-    mockTilt[2] = l.remap(my, 0, s.sh, -1, 1)
+    mockTilt[1] = l.remap(mx, 0, s.width, -1, 1)
+    mockTilt[2] = l.remap(my, 0, s.height, -1, 1)
   end
   if love.keyboard.isDown('lctrl') then
-    mockTilt[3] = l.remap(my, 0, s.sh, 1, - 1)
+    mockTilt[3] = l.remap(my, 0, s.height, 1, - 1)
   end
   s.tilt = {
     mockTilt[1],
@@ -52,30 +52,30 @@ function mock.draw(s)
   local barsize = 40
   love.graphics.setFont(font)
   -- vertical bar for tilt[2] (pitch)
-  if not s.sw and not s.sh then return end
+  if not s.width and not s.height then return end
   love.graphics.push()
-  love.graphics.translate(s.sw - 2 * barsize, s.sh / 2)
+  love.graphics.translate(s.width - 2 * barsize, s.height / 2)
   love.graphics.scale(0.7)
   love.graphics.setColor(1, 1, 1, 0.2)
-  love.graphics.rectangle('fill', 0, -s.sh / 2, barsize, s.sh)
+  love.graphics.rectangle('fill', 0, -s.height / 2, barsize, s.height)
   love.graphics.setColor(1, 1, 0, 0.5)
-  love.graphics.rectangle('fill', 0, 0, barsize, -s.sh / 2 * s.tilt[2])
-  love.graphics.print(s.tilt[2], barsize * 1.1, -s.sh / 2 * s.tilt[2])
+  love.graphics.rectangle('fill', 0, 0, barsize, -s.height / 2 * s.tilt[2])
+  love.graphics.print(s.tilt[2], barsize * 1.1, -s.height / 2 * s.tilt[2])
   love.graphics.pop()
   -- horizontal bar for tilt[1] (yaw)
   love.graphics.push()
-  love.graphics.translate(s.sw / 2, s.sh - 2 * barsize)
+  love.graphics.translate(s.width / 2, s.height - 2 * barsize)
   love.graphics.scale(0.7)
   love.graphics.setColor(1, 1, 1, 0.2)
-  love.graphics.rectangle('fill', -s.sw / 2, 0, s.sw, barsize)
+  love.graphics.rectangle('fill', -s.width / 2, 0, s.width, barsize)
   love.graphics.setColor(1, 1, 0, 0.5)
-  love.graphics.rectangle('fill', 0, 0, s.sw / 2 * s.tilt[1], barsize)
-  love.graphics.print(s.tilt[1], s.sw / 2 * s.tilt[1], barsize * 1.1)
+  love.graphics.rectangle('fill', 0, 0, s.width / 2 * s.tilt[1], barsize)
+  love.graphics.print(s.tilt[1], s.width / 2 * s.tilt[1], barsize * 1.1)
   love.graphics.pop()
   -- scaling square for tilt[3] (roll)
   local barsize = 80
   love.graphics.push()
-  love.graphics.translate(s.sw - 2 * barsize, s.sh - 2 * barsize)
+  love.graphics.translate(s.width - 2 * barsize, s.height - 2 * barsize)
   love.graphics.setColor(1, 1, 1, 0.2)
   love.graphics.rectangle('fill', -barsize / 2, -barsize / 2, barsize, barsize)
   love.graphics.setColor(1, 1, 0, 0.5)
