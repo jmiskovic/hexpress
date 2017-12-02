@@ -8,6 +8,11 @@ local tiltP = {0,0,0}
 local minPressure =  math.huge
 local maxPressure = -math.huge
 
+-- if touch is released and new touch pressed between two process() calls,
+-- new touch will have the same touch ID as previous one and we will not be
+-- able to distinguish between them - therefore we track all releases
+local released = {}
+
 function controls.load()
   -- finding accelerometer
   local joysticks = love.joystick.getJoysticks()
@@ -27,18 +32,22 @@ function controls.process(s)
 
   local touches = love.touch.getTouches()
   for _,id in ipairs(touches) do
-    local x, y = love.touch.getPosition(id)
-    s.touches[id] = {x, y}
-    local pressure = love.touch.getPressure(id)
-    maxPressure = math.max(maxPressure, pressure)
-    minPressure = math.min(minPressure, pressure)
-    if minPressure < maxPressure then
-      -- eumulate note velocity with surface area of touch
-      s.touches[id].pressure = l.remap(pressure, minPressure, maxPressure, 0, 1)
-      s.pressureSupport = true
-    else  -- if same, let's not div by 0 (CPU might explode)
-      s.touches[id].pressure = pressure
-      s.pressureSupport = false
+    if released[id] then
+      released[id] = nil
+    else
+      local x, y = love.touch.getPosition(id)
+      s.touches[id] = {x, y}
+      local pressure = love.touch.getPressure(id)
+      maxPressure = math.max(maxPressure, pressure)
+      minPressure = math.min(minPressure, pressure)
+      if minPressure < maxPressure then
+        -- eumulate note velocity with surface area of touch
+        s.touches[id].pressure = l.remap(pressure, minPressure, maxPressure, 0, 1)
+        s.pressureSupport = true
+      else  -- if same, let's not div by 0 (CPU might explode)
+        s.touches[id].pressure = pressure
+        s.pressureSupport = false
+      end
     end
   end
   s.tilt = {controls.readTilt()}
@@ -52,6 +61,10 @@ function controls.process(s)
   end
 
   return s
+end
+
+function love.touchreleased(id)
+  released[id] = true
 end
 
 return controls

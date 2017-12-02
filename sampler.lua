@@ -42,22 +42,28 @@ function sampler:update(dt, touches)
   -- hunt for new touches and play them
   for id, touch in pairs(touches) do
     if touch.noteRetrigger then
+      -- break connection between existing synth and touch
+      for i,synth in ipairs(self.synths) do
+        if synth.touchId == id then
+          synth.touchId = nil
+        end
+      end
       self:assignSynth(id, touch)
     end
   end
   -- update sources for existing touches
   for i, synth in ipairs(self.synths) do
-    local touch = touches[synth.touchId]
 
     if synth.source then
       synth.enveloped = self:applyEnvelope(dt, synth.enveloped, synth.active, synth.duration)
       local volume = synth.enveloped * self.masterVolume
-
       synth.source:setVolume(volume)
-      if touch and touch.note then           -- update existing notes
+
+      local touch = touches[synth.touchId]
+      if touch and touch.note then           -- update existing note
         local pitch = self:noteToPitch(touch.note, synth.transpose)
         synth.source:setPitch(pitch)
-        touch.volume = math.max(volume, touch.volume or 0) -- report max volume
+        touch.volume = math.max(volume, touch.volume or 0) -- report max volume for visualization
       else
         synth.active = false                 -- not pressed, let envelope release
       end
@@ -112,6 +118,9 @@ function sampler:assignSample(note, velocity)
       bestFitness = fitness
     end
   end
+  -- log('selected' .. samples[selected].path,
+  --   'note', note,
+  --   'transpose', -samples[selected].transpose - note)
   return samples[selected]
 end
 
