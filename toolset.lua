@@ -23,8 +23,8 @@ local function imposterLoveDraw()
     love.graphics.print(log_entries[i] or '', 5, 5 + (#log_entries - i) * fontSize)
     fader = fader - 1 / log_lines
   end
-  love.graphics.setColor(1, 1, 1)
   local line = 0
+  love.graphics.setColor(1, 1, 1)
   for k,v in pairs(tracking) do
     love.graphics.print(string.format(k,v), sw*4/5, 5 + line * fontSize)
     line = line + 1
@@ -45,14 +45,13 @@ end
 -- usage:   log('data: ', speed, x, y)
 function log(...)
   local arg={...}
-  if not moduleInitialized then init() end
   local line
   if #arg > 1 then
     line = table.concat(arg, ", ")
   else
     line = tostring(arg[1])
   end
-  --print(line)
+  print(line)
   log_entries[#log_entries + 1] = line
 end
 
@@ -95,7 +94,6 @@ function drawTable(t, x, y)
 end
 
 function addDraw(f)
-  if not moduleInitialized then init() end
   table.insert(draw_functions, f)
 end
 
@@ -103,3 +101,5 @@ end
 if love.system.getOS() ~= 'Android' then
   log_lines = 50
 end
+
+init()
