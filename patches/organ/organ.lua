@@ -1,4 +1,4 @@
-local patch = { name = 'organ' }
+local patch = {}
 
 local sampler = require('sampler')
 local hexpad = require('hexpad')
@@ -9,8 +9,6 @@ local colorScheme = {
   pipe  = {l.rgba(0xfafa50ff)},
   shade = {l.rgba(0xffffffa0)},
   lip   = {l.rgba(0x606010ff)},
-  white = {l.rgba(0xffffff50)},
-  black = {l.rgba(0x00000050)},
 }
 
 local keyboard
@@ -33,16 +31,19 @@ function patch.load()
     envelope = { attack = 0.1, decay = 0.50, sustain = 0.85, release = 0.35 },
   })
 
-  function keyboard:drawCell(q, r, s)
-    -- shape
-      local note = self:hexToNoteIndex(q, r)
-      local text = self.noteIndexToName[note % 12 + 1]
-      local keyColor = #text > 1 and colorScheme.black or colorScheme.white
-      love.graphics.setColor(keyColor)
-      love.graphics.scale(0.90)
-      love.graphics.polygon('fill', self.shape)
-end
-
+  function keyboard:drawCell(q, r, s, touch)
+    local delta = 0
+    if touch and touch.volume then
+      delta = touch.volume
+    end
+    love.graphics.scale(0.95 - delta / 10)
+    love.graphics.translate(0, delta / 20)
+    local note = self:hexToNoteIndex(q, r)
+    local text = self.noteIndexToName[note % 12 + 1]
+    local keyColor = #text == 1 and self.colorScheme.bright or self.colorScheme.surface
+    love.graphics.setColor(keyColor)
+    love.graphics.polygon('fill', self.shape)
+  end
 end
 
 function patch.process(s)

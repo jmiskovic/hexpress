@@ -41,13 +41,25 @@ function patch.load()
     {path='patches/strings/trem_G1_v2.ogg', note = -17},
     {path='patches/strings/trem_G3_v2.ogg', note =   7},
     looped = false,
+    envelope = {attack = 100.2, decay = 0.1, sustain = 0.8, release = 0.6},
+
   })
 
-  --doublebass = sampler.new({
-  --  {path='samples/doublebass_pluck_c2_vl3_rr3.wav',},
-  --  looped = false,
-  --  envelope = {attack= 0, decay = 0.20, sustain = 1, release = 0.35},
-  --})
+  function keyboard:drawCell(q, r, s, touch)
+    local delta = 0
+    if touch and touch.volume then
+      delta = touch.volume
+    end
+    love.graphics.scale(0.8)
+    love.graphics.translate(
+      0.1 * delta * math.cos(s.time * 30),
+      0.1 * delta * math.sin(s.time * 30))
+    local note = self:hexToNoteIndex(q, r)
+    local text = self.noteIndexToName[note % 12 + 1]
+    local keyColor = #text == 1 and self.colorScheme.bright or self.colorScheme.surface
+    love.graphics.setColor(keyColor)
+    love.graphics.circle('fill', 0, 0, 1)
+  end
 end
 
 function patch.process(s)

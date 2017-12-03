@@ -118,7 +118,7 @@ function sampler:assignSample(note, velocity)
       bestFitness = fitness
     end
   end
-  ---[[
+  --[[
   log('selected' .. self.samples[selected].path,
     'note', note,
     'distance', self.samples[selected].note - note,

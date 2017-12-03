@@ -1,16 +1,18 @@
 local hexpad = {}
 hexpad.__index = hexpad
 local hexgrid = require('hexgrid')
+local l = require('lume')
+require('autotable')
 
 hexpad.shape = hexgrid.shape
 hexpad.font = love.graphics.newFont("Ubuntu-B.ttf", 64)
 hexpad.noteIndexToName = {'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'}
 
 hexpad.colorScheme = {
-  background   = {0.28, 0.27, 0.35, 1.00},
-  padHighlight = {0.96, 0.49, 0.26, 1.00},
-  padSurface   = {0.20, 0.20, 0.26, 1.00},
-  white        = {1.00, 1.00, 1.00, 1.00},
+  background    = {l.rgba(0x2d2734ff)},
+  highlight     = {l.rgba(0xe86630ff)},
+  surface       = {l.rgba(0x687591ff)},
+  bright        = {l.rgba(0xa7a2b8ff)},
 }
 
 local touchToQR = {}
@@ -25,6 +27,7 @@ function hexpad.new(noteOffset, radius)
   self.scaling = 1 / 4.3
   -- this is good enough estimate of radius needed to just fill the screen
   self.radius = radius or math.floor(1 / self.scaling + 2)
+  love.graphics.setBackgroundColor(self.colorScheme.background)
   return self
 end
 
@@ -69,52 +72,45 @@ function hexpad:interpret(s)
 end
 
 function hexpad:draw(s)
+  -- prepare touches for visualization
+  local touches = table.autotable(2)
+  for id, touch in pairs(s.touches) do
+    if touch.qr then
+      local q, r = unpack(touch.qr)
+      touches[q][r] = touch
+    end
+  end
+
   for q, r in hexgrid.spiralIter(0, 0, self.radius) do
     love.graphics.push()
       love.graphics.scale(self.scaling)
       local x, y = hexgrid.hexToPixel(q, r)
       love.graphics.translate(x,y)
-      self:drawCell(q, r, s)
+      self:drawCell(q, r, s, touches[q][r])
     love.graphics.pop()
-  end
-  if s.touches then
-    for id, touch in pairs(s.touches) do
-      if not touch.qr then break end
-      love.graphics.push()
-        love.graphics.scale(self.scaling)
-        local x, y = love.graphics.inverseTransformPoint(touch[1], touch[2])
-        local x, y = hexgrid.hexToPixel(touch.qr[1], touch.qr[2], 0, 0, self.cellSize)
-        love.graphics.translate(x,y)
-        hexpad:drawTouch(touch, s)
-      love.graphics.pop()
-    end
   end
 end
 
-function hexpad:drawCell(q, r, s)
+function hexpad:drawCell(q, r, s, touch)
   -- shape
-  love.graphics.setColor(self.colorScheme.padSurface)
   love.graphics.scale(0.90)
-  love.graphics.polygon('fill', hexgrid.shape)
-  love.graphics.setColor(self.colorScheme.background)
+  love.graphics.setColor(self.colorScheme.surface)
+  love.graphics.polygon('fill', self.shape)
+  if touch and touch.volume then
+    love.graphics.scale(1 + touch.volume/10)
+    self.colorScheme.highlight[4] = l.remap(touch.volume, 0, 1, 0.1, 1)
+    love.graphics.setColor(self.colorScheme.highlight)
+    love.graphics.polygon('fill', self.shape)
+  end
   -- note name text
+  love.graphics.scale(0.01)
   local note = self:hexToNoteIndex(q, r)
   local text = self.noteIndexToName[note % 12 + 1]
   love.graphics.setFont(self.font)
   local h = self.font:getHeight()
   local w = self.font:getWidth(text)
-  love.graphics.scale(0.01)
+  love.graphics.setColor(self.colorScheme.bright)
   love.graphics.print(text, -w / 2, -h / 2) -- +5, because of some obscure getWidth() bug
-end
-
-function hexpad:drawTouch(touch, s)
-  local size = 0.8
-  self.colorScheme.padHighlight[4] = touch.volume
-  love.graphics.setColor(self.colorScheme.padHighlight)
-  love.graphics.scale(size)
-  love.graphics.setLineWidth(1/6)
-  love.graphics.polygon('line', hexgrid.shape)
-  love.graphics.setColor(self.colorScheme.background)
 end
 
 function hexpad:hexToNoteIndex(q, r)

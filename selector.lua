@@ -3,14 +3,8 @@ local l = require('lume')
 local selector = {}
 
 local colorScheme = {
-  {0.53, 0.35, 0.34}, -- orange
-  {0.53, 0.45, 0.34}, -- yellow
-  {0.31, 0.38, 0.55}, -- blue
-  {0.31, 0.53, 0.47}, -- green
-  {0.52, 0.31, 0.55}, -- purple
-  darker        = {l.rgba(0x2e2e3bff)},
-  background    = {l.rgba(0x28253dff)},
-  frame         = {l.rgba(0xffffff22)}
+  background = {l.rgba(0x2d2734ff)},
+  frame      = {l.rgba(0xffffff22)}
 }
 
 require('autotable')
@@ -55,9 +49,6 @@ function selector.process(s)
 
     if hexgrid.distanceFromCenter(q,r) < radius + 1 then
       local selected = patches[q][r]
-      for k,v in pairs(selected) do
-        print(k,v)
-      end
       if selected then
         loadPatch(selected)
         break
