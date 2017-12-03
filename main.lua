@@ -7,7 +7,6 @@ local mock     = require('mock')
 
 local hotswapped = {  -- list of modules that require dynamic re-loading
   'controls',
-  'efx',
   'sampler',
   'mock',
 }
@@ -20,16 +19,19 @@ local stream = {}
 function love.resize()
   sw, sh = love.graphics.getDimensions()
   dpi = love.window.getDPIScale()
-  require('toolset') -- import module only after love.draw is defined
-  controls.load()
-  selector.load('patches', sw, sh)
+
+
+
 end
 
 function love.load()
   efx.load()
   love.resize() -- force layout re-configuration
+  require('toolset') -- import module only after love.draw is defined
+  controls.load()
+  selector.load('patches')
   mock.load()
-  love.audio.setPosition(0, -2, 0)
+  love.audio.setPosition(0, -1, 0)
   love.graphics.translate(sw / 2, sh / 2)
 end
 
@@ -94,7 +96,7 @@ function love.keypressed(key)
     if patch == selector then
       love.event.quit()
     else
-      patch = selector
+      loadPatch(selector)
       love.audio.stop()
     end
   end

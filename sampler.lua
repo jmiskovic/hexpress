@@ -3,26 +3,27 @@ sampler.__index = sampler
 
 local efx = require('efx')
 
-local samples = {}
 
 function sampler.new(settings)
   local self = setmetatable({}, sampler)
   self.synths = {} -- collection of sources in an array
   self.masterVolume = 1
   self.looped       = settings.looped or false
+  self.transpose = settings.transpose or 0
   self.envelope = settings.envelope or { attack  = 0,     -- default envelope best suited for
                                          decay   = 0,     -- one-shot samples, not for loopes
                                          sustain = 1,
                                          release = 0.35 }
   local synthCount  = settings.synthCount or 6
 
+  self.samples = {}
   -- prepare samples that will be used by synths
   for i,sample in ipairs(settings) do
     local decoder = love.sound.newDecoder(sample.path)
     sample.soundData = love.sound.newSoundData(decoder)
-    sample.transpose = sample.transpose or 0
+    sample.note = sample.note or 0
     sample.velocity  = sample.velocity or 0.8
-    table.insert(samples, sample)
+    table.insert(self.samples, sample)
   end
 
   -- initialize synths which will take care of playing samples as per notes
@@ -53,7 +54,6 @@ function sampler:update(dt, touches)
   end
   -- update sources for existing touches
   for i, synth in ipairs(self.synths) do
-
     if synth.source then
       synth.enveloped = self:applyEnvelope(dt, synth.enveloped, synth.active, synth.duration)
       local volume = synth.enveloped * self.masterVolume
@@ -61,7 +61,7 @@ function sampler:update(dt, touches)
 
       local touch = touches[synth.touchId]
       if touch and touch.note then           -- update existing note
-        local pitch = self:noteToPitch(touch.note, synth.transpose)
+        local pitch = self:noteToPitch(touch.note, -synth.note + self.transpose)
         synth.source:setPitch(pitch)
         touch.volume = math.max(volume, touch.volume or 0) -- report max volume for visualization
       else
@@ -99,7 +99,7 @@ function sampler:assignSynth(touchId, touch)
   synth.duration = 0
   synth.enveloped = 0
   synth.active = true
-  synth.transpose = sample.transpose
+  synth.note = sample.note
   efx.applyFilter(synth.source)
   synth.source:setPosition(touch.qr[1]/4, touch.qr[2]/4, 0.5)
   synth.source:setLooping(self.looped)
@@ -111,17 +111,20 @@ function sampler:assignSample(note, velocity)
   -- first look for closest pitch, then for closest sample velocity
   local bestFitness = math.huge
   local selected = nil
-  for i, sample in ipairs(samples) do
-    local fitness = 10 * math.abs(-sample.transpose - note) + math.abs(sample.velocity - velocity)
+  for i, sample in ipairs(self.samples) do
+    local fitness = 10 * math.abs(sample.note - note) + math.abs(sample.velocity - velocity)
     if fitness < bestFitness then
       selected = i
       bestFitness = fitness
     end
   end
-  -- log('selected' .. samples[selected].path,
-  --   'note', note,
-  --   'transpose', -samples[selected].transpose - note)
-  return samples[selected]
+  ---[[
+  log('selected' .. self.samples[selected].path,
+    'note', note,
+    'distance', self.samples[selected].note - note,
+    'pitch', self:noteToPitch(note, self.samples[selected].note + self.transpose))
+  --]]
+  return self.samples[selected]
 end
 
 function sampler:applyEnvelope(dt, vol, active, duration)

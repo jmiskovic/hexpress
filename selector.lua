@@ -17,26 +17,22 @@ require('autotable')
 local hexgrid = require('hexgrid')
 local faultyPatch = require('faultyPatch')
 local radius = 0     -- inflated to actual size while loading patches
-local cx, cy = 0, 0
 local scale = 1 / 2.7  -- fit about this many icons along vertical
 
 local patches = {}
 
-function selector.load(path, cx, cy)
+function selector.load()
   love.graphics.setBackgroundColor(colorScheme.background)
   patches = table.autotable(2)
-  cx = cx or 0
-  cy = cy or 0
   local i = 1
   -- try to load all patches in directory, store them in hexagonal spiral
-  local fileList = love.filesystem.getDirectoryItems(path)
+  local fileList = love.filesystem.getDirectoryItems('patches')
   for q, r in hexgrid.spiralIter(0, 0, math.huge) do
     if i > #fileList then
       break
     end
-    local fileWE = l.split(fileList[i], '.')[1]
-    local loadPath = path .. '/' .. fileWE
-
+    local iterName = fileList[i]
+    local loadPath = 'patches/' .. iterName .. '/' .. iterName
     local m, err = l.hotswap(loadPath)
     if m then
       patches[q][r] = m
@@ -82,7 +78,7 @@ function selector.draw(s)
         love.graphics.stencil(stencilFunc, "replace", 1)
         love.graphics.setStencilTest("greater", 0)
         love.graphics.push() -- guard against patch's transformations
-          local ok, err = pcall(patch.icon, s.time, s)
+        local ok, err = pcall(patch.icon, s.time, s)
         love.graphics.pop()
         if not ok then
           love.graphics.setColor(1, 1, 1, 1)
