@@ -1,4 +1,4 @@
-local patch = { name = 'riders' }
+local patch = {}
 
 local l = require('lume')
 local efx = require('efx')

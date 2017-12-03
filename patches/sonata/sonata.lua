@@ -1,10 +1,11 @@
-local patch = { name = 'sonata' }
+local patch = {}
 
 local sampler = require('sampler')
 local hexpad = require('hexpad')
+local l = require('lume')
 
 local keyboard
-local loop
+local cello
 local model
 local noteSequence
 local highlightedNotes
@@ -12,19 +13,51 @@ local highlightedNotes
 function patch.load()
   keyboard = hexpad.new()
 
-  loop = sampler.new({
-    {path='samples/nsynth/string_acoustic_057-060-127.wav',},
-    looped = false,
-    envelope = { attack = 0.10, decay = 0.50, sustain = 0.95, release = 0.85 },
+  cello = sampler.new({
+    {path='patches/strings/susvib_A2_v3.ogg', note=  9},
+    {path='patches/strings/susvib_B1_v3.ogg', note= -1},
+    {path='patches/strings/susvib_C1_v3.ogg', note=-12},
+    {path='patches/strings/susvib_C3_v3.ogg', note= 12},
+    {path='patches/strings/susvib_D2_v3.ogg', note=  2},
+    {path='patches/strings/susvib_D4_v3.ogg', note= 26},
+    {path='patches/strings/susvib_E1_v3.ogg', note= -8},
+    {path='patches/strings/susvib_E3_v3.ogg', note= 16},
+    {path='patches/strings/susvib_F2_v3.ogg', note=  5},
+    {path='patches/strings/susvib_F4_v3.ogg', note= 29},
+    {path='patches/strings/susvib_G1_v3.ogg', note= -5},
+    {path='patches/strings/susvib_G3_v3.ogg', note= 19},
+    looped = true,
+    envelope = {attack = 0.2, decay = 0.1, sustain = 0.8, release = 0.6},
   })
+
   model = hardcodedModel()
   noteSequence = {}
   highlightedNotes = {}
+
+  function keyboard:drawCell(q, r, s, touch)
+    -- shape
+    love.graphics.scale(0.7)
+    for _, notePair in ipairs(highlightedNotes) do
+      if keyboard:hexToNoteIndex(q, r) == notePair[1] then
+        love.graphics.scale(1 + notePair[2]/4)
+      end
+    end
+
+
+    love.graphics.setColor(self.colorScheme.surface)
+    love.graphics.polygon('fill', self.shape)
+    if touch and touch.volume then
+      love.graphics.scale(1 + touch.volume / 10)
+      self.colorScheme.highlight[4] = l.remap(touch.volume, 0, 1, 0.1, 1)
+      love.graphics.setColor(self.colorScheme.highlight)
+      love.graphics.polygon('fill', self.shape)
+    end
+  end
 end
 
 function patch.process(s)
   keyboard:interpret(s)
-  loop:update(s.dt, s.touches)
+  cello:update(s.dt, s.touches)
 
   for id, touch in pairs(s.touches) do
     if touch.noteRetrigger then
@@ -47,18 +80,6 @@ end
 
 function patch.draw(s)
   keyboard:draw(s)
-end
-
-function drawCellHighlights(q, r)
-  love.graphics.setColor(1,1,1,0.2)
-  love.graphics.circle('line', 0, 0, 0.8)
-  for _, notePair in ipairs(highlightedNotes) do
-    if keyboard:hexToNoteIndex(q, r) == notePair[1] then
-      love.graphics.setColor(1,1,1,0.3 * notePair[2])
-      love.graphics.circle('fill', 0, 0, 1)
-    end
-  end
-
 end
 
 local colorNightSky = {0.07, 0.12, 0.16}

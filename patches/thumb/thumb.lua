@@ -13,7 +13,7 @@ local scaling = 0.7 -- cell size can be smaller as we never press neighour notes
 function patch.load()
   keyboard = hexpad.new(4, 8)
   slide = sampler.new({
-    {path='samples/bass_synthetic_053.ogg', transpose=7},
+    {path='patches/thumb/bass_synthetic_053.ogg', transpose=7},
     looped = true,
     envelope = { attack = 0.20, decay = 0.50, sustain = 0.85, release = 0.35 },
   })
