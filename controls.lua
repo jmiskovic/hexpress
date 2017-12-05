@@ -53,11 +53,12 @@ function controls.process(s)
   s.tilt = {controls.readTilt()}
 
   -- simple IIR low-pass filtering of tilt
-  local a0 = 0.001
+
+  local a0 = 0.05
   s.tilt.lp = {}
   for i,v in ipairs(s.tilt) do
     s.tilt.lp[i] = s.tilt[i] * a0 + tiltP[i] * (1 - a0)
-    tiltP[i] = s.tilt[i]
+    tiltP[i] = s.tilt.lp[i]
   end
 
   return s
