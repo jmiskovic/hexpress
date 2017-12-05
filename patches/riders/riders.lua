@@ -5,9 +5,19 @@ local efx = require('efx')
 
 local sampler = require('sampler')
 local hexpad = require('hexpad')
-
 local keyboard
-local rhodes, rain
+local rhodes
+local rainSound
+
+local colorScheme = {
+  flash      = {1,1,1},
+  night      = {l.rgba(0x0a0a0cff)},
+  background = {l.rgba(0x0a0a0cff)},
+  highlight  = {l.rgba(0xb73490ff)},
+  surface    = {l.rgba(0x323353ff)},
+  bright     = {l.rgba(0x4a515cff)},
+}
+
 
 local filter = {
   volume   = 1.0,
@@ -16,12 +26,11 @@ local filter = {
 }
 
 function patch.load()
-  --rain = sampler.new({path='riders/rain.ogg', looped = true, synthCount=1})
-  --local source = rain.synths[1].source
-  --source:play()
-  --source:setPosition(0.2, 0.5, 0)
-  --source:seek(math.random() * source:getDuration())
-  --source:setVolume(0)
+  local rainPath = 'patches/riders/rain.ogg'
+  rainSound = love.audio.newSource(love.sound.newDecoder(rainPath))
+  rainSound:setLooping(true)
+  rainSound:setVolume(0.02)
+  rainSound:play()
 
   efx.addEffect(efx.tremolo)
   efx.reverb.decaytime = 2.0
@@ -55,6 +64,12 @@ function patch.load()
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.15 },
     })
 
+  -- customize colorscheme
+  hexpad.colorScheme.background = colorScheme.background
+  hexpad.colorScheme.highlight  = colorScheme.highlight
+  hexpad.colorScheme.surface    = colorScheme.surface
+  hexpad.colorScheme.bright     = colorScheme.bright
+  love.graphics.setBackgroundColor(hexpad.colorScheme.background)
 end
 
 function patch.process(s)
@@ -68,19 +83,23 @@ function patch.process(s)
   efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.3, 0.3, 0, 15, 'clamp')
   filter.highgain = l.remap(s.tilt.lp[2], 0, 0.7, 0, 1, 'clamp')
   rhodes:update(s.dt, s.touches)
-  --local source = rain.synths[1].source
-  --source:setVolume(l.remap(s.time, 0, 5, 0, 0.017, 'clamp'))
-  --source:setFilter(filter)
+  rainSound:setVolume(l.remap(s.time, 0, 15, 0.03, 0.01, 'clamp'))
 end
 
 function patch.draw(s)
   keyboard:draw(s)
+  -- rain
+  for i=1,10 do
+    local shade = 0.2 + 0.2 * math.random()
+    love.graphics.setColor(shade, shade, shade, 0.5)
+    love.graphics.setLineWidth(0.01)
+    local x1 = (math.random() * 2 - 1) * s.width / s.height
+    local y1 = -2 * math.random()
+    local x2 = x1 + math.random() * 0.1 + 0.2
+    local y2 =  2 * math.random()
+    love.graphics.line(x1, y1, x2, y2)
+  end
 end
-
-local colorScheme = {
-  flash = {1,1,1},
-  night = {0.07, 0.12, 0.16},
-}
 
 function patch.icon(time)
   -- lightning
