@@ -793,6 +793,34 @@ function lume.argb(color, mul)
   return r, g, b, a
 end
 
+function lume.hsl(h, s, l)
+  -- hsl to rgb, input and output range: 0 - 1
+  if s<=0 then
+    return l,l,l
+  end
+  h = h * 6
+  local c = (1-math.abs(2*l-1))*s
+  local x = (1-math.abs(h%2-1))*c
+  local m,r,g,b = (l-.5*c), 0,0,0
+  if     h < 1 then r,g,b = c,x,0
+  elseif h < 2 then r,g,b = x,c,0
+  elseif h < 3 then r,g,b = 0,c,x
+  elseif h < 4 then r,g,b = 0,x,c
+  elseif h < 5 then r,g,b = x,0,c
+  else              r,g,b = c,0,x
+  end
+  return r+m, g+m, b+m
+end
+
+function lume.colortohex(c)
+  -- rgba [0,1] to #rrggbbaa
+  local a = c[4] and math.floor(c[4] * 255) or 255
+  return string.format('#%2x%2x%2x%2x',
+      math.floor(c[1] * 255),
+      math.floor(c[2] * 255),
+      math.floor(c[3] * 255),
+      a)
+end
 
 local chain_mt = {}
 chain_mt.__index = lume.map(lume.filter(lume, iscallable, true),
@@ -814,5 +842,30 @@ setmetatable(lume,  {
   end
 })
 
+function lume.createIIR(a, b)
+  -- according to IIR direct form II
+  assert(#a == #b)
+  local z = {} -- history data
+  for i = 1, (#a - 1) do
+    z[i] = 0
+  end
+  local filtering = function(xn)
+      -- A coefficients block
+      local s1 = xn
+      for i=2, #a do
+        v1 = v1 + z[i - 1] * a[i]
+      end
+      -- B coefficients block
+      local s2 = s1 * a[1]
+      for i=2, #b do
+        s2 = s2 + z[i - 1] * b[i]
+      end
+      -- delays
+      table.insert(z, 1, s1 * a[1])
+      z[#a] = nil
+      return s2
+    end
+  return filtering
+end
 
 return lume
