@@ -6,6 +6,14 @@ local hexpad = require('hexpad')
 local keyboard
 local cello, doublebass
 
+local colorScheme = {
+  wood    = {l.color('#8c3c00')},
+  neck    = {l.color('#302400')},
+  strings = {l.color('#988c75')},
+  stick   = {l.color('#a39782')},
+  hair    = {l.color('#5e2400')},
+}
+
 function patch.load()
   keyboard = hexpad.new(4)
 
@@ -41,23 +49,25 @@ function patch.load()
     {path='patches/strings/trem_G1_v2.ogg', note = -17},
     {path='patches/strings/trem_G3_v2.ogg', note =   7},
     looped = false,
-    envelope = {attack = 100.2, decay = 0.1, sustain = 0.8, release = 0.6},
+    envelope = {attack = 0.2, decay = 0.1, sustain = 0.8, release = 0.6},
 
   })
+
+  love.graphics.setBackgroundColor(colorScheme.neck)
 
   function keyboard:drawCell(q, r, s, touch)
     local delta = 0
     if touch and touch.volume then
       delta = touch.volume
     end
-    love.graphics.scale(0.8)
+    love.graphics.scale(0.6)
     love.graphics.translate(
-      0.1 * delta * math.cos(s.time * 30),
-      0.1 * delta * math.sin(s.time * 30))
+      0.2 * delta * math.cos(s.time * 30),
+      0.2 * delta * math.sin(s.time * 30))
     local note = self:hexToNoteIndex(q, r)
     local text = self.noteIndexToName[note % 12 + 1]
     local keyColor = #text == 1 and self.colorScheme.bright or self.colorScheme.surface
-    love.graphics.setColor(keyColor)
+    love.graphics.setColor(colorScheme.strings)
     love.graphics.circle('fill', 0, 0, 1)
   end
 end
@@ -79,14 +89,14 @@ end
 function patch.icon(time)
   love.graphics.rotate(0.04)
   -- wood body
-  love.graphics.setColor(l.color('#8c3c00'))
+  love.graphics.setColor(colorScheme.wood)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
   -- neck
-  love.graphics.setColor(l.color('#302400'))
+  love.graphics.setColor(colorScheme.neck)
   love.graphics.rectangle('fill', -0.5, -1, 1, 2)
   -- strings
   love.graphics.setLineWidth(0.05)
-  love.graphics.setColor(l.color('#988c75'))
+  love.graphics.setColor(colorScheme.strings)
   love.graphics.line(math.sin(50*time) * 0.02,   1,  0,   -1) -- this one vibrates
   love.graphics.line(-0.2, 1, -0.2, -1)
   love.graphics.line( 0.2, 1,  0.2, -1)
@@ -94,10 +104,10 @@ function patch.icon(time)
   local tilt = -0.2 + math.sin(time) * 0.1
   local gap = 0.15
   local span = 1.2
-  love.graphics.setColor(l.color('#a39782'))
+  love.graphics.setColor(colorScheme.stick)
   love.graphics.setLineWidth(0.08)
   love.graphics.line(-span, tilt + gap, span, - tilt + gap)
-  love.graphics.setColor(l.color('#5e2400'))
+  love.graphics.setColor(colorScheme.hair)
   love.graphics.setLineWidth(0.14)
   love.graphics.line(-span, tilt, span, -tilt)
 end

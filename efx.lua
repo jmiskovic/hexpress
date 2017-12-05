@@ -36,7 +36,7 @@ end
 
 function efx.process(s)
   for i,effect in ipairs(efx.activeEffects) do
-    love.audio.setEffect(effect.type, effect)
+    ok, err = pcall(love.audio.setEffect, effect.type, effect)
   end
 end
 
