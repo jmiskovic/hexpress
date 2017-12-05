@@ -38,6 +38,7 @@ function selector.load()
     radius = hexgrid.distanceFromCenter(q, r)
     i = i+1
   end
+  scale = 1 / (2 * radius + 0.7)
 end
 
 function selector.process(s)
