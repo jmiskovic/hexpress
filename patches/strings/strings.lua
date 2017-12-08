@@ -2,6 +2,7 @@ local patch = {}
 local l = require("lume")
 local sampler = require('sampler')
 local hexpad = require('hexpad')
+local hexgrid = require('hexgrid')
 
 local keyboard
 local cello, doublebass
@@ -15,7 +16,7 @@ local colorScheme = {
 }
 
 function patch.load()
-  keyboard = hexpad.new(4)
+  keyboard = hexpad.new()
 
   cello = sampler.new({
     {path='patches/strings/susvib_A2_v3.ogg', note=  9},
@@ -49,7 +50,7 @@ function patch.load()
     {path='patches/strings/trem_G1_v2.ogg', note = -17},
     {path='patches/strings/trem_G3_v2.ogg', note =   7},
     looped = false,
-    envelope = {attack = 0.2, decay = 0.1, sustain = 0.8, release = 0.6},
+    envelope = {attack = 0.0, decay = 0.1, sustain = 1.0, release = 0.5},
 
   })
 
@@ -74,16 +75,51 @@ end
 
 function patch.process(s)
   keyboard:interpret(s)
+  -- fade in from bellow
+  cello.envelope.attack   = l.remap(s.tilt.lp[2], -0.9, -0.1, 10, 0.2, 'clamp')
+  tremolo.envelope.attack = l.remap(s.tilt.lp[2], -0.9, -0.1, 10, 0.2, 'clamp')
   -- crossfade between instruments
-  --doublebass.masterVolume = l.remap(s.tilt.lp[2], 0.0, 0.3, 0, 1, 'clamp')
+  cello.masterVolume   = l.remap(s.tilt.lp[1], -0.2, 0.3, 1, 0.2, 'clamp')
+  tremolo.masterVolume = l.remap(s.tilt.lp[1], -0.1, 0.4, 0.2, 1, 'clamp')
   cello:update(s.dt, s.touches)
   tremolo:update(s.dt, s.touches)
-  --doublebass:update(s.dt, s.touches)
   return s
 end
 
 function patch.draw(s)
-  keyboard:draw(s)
+  touched = {{}, {}, {}}
+  -- mark touched 'strings' across three axes
+  for k,touch in pairs(s.touches) do
+    if touch.qr then
+      local tx, ty, tz = hexgrid.axialToCube(unpack(touch.qr))
+      touched[1][tx] = math.max(touch.volume, touched[1][tx] or 0)
+      touched[2][ty] = math.max(touch.volume, touched[2][ty] or 0)
+      touched[3][tz] = math.max(touch.volume, touched[3][tz] or 0)
+    end
+  end
+  -- draw strings across 3 axes, vibrate strings that intersect touches
+  love.graphics.scale(keyboard.scaling)
+  love.graphics.setColor(colorScheme.strings)
+  local t1, t2, x, y, z, sx, sy, ex, ey
+  local span = 5
+  for i = -span, span do -- covering range on single axis
+    t1 = {i,  span, -(i + span)}
+    t2 = {i, -span, -(i - span)}
+    for a=1, 3 do -- iterating over 3 axes in cube coordinates
+      x, y, z = t1[(a - 1) % 3 + 1], t1[(a + 0) % 3 + 1], t1[(a + 1) % 3 + 1]
+      sx, sy = hexgrid.hexToPixel(hexgrid.cubeToAxial(x, y, z))
+      x, y, z = t2[(a - 1) % 3 + 1], t2[(a + 0) % 3 + 1], t2[(a + 1) % 3 + 1]
+      ex, ey = hexgrid.hexToPixel(hexgrid.cubeToAxial(x, y, z))
+      if touched[a][i] then
+        love.graphics.push()
+        love.graphics.translate(0.03 * math.sin(s.time * 50 + a), 0.03 * math.cos(s.time * 50 + a))
+        love.graphics.line(sx, -sy, ex, -ey)
+        love.graphics.pop()
+      else
+        love.graphics.line(sx, -sy, ex, -ey)
+      end
+    end
+  end
 end
 
 function patch.icon(time)
