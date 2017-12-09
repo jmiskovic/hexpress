@@ -6,7 +6,6 @@ local hexgrid = require('hexgrid')
 
 local keyboard
 local cello, doublebass
-
 local colorScheme = {
   wood    = {l.color('#8c3c00')},
   neck    = {l.color('#302400')},
@@ -51,26 +50,9 @@ function patch.load()
     {path='patches/strings/trem_G3_v2.ogg', note =   7},
     looped = false,
     envelope = {attack = 0.0, decay = 0.1, sustain = 1.0, release = 0.5},
-
   })
 
   love.graphics.setBackgroundColor(colorScheme.neck)
-
-  function keyboard:drawCell(q, r, s, touch)
-    local delta = 0
-    if touch and touch.volume then
-      delta = touch.volume
-    end
-    love.graphics.scale(0.6)
-    love.graphics.translate(
-      0.2 * delta * math.cos(s.time * 30),
-      0.2 * delta * math.sin(s.time * 30))
-    local note = self:hexToNoteIndex(q, r)
-    local text = self.noteIndexToName[note % 12 + 1]
-    local keyColor = #text == 1 and self.colorScheme.bright or self.colorScheme.surface
-    love.graphics.setColor(colorScheme.strings)
-    love.graphics.circle('fill', 0, 0, 1)
-  end
 end
 
 function patch.process(s)
@@ -92,24 +74,35 @@ function patch.draw(s)
   for k,touch in pairs(s.touches) do
     if touch.qr then
       local tx, ty, tz = hexgrid.axialToCube(unpack(touch.qr))
-      touched[1][tx] = math.max(touch.volume, touched[1][tx] or 0)
-      touched[2][ty] = math.max(touch.volume, touched[2][ty] or 0)
-      touched[3][tz] = math.max(touch.volume, touched[3][tz] or 0)
+      touched[1][tx] = math.max(touch.volume or 0, touched[1][tx] or 0)
+      touched[2][ty] = math.max(touch.volume or 0, touched[2][ty] or 0)
+      touched[3][tz] = math.max(touch.volume or 0, touched[3][tz] or 0)
     end
   end
   -- draw strings across 3 axes, vibrate strings that intersect touches
   love.graphics.scale(keyboard.scaling)
-  love.graphics.setColor(colorScheme.strings)
   local t1, t2, x, y, z, sx, sy, ex, ey
-  local span = 5
-  for i = -span, span do -- covering range on single axis
-    t1 = {i,  span, -(i + span)}
-    t2 = {i, -span, -(i - span)}
+  local r = keyboard.radius
+  for i = -r, r do -- covering range on single axis
+    t1 = {
+      i,
+      math.min( r, r - i),
+      math.max(-r, -(r + i)), --tile at the edge of radius
+      }   --tile at the other edge of radius
+    t2 = {
+      i,
+      math.max(-r, -(r + i)),
+      math.min( r, r - i),
+      }
+    -- phew...
     for a=1, 3 do -- iterating over 3 axes in cube coordinates
+      colorScheme.strings[4] = 0.4 + 0.2 * a
+      love.graphics.setColor(colorScheme.strings)
       x, y, z = t1[(a - 1) % 3 + 1], t1[(a + 0) % 3 + 1], t1[(a + 1) % 3 + 1]
       sx, sy = hexgrid.hexToPixel(hexgrid.cubeToAxial(x, y, z))
       x, y, z = t2[(a - 1) % 3 + 1], t2[(a + 0) % 3 + 1], t2[(a + 1) % 3 + 1]
       ex, ey = hexgrid.hexToPixel(hexgrid.cubeToAxial(x, y, z))
+      love.graphics.setLineWidth(0.06)
       if touched[a][i] then
         love.graphics.push()
         love.graphics.translate(0.03 * math.sin(s.time * 50 + a), 0.03 * math.cos(s.time * 50 + a))
