@@ -1,7 +1,7 @@
 local efx = {}
 
 efx.bandpass = {
-  volume   = 0.0,
+  volume   = 1.0,
   type     = 'bandpass',
   lowgain  = 1.0,
   highgain = 1.0,

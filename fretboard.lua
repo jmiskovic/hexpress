@@ -76,9 +76,12 @@ function fretboard:interpret(s)
 end
 
 local function stringY(i, stringCount)
-  return l.remap( i , 1, stringCount, -neckWidth / 2, neckWidth / 2)
+  if stringCount == 1 then
+    return 0
+  else
+    return l.remap( i , 1, stringCount, -neckWidth / 2, neckWidth / 2)
+  end
 end
-
 
 function fretboard:draw(s)
   love.graphics.setColor(self.colorScheme.neck)
@@ -104,7 +107,7 @@ function fretboard:draw(s)
     local dy = 0
     for id, touch in pairs(self.tones) do
       if touch.string == i then
-        dy = 0.01 * math.sin(s.time * 50)
+        dy = 0.01 * math.sin(s.time * 50 + i)
       end
     end
     love.graphics.setLineWidth(l.remap(i, 1, #self.strings, 0.015, 0.03))

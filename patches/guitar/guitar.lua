@@ -17,39 +17,56 @@ local colorScheme = {
 function patch.load()
   --local hexpad = require('hexpad')
   -- keyboard = hexpad.new()
-  efx.addEffect(efx.distortion)
   efx.reverb.decaytime = 2
-  keyboard = fretboard.new(false, 'EBGDAE')
+  keyboard = fretboard.new()
   clean = sampler.new({
-    {path='patches/guitar/normJMLow_40.ogg', note =  40 - 60},
-    {path='patches/guitar/normJMLow_43.ogg', note =  43 - 60},
-    {path='patches/guitar/normJMLow_46.ogg', note =  46 - 60},
-    {path='patches/guitar/normJMLow_49.ogg', note =  49 - 60},
-    {path='patches/guitar/normJMLow_52.ogg', note =  52 - 60},
-    {path='patches/guitar/normJMLow_55.ogg', note =  55 - 60},
-    {path='patches/guitar/normJMLow_58.ogg', note =  58 - 60},
-    {path='patches/guitar/normJMLow_61.ogg', note =  61 - 60},
-    {path='patches/guitar/normJMLow_64.ogg', note =  64 - 60},
-    {path='patches/guitar/normJMLow_67.ogg', note =  67 - 60},
-    {path='patches/guitar/normJMLow_70.ogg', note =  70 - 60},
-    {path='patches/guitar/normJMLow_73.ogg', note =  73 - 60},
-    {path='patches/guitar/normJMLow_76.ogg', note =  76 - 60},
-    {path='patches/guitar/normJMLow_79.ogg', note =  79 - 60},
-    {path='patches/guitar/normJMLow_82.ogg', note =  82 - 60},
-
-
+    {path='patches/guitar/normGBLow_40.ogg', note =  40 - 60},
+    {path='patches/guitar/normGBLow_46.ogg', note =  46 - 60},
+    {path='patches/guitar/normGBLow_52.ogg', note =  52 - 60},
+    {path='patches/guitar/normGBLow_58.ogg', note =  58 - 60},
+    {path='patches/guitar/normGBLow_64.ogg', note =  64 - 60},
+    {path='patches/guitar/normGBLow_70.ogg', note =  70 - 60},
+    {path='patches/guitar/normGBLow_76.ogg', note =  76 - 60},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 1.8 },
     })
+
+  dirty = sampler.new({
+    {path='patches/guitar/pic1_F#1.ogg', note = -30 + 12 },
+    {path='patches/guitar/pic2_B2.ogg',  note = -25 + 12 },
+    {path='patches/guitar/pic4_C3.ogg',  note = -12 + 12 },
+    {path='patches/guitar/pic6_C4.ogg',  note =   0 + 12 },
+    {path='patches/guitar/pic3_F#2.ogg', note =   6 + 12 },
+    {path='patches/guitar/pic8_C5.ogg',  note =  12 + 12 },
+    {path='patches/guitar/pic5_F#3.ogg', note =  18 + 12 },
+    {path='patches/guitar/pic7_F#4.ogg', note =  30 + 12 },
+    envelope = { attack = 0, decay = 0, sustain = 1, release = 1.8 },
+    })
+
+  power = sampler.new({
+    {path='patches/guitar/cho1_F#1.ogg', note = -30 + 12},
+    {path='patches/guitar/cho2_C2.ogg',  note = -24 + 12},
+    {path='patches/guitar/cho3_F#2.ogg', note = -18 + 12},
+    {path='patches/guitar/cho4_C3.ogg',  note = -12 + 12},
+    {path='patches/guitar/cho5_F#3.ogg', note =  -6 + 12},
+    envelope = { attack = 0, decay = 0, sustain = 1, release = 0.2 },
+    })
+
   love.graphics.setBackgroundColor(colorScheme.neck)
 end
 
 function patch.process(s)
   keyboard:interpret(s)
-  efx.distortion.edge    = l.remap(s.tilt.lp[1], -0.3, 0.3, 0,   0.2, 'clamp')
-  clean.envelope.release = l.remap(s.tilt.lp[2],    1,-0.5, 0.2, 5,   'clamp')
-  --efx.distortion.lowcut  = l.remap(s.tilt.lp[3], -0.3, 0.3, 80, 24000)
-  --efx.distortion.bandwidth  = l.remap(s.tilt.lp[3], -0.3, 0.3, 80, 24000)
+  clean.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 5,   'clamp')
+  dirty.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 2,   'clamp')
+  power.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 1,   'clamp')
+
+  clean.masterVolume = l.remap(s.tilt.lp[1],-0.2, 0.1, 1, 0, 'clamp')
+  dirty.masterVolume = l.remap(s.tilt.lp[1],-0.1, 0.2, 0, 1, 'clamp')
+  power.masterVolume = l.remap(s.tilt.lp[1], 0.2, 0.3, 0, 1, 'clamp')
+
   clean:update(s.dt, s.touches)
+  dirty:update(s.dt, s.touches)
+  power:update(s.dt, s.touches)
   return s
 end
 
@@ -102,17 +119,6 @@ return patch
     {path='patches/guitar/gb4_f_rr3.ogg', note =  6 },
     {path='patches/guitar/gb5_f_rr3.ogg', note = 18 },
 
-
-
-    --{path='patches/guitar/db2_vl4_rr4_2.wav', note =  0 },
-    --{path='patches/guitar/e2_vl4_rr4_2.wav',  note =  0 },
-    --{path='patches/guitar/eb3_vl4_rr4_2.wav', note =  0 },
-    --{path='patches/guitar/eb4_vl4_rr4_2.wav', note =  0 },
-    --{path='patches/guitar/eb5_vl4_rr4_2.wav', note =  0 },
-    --{path='patches/guitar/gb2_vl4_rr4_2.wav', note =  0 },
-    --{path='patches/guitar/gb3_vl4_rr4_2.wav', note =  0 },
-    --{path='patches/guitar/gb4_vl4_rr4_2.wav', note =  0 },
-    --{path='patches/guitar/gb5_vl4_rr4_2.wav', note =  0 },
 
 
   lowGain = sampler.new({
