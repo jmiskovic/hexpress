@@ -1,6 +1,7 @@
 local sampler = {}
 sampler.__index = sampler
 
+local notes = require('notes')
 local efx = require('efx')
 
 sampler.logSamples = false
@@ -62,7 +63,7 @@ function sampler:update(dt, touches)
 
       local touch = touches[synth.touchId]
       if touch and touch.note then           -- update existing note
-        local pitch = self:noteToPitch(touch.note, -synth.note + self.transpose)
+        local pitch = notes.toPitch(touch.note -synth.note + self.transpose)
         synth.source:setPitch(pitch)
         touch.volume = math.max(volume, touch.volume or 0) -- report max volume for visualization
       else
@@ -71,11 +72,6 @@ function sampler:update(dt, touches)
     end
     synth.duration = synth.duration + dt
   end
-end
-
-function sampler:noteToPitch(note, transpose)
-  -- equal temperament
-  return math.pow(math.pow(2, 1/12), note + transpose)
 end
 
 function sampler:assignSynth(touchId, touch)
@@ -123,9 +119,9 @@ function sampler:assignSample(note, velocity)
     end
   end
   if sampler.logSamples then
-    log(string.format('note = %+d, pitch = %1.2f, sample = %s, distance = %d',
+    log(string.format('note = %d, pitch = %1.2f, sample = %s, distance = %d',
       note,
-      self:noteToPitch(note, self.samples[selected].note + self.transpose),
+      notes.toPitch(note + self.samples[selected].note + self.transpose),
       self.samples[selected].path,
       self.samples[selected].note - note
       ))

@@ -1,12 +1,12 @@
 local hexpad = {}
 hexpad.__index = hexpad
 local hexgrid = require('hexgrid')
+local notes = require('notes')
 local l = require('lume')
 require('autotable')
 
 hexpad.shape = hexgrid.shape
 hexpad.font = love.graphics.newFont("Ubuntu-B.ttf", 64)
-hexpad.noteIndexToName = {'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'}
 
 hexpad.colorScheme = {
   background    = {l.rgba(0x2d2734ff)},
@@ -47,7 +47,7 @@ function hexpad:interpret(s)
       touch.qr       = {q, r}
       touch.location = {x * 0.5, y * 0.5}
       touch.note     = noteIndex
-      touch.noteName = self.noteIndexToName[noteIndex % 12 + 1]
+      touch.noteName = notes.toName[noteIndex % 12]
       -- retrigger note if it's new touch or if existing touch has crossed into another cell
       if touchToQR[id] and touchToQR[id][1] == q and touchToQR[id][2] == r then
         touch.noteRetrigger = false
@@ -108,7 +108,7 @@ function hexpad:drawCell(q, r, s, touch)
     -- note name text
     love.graphics.scale(0.01)
     local note = self:hexToNoteIndex(q, r)
-    local text = self.noteIndexToName[note % 12 + 1]
+    local text = notes.toName[note % 12]
     love.graphics.setFont(self.font)
     local h = self.font:getHeight()
     local w = self.font:getWidth(text)
