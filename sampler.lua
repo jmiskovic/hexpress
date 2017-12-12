@@ -93,7 +93,7 @@ function sampler:assignSynth(touchId, touch)
   if synth.source then
     synth.source:stop()
   end
-  local sample = self:assignSample(touch.note, touch.pressure or 1)
+  local sample = self:assignSample(touch.note, touch.pressure)
   synth.source = love.audio.newSource(sample.soundData)
   synth.touchId = touchId
   synth.duration = 0

@@ -59,26 +59,24 @@ function patch.load()
     {path='patches/riders/A_062__D4_3.ogg', note = 14, velocity = 0.5},
     {path='patches/riders/A_062__D4_4.ogg', note = 14, velocity = 0.3},
     {path='patches/riders/A_062__D4_5.ogg', note = 14, velocity = 0.1},
-    synthCount = 3,
+    synthCount = 6,
 --    {path='riders/A_076__E5_2.ogg', transpose =-28, velocity = 0.7},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.15 },
     })
-
-  -- customize colorscheme
-  hexpad.colorScheme.background = colorScheme.background
-  hexpad.colorScheme.highlight  = colorScheme.highlight
-  hexpad.colorScheme.surface    = colorScheme.surface
-  hexpad.colorScheme.bright     = colorScheme.bright
   love.graphics.setBackgroundColor(hexpad.colorScheme.background)
+  keyboard.colorScheme.background = colorScheme.background
+  keyboard.colorScheme.highlight  = colorScheme.highlight
+  keyboard.colorScheme.surface    = colorScheme.surface
+  keyboard.colorScheme.bright     = colorScheme.bright
 end
 
 function patch.process(s)
   keyboard:interpret(s)
   if not s.pressureSupport then
     for _,touch in pairs(s.touches) do
-      touch.pressure      = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
-      rhodes.masterVolume = l.remap(s.tilt[2], 0.0, 0.7, 0.1, 1, 'clamp')
+      touch.pressure = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
     end
+    rhodes.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.4, 1, 'clamp')
   end
   efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.3, 0.3, 0, 15, 'clamp')
   filter.highgain = l.remap(s.tilt.lp[2], 0, 0.7, 0, 1, 'clamp')
@@ -87,18 +85,20 @@ function patch.process(s)
 end
 
 function patch.draw(s)
+  -- customize colorscheme
   keyboard:draw(s)
   -- rain
-  for i=1,10 do
+  for i=1,3 do
     local shade = 0.2 + 0.2 * math.random()
-    love.graphics.setColor(shade, shade, shade, 0.5)
+    love.graphics.setColor(shade, shade, shade, 0.2)
     love.graphics.setLineWidth(0.01)
-    local x1 = (math.random() * 2 - 1) * s.width / s.height
     local y1 = -2 * math.random()
-    local x2 = x1 + math.random() * 0.1 + 0.2
     local y2 =  2 * math.random()
+    local x1 = (math.random() * 2 - 1) * s.width / s.height
+    local x2 = x1 + (y2 - y1) * math.random() * 0.2
     love.graphics.line(x1, y1, x2, y2)
   end
+  love.graphics.origin()
 end
 
 function patch.icon(time)

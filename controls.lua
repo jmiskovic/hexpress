@@ -36,7 +36,7 @@ function controls.process(s)
       s.touches[id].pressure = l.remap(pressure, minPressure, maxPressure, 0, 1)
       s.pressureSupport = true
     else  -- if same, let's not div by 0 (CPU might explode)
-      s.touches[id].pressure = pressure
+      s.touches[id].pressure = 1
       s.pressureSupport = false
     end
   end
