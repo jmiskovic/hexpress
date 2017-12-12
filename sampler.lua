@@ -3,6 +3,7 @@ sampler.__index = sampler
 
 local efx = require('efx')
 
+sampler.logSamples = false
 
 function sampler.new(settings)
   local self = setmetatable({}, sampler)
@@ -94,6 +95,7 @@ function sampler:assignSynth(touchId, touch)
     synth.source:stop()
   end
   local sample = self:assignSample(touch.note, touch.pressure)
+  synth.path = sample.path
   synth.source = love.audio.newSource(sample.soundData)
   synth.touchId = touchId
   synth.duration = 0
@@ -120,12 +122,14 @@ function sampler:assignSample(note, velocity)
       bestFitness = fitness
     end
   end
-  --[[
-  log('selected' .. self.samples[selected].path,
-    'note', note,
-    'distance', self.samples[selected].note - note,
-    'pitch', self:noteToPitch(note, self.samples[selected].note + self.transpose))
-  --]]
+  if sampler.logSamples then
+    log(string.format('note = %+d, pitch = %1.2f, sample = %s, distance = %d',
+      note,
+      self:noteToPitch(note, self.samples[selected].note + self.transpose),
+      self.samples[selected].path,
+      self.samples[selected].note - note
+      ))
+  end
   return self.samples[selected]
 end
 

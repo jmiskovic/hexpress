@@ -44,6 +44,10 @@ function mock.process(s)
     s.pressureSupport = true
     s.touches[1] = {250, 250, pressure = 0.9}
   end
+  if love.keyboard.isDown('f1') then
+    local sampler = require('sampler')
+    sampler.logSamples = true
+  end
   return s
 end
 
@@ -82,6 +86,9 @@ function mock.draw(s)
   barsize = l.remap(s.tilt[3], -1, 1, 0, barsize)
   love.graphics.rectangle('fill', -barsize / 2, -barsize / 2, barsize, barsize)
   love.graphics.print(s.tilt[3], 0, 0)
+  love.graphics.print(math.acos(s.tilt[3])/math.pi*180, 0, 15)
+  love.graphics.print(math.atan(s.tilt[2], s.tilt[3])/math.pi*180, 0, 30)
+  love.graphics.print(math.atan(-s.tilt[1], math.sqrt(s.tilt[3]^2 + s.tilt[2]^2))/math.pi*180, 0, 45)
   love.graphics.pop()
 end
 
