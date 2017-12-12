@@ -73,10 +73,11 @@ function love.draw()
   love.graphics.origin()
   --mock.draw(stream)
   --drawTable(stream)
-  track('fps %2.1f', love.timer.getFPS())
+  --track('fps %2.1f', love.timer.getFPS())
 end
 
 function loadPatch(newPatch)
+  time = 0  -- back to big bang
   patch = newPatch
   patch.load()
 end

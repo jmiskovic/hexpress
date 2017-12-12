@@ -1,7 +1,7 @@
 local efx = {}
 
 efx.bandpass = {
-  volume   = 1.0,
+  volume   = 0.0,
   type     = 'bandpass',
   lowgain  = 1.0,
   highgain = 1.0,
@@ -19,9 +19,17 @@ efx.tremolo = {
   frequency = 0.6
 }
 
-efx.activeEffects = {
-  efx.reverb,               -- nice to have a bit of reverb
+efx.distortion = {
+  volume    = 1.0,
+  type      = 'distortion',
+  gain      = 0.9,             -- [0.01, 1]
+  edge      = 0.51,             -- [0,    1]
+  lowcut    = 24000,           -- [80,24000]
+  center    = 5000,           -- [80,24000]
+  bandwidth =  5000,             -- [80,24000]
 }
+
+efx.activeEffects = {efx.reverb}               -- nice to have a bit of reverb
 
 function efx.load()
   for i,effect in ipairs(efx.activeEffects) do
@@ -37,6 +45,7 @@ end
 function efx.process(s)
   for i,effect in ipairs(efx.activeEffects) do
     ok, err = pcall(love.audio.setEffect, effect.type, effect)
+    if not ok then log(err) end
   end
 end
 

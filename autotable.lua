@@ -33,17 +33,15 @@ end
 --[[
 m = table.autotable(2)
 m[1][2] = 'x'
-m[3][4] = 'x'
+m[3][4] = 'y'
 assert(m[1][2] == 'x')
 assert(type(m[2]) == 'table')
 assert(type(m[2][3]) == 'nil')
 assert(type(auto) == 'nil')
 assert(type(assign) == 'nil')
-local c = m[2][3]
-for x,v in pairs(m) do
-  assert(x ~= 2) -- m[2] should not exist after we accessed it
-  for y,v1 in pairs(v) do
-    print(x,y)
+for i,inner in pairs(m) do
+  for j,v in pairs(inner) do
+    print(i, j, v)
   end
 end
 --]]
