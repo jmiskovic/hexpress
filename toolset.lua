@@ -26,7 +26,7 @@ local function imposterLoveDraw()
   local line = 0
   love.graphics.setColor(1, 1, 1)
   for k,v in pairs(tracking) do
-    love.graphics.print(string.format(k,v), sw*4/5, 5 + line * fontSize)
+    love.graphics.print(string.format(k,v), sw*3/5, 5 + line * fontSize)
     line = line + 1
   end
   for _,v in ipairs(draw_functions) do
@@ -69,7 +69,7 @@ end
 
 function drawTable(t, x, y)
   local tabSize = 20 -- px
-  local x = x or sw * 4 / 5
+  local x = x or sw * 3 / 5
   local y = y or 5 + 4 * fontSize
   love.graphics.setFont(font)
   love.graphics.setColor(1, 1, 1)

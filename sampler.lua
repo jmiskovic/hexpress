@@ -101,7 +101,9 @@ function sampler:assignSynth(touchId, touch)
   synth.active = true
   synth.note = sample.note
   efx.applyFilter(synth.source)
-  synth.source:setPosition(touch.qr[1]/4, touch.qr[2]/4, 0.5)
+  if touch.location then
+    synth.source:setPosition(touch.location[1] or 0, touch.location[2] or 0, 0.5)
+  end
   synth.source:setLooping(self.looped)
   synth.source:play()
   return synth

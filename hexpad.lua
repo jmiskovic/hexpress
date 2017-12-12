@@ -17,10 +17,11 @@ hexpad.colorScheme = {
 
 local touchToQR = {}
 
-function hexpad.new(noteOffset, radius)
+function hexpad.new(displayNoteNames, noteOffset, radius)
   local self = setmetatable({
        -- defaults start with C on center of screen and fill whole screen with cells of size
        noteOffset = noteOffset or 4,  -- it's nice to have note E in the centre
+       displayNoteNames = displayNoteNames or false,
     }, hexpad)
   -- would like to keep cell size constant across different devices, so have to
   -- account for resolution and dpi (pixel density)
@@ -44,16 +45,17 @@ function hexpad:interpret(s)
     if hexgrid.distanceFromCenter(q, r) <= self.radius then
       local noteIndex = self:hexToNoteIndex(q, r)
       touch.qr       = {q, r}
+      touch.location = {x * 0.5, y * 0.5}
       touch.note     = noteIndex
       touch.noteName = self.noteIndexToName[noteIndex % 12 + 1]
       -- retrigger note if it's new touch or if existing touch has crossed into another cell
       if touchToQR[id] and touchToQR[id][1] == q and touchToQR[id][2] == r then
         touch.noteRetrigger = false
-        touch.duration = s.time - touchToQR[id].startTime
+        --touch.duration = s.time - touchToQR[id].startTime
         touchToQR[id][1], touchToQR[id][2] = touch.qr[1], touch.qr[2]
       else
         touch.noteRetrigger = true
-        touch.duration = 0
+        --touch.duration = 0
         touchToQR[id] = touch.qr
         touchToQR[id].startTime = s.time
       end
@@ -102,15 +104,17 @@ function hexpad:drawCell(q, r, s, touch)
     love.graphics.setColor(self.colorScheme.highlight)
     love.graphics.polygon('fill', self.shape)
   end
-  -- note name text
-  love.graphics.scale(0.01)
-  local note = self:hexToNoteIndex(q, r)
-  local text = self.noteIndexToName[note % 12 + 1]
-  love.graphics.setFont(self.font)
-  local h = self.font:getHeight()
-  local w = self.font:getWidth(text)
-  love.graphics.setColor(self.colorScheme.bright)
-  love.graphics.print(text, -w / 2, -h / 2) -- +5, because of some obscure getWidth() bug
+  if self.displayNoteNames then
+    -- note name text
+    love.graphics.scale(0.01)
+    local note = self:hexToNoteIndex(q, r)
+    local text = self.noteIndexToName[note % 12 + 1]
+    love.graphics.setFont(self.font)
+    local h = self.font:getHeight()
+    local w = self.font:getWidth(text)
+    love.graphics.setColor(self.colorScheme.bright)
+    love.graphics.print(text, -w / 2, -h / 2) -- +5, because of some obscure getWidth() bug
+  end
 end
 
 function hexpad:hexToNoteIndex(q, r)

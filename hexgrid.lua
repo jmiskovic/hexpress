@@ -5,16 +5,6 @@ hexgrid.__index = hexgrid
 -- vertices for tile shape that spans from -1 to 1 (has to be scaled to needed size)
 hexgrid.shape = { 1,  0, 1/2, math.sqrt(3)/2, -1/2, math.sqrt(3)/2, -1,  0, -1/2, -math.sqrt(3)/2, 1/2, -math.sqrt(3)/2 }
 
--- QR from XYZ coordinates
-local function cubeToAxial(x, y, z)
-  return x, z
-end
-
--- XYZ from QR coordinates
-local function axialToCube(q, r)
-  return q, -q-r, r
-end
-
 -- snap XYZ to nearest cell center XYZ
 local function hexRounder(x, y, z)
   local rx = math.floor(x + 0.5)
@@ -81,6 +71,16 @@ function hexgrid.spiralIter(q, r, radius)
   end
 end
 
+-- QR from XYZ coordinates
+function hexgrid.cubeToAxial(x, y, z)
+  return x, z
+end
+
+-- XYZ from QR coordinates
+function hexgrid.axialToCube(q, r)
+  return q, -q-r, r
+end
+
 -- 2D XY center of cell from QR coordinates
 function hexgrid.hexToPixel(q, r)
   local x = 3 / 2 * q
@@ -94,11 +94,11 @@ function hexgrid.pixelToHex(x, y)
   y = y
   local q = x * 2/3
   local r = y * math.sqrt(3)/3 - x/3
-  return cubeToAxial(hexRounder(axialToCube(q, r)))
+  return hexgrid.cubeToAxial(hexRounder(hexgrid.axialToCube(q, r)))
 end
 
 function hexgrid.distanceFromCenter(q, r)
-  local a, b, c = axialToCube(q, r)
+  local a, b, c = hexgrid.axialToCube(q, r)
   return (math.abs(a) + math.abs(b) + math.abs(c))/2
 end
 
