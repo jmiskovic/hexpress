@@ -96,6 +96,7 @@ function fretboard:draw(s)
     love.graphics.setColor(self.colorScheme.highlight)
     love.graphics.line(fretX + dx, -neckWidth / 2 * 1.05, fretX + dx, neckWidth / 2 * 1.05)
   end
+  -- dots
   love.graphics.circle('fill', 0.2, 0, 0.05)
   love.graphics.circle('fill', 1.0, 0, 0.05)
   local fretX = -0.4 * 4

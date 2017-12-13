@@ -56,10 +56,11 @@ end
 
 function patch.process(s)
   keyboard:interpret(s)
+  -- increase the duration of released notes with vertical tilt
   clean.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 5,   'clamp')
   dirty.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 2,   'clamp')
   power.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 1,   'clamp')
-
+  -- crossfade between clean / dirty / dirty+power
   clean.masterVolume = l.remap(s.tilt.lp[1],-0.2, 0.1, 1, 0, 'clamp')
   dirty.masterVolume = l.remap(s.tilt.lp[1],-0.1, 0.2, 0, 1, 'clamp')
   power.masterVolume = l.remap(s.tilt.lp[1], 0.2, 0.3, 0, 1, 'clamp')
@@ -74,10 +75,13 @@ function patch.draw(s)
   keyboard:draw(s)
 end
 
-function patch.icon(time)
+function patch.icon(time, s)
   -- neck
   love.graphics.setColor(colorScheme.neck)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
+  -- dot
+  love.graphics.setColor(colorScheme.highlight)
+  love.graphics.circle('fill', 0, 0, 0.4)
   -- strings
   love.graphics.setLineWidth(0.08)
   love.graphics.setColor(colorScheme.string)
@@ -87,7 +91,6 @@ function patch.icon(time)
   love.graphics.setColor(colorScheme.highlight)
   love.graphics.line(-1, 0.7 , 1, 0.7 + math.sin(50*time) * 0.02)
   love.graphics.line(-1, -0.7, 1, -0.7)
-  love.graphics.circle('fill', 0, 0, 0.4)
 end
 
 return patch

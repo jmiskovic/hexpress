@@ -28,7 +28,7 @@ end
 
 function transform()
   -- use same set of transformations in both draw() and update() functions
-  -- it's extracted here because if they deverge, it takes time to detect and debug
+  -- it's extracted here because if they diverge, it takes time to detect and debug
 
   -- set (0,0) to screen center and 1 unit to half-screen hight
   love.graphics.translate(sw / 2, sh / 2)
@@ -46,7 +46,6 @@ function love.update(dt)
     width = sw,
     height = sh,
     dpi = dpi,
-    -- todo: dpi, after investigating what's happening with love.window.getPixelScale()
   }
 
   controls.process(stream)
