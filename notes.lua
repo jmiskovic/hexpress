@@ -6,7 +6,7 @@ notes.toName = setmetatable({[0] = 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G
 
 -- map from name string to index (C4 -> 0, C#4 -> 1)
 notes.toIndex = {}
-for i=-24,24 do
+for i=-48,48 do
   notes.toIndex[notes.toName[i] .. math.floor(i / 12 + 4)] = i
 end
 

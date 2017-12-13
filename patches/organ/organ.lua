@@ -1,14 +1,16 @@
 local patch = {}
 
 local sampler = require('sampler')
+local hexgrid = require('hexgrid')
 local hexpad = require('hexpad')
 local efx = require('efx')
 local l = require('lume')
 
 local colorScheme = {
-  pipe  = {l.rgba(0xfafa50ff)},
-  shade = {l.rgba(0xffffffa0)},
-  lip   = {l.rgba(0x606010ff)},
+  pipe  = {l.rgba(0xccad00ff)},
+  shade = {l.rgba(0xffffff50)},
+  lip   = {l.rgba(0x4e480cff)},
+  background = {0,0,0},
 }
 
 local keyboard
@@ -18,6 +20,7 @@ function patch.load()
   keyboard = hexpad.new()
   efx.setDryVolume(0.5)
   efx.addEffect(efx.tremolo)
+  efx.tremolo.volume = 1
   samplerLoop = sampler.new({
     {path='patches/organ/Rode_Pedal_10.ogg', note= -3},
     {path='patches/organ/Rode_Pedal_13.ogg', note=  0},
@@ -30,20 +33,7 @@ function patch.load()
     looped = true,
     envelope = { attack = 0.1, decay = 0.50, sustain = 0.85, release = 0.35 },
   })
-
-  function keyboard:drawCell(q, r, s, touch)
-    local delta = 0
-    if touch and touch.volume then
-      delta = touch.volume
-    end
-    love.graphics.scale(0.95 - delta / 10)
-    love.graphics.translate(0, delta / 20)
-    local note = self:hexToNoteIndex(q, r)
-    local text = self.noteIndexToName[note % 12 + 1]
-    local keyColor = #text == 1 and self.colorScheme.bright or self.colorScheme.surface
-    love.graphics.setColor(keyColor)
-    love.graphics.polygon('fill', self.shape)
-  end
+  love.graphics.setBackgroundColor(colorScheme.background)
 end
 
 function patch.process(s)
@@ -60,7 +50,7 @@ end
 
 function patch.icon(time)
   local width = 0.6
-  local off = math.sin(time) * 0.05
+  local off = math.cos(time) * 0.05
   for x=-1.1, 1.1, width do
     -- pipe
     love.graphics.setColor(colorScheme.pipe)

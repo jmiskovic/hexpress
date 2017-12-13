@@ -1,37 +1,41 @@
 local efx = {}
 
-efx.bandpass = {
-  volume   = 1.0,
-  type     = 'bandpass',
-  lowgain  = 1.0,
-  highgain = 1.0,
+local defaults = {
+  bandpass = {
+    volume   = 1.0,
+    type     = 'bandpass',
+    lowgain  = 1.0,
+    highgain = 1.0,
+  },
+  reverb = {
+    volume    = 1.0,
+    type      = 'reverb',
+    decaytime = 1,
+  },
+  tremolo = {
+    volume    = 0.0,
+    type      = 'ringmodulator',
+    frequency = 0.6
+  },
 }
 
-efx.reverb = {
-  volume    = 1.0,
-  type      = 'reverb',
-  decaytime = 1,
-}
+efx.activeEffects = {}
 
-efx.tremolo = {
-  volume    = 1.0,
-  type      = 'ringmodulator',
-  frequency = 0.6
-}
+function resetEffects()
+  for name, params in pairs(defaults) do
+    efx[name] = {}
+    for param, value in pairs(params) do
+      efx[name][param] = value
+    end
+  end
+  efx.activeEffects = {efx.reverb}  -- nice to have a bit of reverb
+end
 
-efx.distortion = {
-  volume    = 1.0,
-  type      = 'distortion',
-  gain      = 0.9,             -- [0.01, 1]
-  edge      = 0.51,             -- [0,    1]
-  lowcut    = 24000,           -- [80,24000]
-  center    = 5000,           -- [80,24000]
-  bandwidth =  5000,             -- [80,24000]
-}
+resetEffects()
 
-efx.activeEffects = {efx.reverb}               -- nice to have a bit of reverb
 
 function efx.load()
+  resetEffects()
   for i,effect in ipairs(efx.activeEffects) do
     love.audio.setEffect(effect.type, effect)
   end

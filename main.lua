@@ -5,13 +5,6 @@ local selector = require('selector')
 local efx      = require('efx')
 local mock     = require('mock')
 
-local hotswapped = {  -- list of modules that require dynamic re-loading
-  'controls',
-  'sampler',
-  'hexpad',
-  'mock',
-}
-
 local time = 0
 local sw, sh, dpi
 local patch = selector
@@ -77,7 +70,8 @@ function love.draw()
 end
 
 function loadPatch(newPatch)
-  time = 0  -- back to big bang
+  time = 0   -- back to big bang
+  efx.load() -- restore efx to defaults
   patch = newPatch
   patch.load()
 end
@@ -87,14 +81,6 @@ function love.keypressed(key)
     if patch == selector then
       love.event.quit()
     else
-      for _, name in ipairs(hotswapped) do
-        local m, err  = l.hotswap(name)
-        if m then
-          if m.load then m.load() end
-        else
-          -- TODO
-        end
-      end
       loadPatch(selector)
       love.audio.stop()
     end

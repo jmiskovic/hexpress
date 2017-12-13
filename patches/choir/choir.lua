@@ -16,7 +16,7 @@ local colorScheme = {
 }
 
 function patch.load()
-  keyboard = hexpad.new()
+  keyboard = hexpad.new(true)
   tone = sampler.new({
     {path='patches/choir/choir_15.ogg',  note= -3},
     {path='patches/choir/choir_3.ogg',   note=  9},

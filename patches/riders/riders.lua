@@ -14,7 +14,8 @@ local colorScheme = {
   night      = {l.rgba(0x0a0a0cff)},
   background = {l.rgba(0x0a0a0cff)},
   highlight  = {l.rgba(0xb73490ff)},
-  surface    = {l.rgba(0x323353ff)},
+  surface    = {l.hsl(0.66, 0.25, 0.26)},
+  surfaceC   = {l.hsl(0.66, 0.20, 0.23)},
   bright     = {l.rgba(0x4a515cff)},
 }
 
@@ -33,7 +34,10 @@ function patch.load()
   rainSound:play()
 
   efx.addEffect(efx.tremolo)
-  efx.reverb.decaytime = 2.0
+  efx.setDryVolume(0.4)
+  efx.reverb.volume = 1
+  efx.reverb.decaytime = 2
+  efx.tremolo.volume = 1
   efx.tremolo.frequency = 4
 
   keyboard = hexpad.new()
@@ -63,11 +67,12 @@ function patch.load()
 --    {path='riders/A_076__E5_2.ogg', transpose =-28, velocity = 0.7},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.15 },
     })
-  love.graphics.setBackgroundColor(hexpad.colorScheme.background)
   keyboard.colorScheme.background = colorScheme.background
   keyboard.colorScheme.highlight  = colorScheme.highlight
   keyboard.colorScheme.surface    = colorScheme.surface
+  keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
   keyboard.colorScheme.bright     = colorScheme.bright
+  love.graphics.setBackgroundColor(colorScheme.background)
 end
 
 function patch.process(s)

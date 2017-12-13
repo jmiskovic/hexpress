@@ -8,13 +8,6 @@ require('autotable')
 hexpad.shape = hexgrid.shape
 hexpad.font = love.graphics.newFont("Ubuntu-B.ttf", 64)
 
-hexpad.colorScheme = {
-  background    = {l.rgba(0x2d2734ff)},
-  highlight     = {l.rgba(0xe86630ff)},
-  surface       = {l.rgba(0x687591ff)},
-  bright        = {l.rgba(0xa7a2b8ff)},
-}
-
 local touchToQR = {}
 
 function hexpad.new(displayNoteNames, noteOffset, radius)
@@ -22,6 +15,13 @@ function hexpad.new(displayNoteNames, noteOffset, radius)
        -- defaults start with C on center of screen and fill whole screen with cells of size
        noteOffset = noteOffset or 4,  -- it's nice to have note E in the centre
        displayNoteNames = displayNoteNames or false,
+       colorScheme = {
+        background    = {l.rgba(0x2d2734ff)},
+        highlight     = {l.rgba(0xe86630ff)},
+        surface       = {l.hsl(0.62, 0.16, 0.49)},
+        surfaceC      = {l.hsl(0.62, 0.10, 0.40)},
+        bright        = {l.rgba(0xa7a2b8ff)},
+      },
     }, hexpad)
   -- would like to keep cell size constant across different devices, so have to
   -- account for resolution and dpi (pixel density)
@@ -94,9 +94,14 @@ function hexpad:draw(s)
 end
 
 function hexpad:drawCell(q, r, s, touch)
+  local note = self:hexToNoteIndex(q, r)
   -- shape
   love.graphics.scale(0.90)
-  love.graphics.setColor(self.colorScheme.surface)
+  if note % 12 == 0 then
+    love.graphics.setColor(self.colorScheme.surfaceC)
+  else
+    love.graphics.setColor(self.colorScheme.surface)
+  end
   love.graphics.polygon('fill', self.shape)
   if touch and touch.volume then
     love.graphics.scale(1 + touch.volume/10)
@@ -107,7 +112,6 @@ function hexpad:drawCell(q, r, s, touch)
   if self.displayNoteNames then
     -- note name text
     love.graphics.scale(0.01)
-    local note = self:hexToNoteIndex(q, r)
     local text = notes.toName[note % 12]
     love.graphics.setFont(self.font)
     local h = self.font:getHeight()
