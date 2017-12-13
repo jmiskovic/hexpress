@@ -69,13 +69,14 @@ function selector.draw(s)
         -- draw icon inside circle cutout
         love.graphics.stencil(stencilFunc, "replace", 1)
         love.graphics.setStencilTest("greater", 0)
-        love.graphics.push() -- guard against patch's transformations
-        local ok, err = pcall(patch.icon, s.time, s)
-        love.graphics.pop()
-        if not ok then
+        if patch.icon then
+          love.graphics.push() -- guard against patch's transformations
+          local ok, err = pcall(patch.icon, s.time, s)
+          love.graphics.pop()
+          if not ok then log(err) end
+        else
           love.graphics.setColor(1, 1, 1, 1)
           selector.defaultIcon(q, r)
-          log(err)
         end
         love.graphics.setStencilTest()
         love.graphics.setLineWidth(0.1)
