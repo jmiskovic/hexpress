@@ -16,10 +16,11 @@ local colorScheme = {
 }
 
 local keyboard
-local tuba, trombone
+local trombone, trombuzz, ensemble
 
 function patch.load()
   keyboard = hexpad.new()
+
 
   trombone  = sampler.new({
     {path='patches/brass/Trombone_Sustain_F1_v5_1.ogg',  note= -7},
@@ -30,19 +31,31 @@ function patch.load()
     {path='patches/brass/Trombone_Sustain_A#2_v5_1.ogg', note= 10},
     {path='patches/brass/Trombone_Sustain_D3_v5_1.ogg',  note= 14},
     {path='patches/brass/Trombone_Sustain_F3_v5_1.ogg',  note= 17},
+    looped=true,
     })
 
-  trumpet = sampler.new({
-    {path='/patches/brass/000.061.000.ogg',  note= -8 - 12},
-    {path='/patches/brass/000.061.004.ogg',  note=  4 - 12},
-    {path='/patches/brass/000.061.005.ogg',  note=  7 - 12},
-    {path='/patches/brass/000.061.006.ogg',  note= 12 - 12},
-    {path='/patches/brass/000.061.007.ogg',  note= 16 - 12},
-    {path='/patches/brass/000.061.008.ogg',  note= 19 - 12},
-    {path='/patches/brass/000.061.009.ogg',  note= 24 - 12},
-    {path='/patches/brass/000.061.010.ogg',  note= 28 - 12},
-    {path='/patches/brass/000.061.011.ogg',  note= 31 - 12},
-    --transpose = -3
+  trombuzz = sampler.new({
+    {path='patches/brass/Trombone_Buzz_F1_v2_1.ogg', note= notes.toIndex['F3']},
+    {path='patches/brass/Trombone_Buzz_A1_v2_1.ogg', note= notes.toIndex['A3']},
+    {path='patches/brass/Trombone_Buzz_C2_v2_1.ogg', note= notes.toIndex['C4']},
+    {path='patches/brass/Trombone_Buzz_D#2_v2_1.ogg',note= notes.toIndex['D#4']},
+    {path='patches/brass/Trombone_Buzz_G2_v2_1.ogg', note= notes.toIndex['G4']},
+    {path='patches/brass/Trombone_Buzz_A#2_v2_1.ogg',note= notes.toIndex['A#4']},
+    {path='patches/brass/Trombone_Buzz_D#3_v2_1.ogg',note= notes.toIndex['D#5']},
+    envelope = { attack = 0.4, decay = 0.3, sustain = 0.8, release = 0.1 },
+    looped=true,
+    })
+
+  ensemble = sampler.new({
+    {path='patches/brass/trumpet004.ogg',  note=  4},
+    {path='patches/brass/trumpet005.ogg',  note=  7},
+    {path='patches/brass/trumpet006.ogg',  note= 12},
+    {path='patches/brass/trumpet007.ogg',  note= 16},
+    {path='patches/brass/trumpet008.ogg',  note= 19},
+    {path='patches/brass/trumpet009.ogg',  note= 24},
+    {path='patches/brass/trumpet010.ogg',  note= 28},
+    {path='patches/brass/trumpet011.ogg',  note= 31},
+    transpose = 12,
   })
   love.graphics.setBackgroundColor(colorScheme.background)
 
@@ -52,7 +65,7 @@ function patch.load()
       delta = touch.volume
     end
     local note = keyboard:hexToNoteIndex(q, r)
-    love.graphics.translate(0, delta/5)
+    love.graphics.translate(0, delta/10)
     love.graphics.scale(0.8)
     if note % 12 == 0 then
       love.graphics.setColor(colorScheme.steelDark)
@@ -70,16 +83,12 @@ end
 function patch.process(s)
   keyboard:interpret(s)
   -- crossfade between instruments
-  trombone.masterVolume = l.remap(s.tilt.lp[1],  0.2, 0.1, 0.2, 1, 'clamp')
-  trumpet.masterVolume  = l.remap(s.tilt.lp[1],  0.1, 0.2, 0, 1, 'clamp')
-  for _,touch in pairs(s.touches) do
-    if touch.note then
-      touch.note = l.remap(s.tilt.lp[2], -0.2, -1, touch.note, touch.note / 2, 'clamp')
-    end
-  end
-  -- tuba:update(s.dt, s.touches)
+  trombone.masterVolume = l.remap(s.tilt.lp[1], 0.2,  0.1, 0.2, 1, 'clamp')
+  trombuzz.masterVolume = l.remap(s.tilt.lp[2], 0.0, -0.4, 0,   1, 'clamp')
+  ensemble.masterVolume = l.remap(s.tilt.lp[1], 0.1,  0.2, 0,   1, 'clamp')
   trombone:update(s.dt, s.touches)
-  trumpet:update(s.dt, s.touches)
+  trombuzz:update(s.dt, s.touches)
+  ensemble:update(s.dt, s.touches)
   return s
 end
 
