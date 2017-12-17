@@ -63,7 +63,7 @@ function sampler:update(dt, touches)
 
       local touch = touches[synth.touchId]
       if touch and touch.note then           -- update existing note
-        local pitch = notes.toPitch(touch.note -synth.note + self.transpose)
+        local pitch = notes.toPitch(touch.note - synth.note + self.transpose)
         synth.source:setPitch(pitch)
         touch.volume = math.max(volume, touch.volume or 0) -- report max volume for visualization
       else
@@ -90,7 +90,7 @@ function sampler:assignSynth(touchId, touch)
   if synth.source then
     synth.source:stop()
   end
-  local sample = self:assignSample(touch.note, touch.pressure)
+  local sample = self:assignSample(touch.note + self.transpose, touch.pressure)
   synth.path = sample.path
   synth.source = love.audio.newSource(sample.soundData)
   synth.touchId = touchId
@@ -121,9 +121,9 @@ function sampler:assignSample(note, velocity)
   if sampler.logSamples then
     log(string.format('note = %d, pitch = %1.2f, sample = %s, distance = %d',
       note,
-      notes.toPitch(note + self.samples[selected].note + self.transpose),
+      notes.toPitch(note - self.samples[selected].note),
       self.samples[selected].path,
-      self.samples[selected].note - note
+      note - self.samples[selected].note
       ))
   end
   return self.samples[selected]
