@@ -10,13 +10,14 @@ local rhodes
 local rainSound
 
 local colorScheme = {
-  flash      = {1,1,1},
-  night      = {l.rgba(0x0a0a0cff)},
   background = {l.rgba(0x0a0a0cff)},
-  highlight  = {l.rgba(0xb73490ff)},
+  highlight  = {l.hsl(0.88, 0.56, 0.46)},
   surface    = {l.hsl(0.66, 0.25, 0.26)},
   surfaceC   = {l.hsl(0.66, 0.20, 0.23)},
+  knob       = {l.hsl(0.67, 0.09, 0.15)},
   bright     = {l.rgba(0x4a515cff)},
+  text       = {l.hsl(0.24, 0.09, 0.72)},
+  shiny      = {l.hsl(0.24, 0.09, 0.96, 0.5)},
 }
 
 
@@ -27,12 +28,6 @@ local filter = {
 }
 
 function patch.load()
-  local rainPath = 'patches/riders/rain.ogg'
-  rainSound = love.audio.newSource(love.sound.newDecoder(rainPath))
-  rainSound:setLooping(true)
-  rainSound:setVolume(0.02)
-  rainSound:play()
-
   efx.addEffect(efx.tremolo)
   efx.setDryVolume(0.4)
   efx.reverb.volume = 1
@@ -63,9 +58,8 @@ function patch.load()
     {path='patches/riders/A_062__D4_3.ogg', note = 14, velocity = 0.5},
     {path='patches/riders/A_062__D4_4.ogg', note = 14, velocity = 0.3},
     {path='patches/riders/A_062__D4_5.ogg', note = 14, velocity = 0.1},
-    synthCount = 6,
---    {path='riders/A_076__E5_2.ogg', transpose =-28, velocity = 0.7},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.15 },
+    synthCount = 6,
     })
   keyboard.colorScheme.background = colorScheme.background
   keyboard.colorScheme.highlight  = colorScheme.highlight
@@ -81,45 +75,51 @@ function patch.process(s)
     for _,touch in pairs(s.touches) do
       touch.pressure = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
     end
-    rhodes.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.4, 1, 'clamp')
+    rhodes.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
   end
   efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.3, 0.3, 0, 15, 'clamp')
   filter.highgain = l.remap(s.tilt.lp[2], 0, 0.7, 0, 1, 'clamp')
   rhodes:update(s.dt, s.touches)
-  rainSound:setVolume(l.remap(s.time, 0, 15, 0.03, 0.01, 'clamp'))
 end
 
 function patch.draw(s)
-  -- customize colorscheme
   keyboard:draw(s)
-  -- rain
-  for i=1,3 do
-    local shade = 0.2 + 0.2 * math.random()
-    love.graphics.setColor(shade, shade, shade, 0.2)
-    love.graphics.setLineWidth(0.01)
-    local y1 = -2 * math.random()
-    local y2 =  2 * math.random()
-    local x1 = (math.random() * 2 - 1) * s.width / s.height
-    local x2 = x1 + (y2 - y1) * math.random() * 0.2
-    love.graphics.line(x1, y1, x2, y2)
-  end
-  love.graphics.origin()
 end
 
 function patch.icon(time)
-  -- lightning
-  local color = math.random() < 0.99 and colorScheme.night or colorScheme.flash
-  love.graphics.setColor(color)
+  local font = hexpad.font
+
+  love.graphics.setColor(colorScheme.surface)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
-  -- rain
-  local shade = 0.2 + 0.2 * math.random()
-  love.graphics.setColor(shade, shade, shade)
-  love.graphics.setLineWidth(0.02)
-  local x1 = math.random() * 2 - 1
-  local y1 = -8 * math.random()
-  local x2 = x1 + math.random() * 0.3 + 0.2
-  local y2 =  8 * math.random()
-  love.graphics.line(x1, y1, x2, y2)
+
+  love.graphics.translate(0, 0.4)
+  love.graphics.setColor(colorScheme.text)
+  love.graphics.arc('fill', 0, -0.78, 0.18, -math.pi / 2 - math.pi / 5, -math.pi / 2 + math.pi / 5)
+  love.graphics.setColor(colorScheme.knob)
+  love.graphics.circle('fill', 0, 0, 0.8)
+  love.graphics.setColor(colorScheme.surfaceC)
+  love.graphics.circle('line', 0, 0, 0.43)
+  love.graphics.setColor(colorScheme.highlight)
+  love.graphics.circle('fill', 0, 0, 0.4)
+
+  love.graphics.setColor(colorScheme.shiny)
+  love.graphics.arc('fill', 0, 0, 0.4, 0, math.pi / 6)
+  love.graphics.arc('fill', 0, 0, 0.4, math.pi,  math.pi + math.pi / 6)
+
+
+  love.graphics.setFont(font)
+  love.graphics.setColor(colorScheme.text)
+  love.graphics.rotate(math.sin(time / 4) - math.pi / 2)
+  for i=1,10 do
+    love.graphics.push()
+      love.graphics.translate(0, -0.8)
+      love.graphics.scale(0.004)
+      love.graphics.print(i, -font:getWidth(i) / 2, 0)
+    love.graphics.pop()
+    love.graphics.rotate(math.pi * 3 / 2 / 10)
+  end
+
+
 end
 
 return patch

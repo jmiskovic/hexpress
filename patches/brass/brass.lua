@@ -21,7 +21,6 @@ local trombone, trombuzz, ensemble
 function patch.load()
   keyboard = hexpad.new()
 
-
   trombone  = sampler.new({
     {path='patches/brass/Trombone_Sustain_F1_v5_1.ogg',  note= -7},
     {path='patches/brass/Trombone_Sustain_A1_v5_1.ogg',  note= -3},
@@ -77,15 +76,14 @@ function patch.load()
     love.graphics.translate(0, -0.15)
     love.graphics.circle('fill', 0, 0, 0.8)
   end
-
 end
 
 function patch.process(s)
   keyboard:interpret(s)
   -- crossfade between instruments
-  trombone.masterVolume = l.remap(s.tilt.lp[1], 0.2,  0.1, 0.2, 1, 'clamp')
+  ensemble.masterVolume = l.remap(s.tilt.lp[1],-0.1,  0.1, 0,   1, 'clamp')
+  trombone.masterVolume = l.remap(s.tilt.lp[1], 0.1, -0.1, 0.2, 1, 'clamp')
   trombuzz.masterVolume = l.remap(s.tilt.lp[2], 0.0, -0.4, 0,   1, 'clamp')
-  ensemble.masterVolume = l.remap(s.tilt.lp[1], 0.1,  0.2, 0,   1, 'clamp')
   trombone:update(s.dt, s.touches)
   trombuzz:update(s.dt, s.touches)
   ensemble:update(s.dt, s.touches)

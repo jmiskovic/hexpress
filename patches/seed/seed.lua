@@ -14,6 +14,7 @@ local patch = {}
 local l = require('lume')
 local sampler = require('sampler')
 local hexpad = require('hexpad')
+local notes = require('notes')
 
 local keyboard
 local tone
@@ -21,13 +22,11 @@ local tone
 -- use hexpad as a method for inputing notes (we could have also selected fretboard here)
 -- sampler gives sound to our notes, it is heavily customizable and controllable
   -- first give list of soundfiles and context when to use (assigned note, velocity)
-  -- then give basic settings like envelope, weather it should be looped, and transposing
+  -- then give basic settings like envelope, transposing and looping samples
 function patch.load()
   keyboard = hexpad.new()
   tone = sampler.new({
-    {path='patches/seed/nsynth_bass_synthetic_1.ogg', velocity=0.1},
-    {path='patches/seed/nsynth_bass_synthetic_3.ogg', velocity=0.5},
-    {path='patches/seed/nsynth_bass_synthetic_5.ogg', velocity=0.9},
+    {path='patches/seed/nubia.ogg', notes = notes.toIndex['C4']},
     envelope = { attack = 0.20, decay = 0.50, sustain = 0.85, release = 0.35 },
   })
 end

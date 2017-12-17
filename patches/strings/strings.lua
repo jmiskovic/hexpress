@@ -1,5 +1,6 @@
 local patch = {}
 local l = require("lume")
+local efx = require('efx')
 local sampler = require('sampler')
 local hexpad = require('hexpad')
 local hexgrid = require('hexgrid')
@@ -9,9 +10,13 @@ local cello, doublebass
 local colorScheme = {
   wood    = {l.color('#8c3c00')},
   neck    = {l.color('#302400')},
-  strings = {l.color('#988c75')},
-  stick   = {l.color('#a39782')},
-  hair    = {l.color('#5e2400')},
+  strings = {
+    {l.color('#a69b87')},
+    {l.color('#988c75')},
+    {l.color('#847965')},
+  },
+  hair    = {l.color('#a39782')},
+  stick   = {l.color('#5e2400')},
 }
 
 function patch.load()
@@ -35,19 +40,19 @@ function patch.load()
   })
 
   tremolo = sampler.new({
-    {path='patches/strings/trem_A2_v2.ogg', note =  -3},
-    {path='patches/strings/trem_B2_v2.ogg', note =  -1},
-    {path='patches/strings/trem_B3_v2.ogg', note =  11},
     {path='patches/strings/trem_C1_v2.ogg', note = -24},
-    {path='patches/strings/trem_C3_v2.ogg', note =   0},
-    {path='patches/strings/trem_D2_v2.ogg', note = -10},
-    {path='patches/strings/trem_D4_v2.ogg', note =  14},
     {path='patches/strings/trem_E1_v2.ogg', note = -20},
-    {path='patches/strings/trem_E3_v2.ogg', note =   4},
-    {path='patches/strings/trem_F2_v2.ogg', note =  -7},
-    {path='patches/strings/trem_F4_v2.ogg', note =  17},
+    {path='patches/strings/trem_B1_v2.ogg', note = -13},
     {path='patches/strings/trem_G1_v2.ogg', note = -17},
+    {path='patches/strings/trem_D2_v2.ogg', note = -10},
+    {path='patches/strings/trem_F2_v2.ogg', note =  -7},
+    {path='patches/strings/trem_A2_v2.ogg', note =  -3},
+    {path='patches/strings/trem_C3_v2.ogg', note =   0},
+    {path='patches/strings/trem_E3_v2.ogg', note =   4},
     {path='patches/strings/trem_G3_v2.ogg', note =   7},
+    {path='patches/strings/trem_B3_v2.ogg', note =  11},
+    {path='patches/strings/trem_D4_v2.ogg', note =  14},
+    {path='patches/strings/trem_F4_v2.ogg', note =  17},
     looped = false,
     envelope = {attack = 0.0, decay = 0.1, sustain = 1.0, release = 0.5},
   })
@@ -57,9 +62,10 @@ end
 
 function patch.process(s)
   keyboard:interpret(s)
-  -- fade in from bellow
-  cello.envelope.attack   = l.remap(s.tilt.lp[2], -0.9, -0.1, 10, 0.2, 'clamp')
-  tremolo.envelope.attack = l.remap(s.tilt.lp[2], -0.9, -0.1, 10, 0.2, 'clamp')
+  -- slow attack with forward tilt
+  cello.envelope.attack    = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.2, 10, 'clamp')
+  tremolo.envelope.attack  = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.0, 10, 'clamp')
+  efx.reverb.decaytime     = l.remap(s.tilt.lp[2], 0.0, -0.9, 1.0, 8.0, 'clamp')
   -- crossfade between instruments
   cello.masterVolume   = l.remap(s.tilt.lp[1], -0.2, 0.3, 1, 0.2, 'clamp')
   tremolo.masterVolume = l.remap(s.tilt.lp[1], -0.1, 0.4, 0.2, 1, 'clamp')
@@ -81,6 +87,7 @@ function patch.draw(s)
   end
   -- draw strings across 3 axes, vibrate strings that intersect touches
   love.graphics.scale(keyboard.scaling)
+  love.graphics.setLineWidth(0.12)
   local t1, t2, x, y, z, sx, sy, ex, ey
   local r = keyboard.radius
   for i = -r, r do -- covering range on single axis
@@ -97,15 +104,15 @@ function patch.draw(s)
     -- phew...
     for a=1, 3 do -- iterating over 3 axes in cube coordinates
       colorScheme.strings[4] = 0.4 + 0.2 * a
-      love.graphics.setColor(colorScheme.strings)
+      love.graphics.setColor(colorScheme.strings[a])
       x, y, z = t1[(a - 1) % 3 + 1], t1[(a + 0) % 3 + 1], t1[(a + 1) % 3 + 1]
       sx, sy = hexgrid.hexToPixel(hexgrid.cubeToAxial(x, y, z))
       x, y, z = t2[(a - 1) % 3 + 1], t2[(a + 0) % 3 + 1], t2[(a + 1) % 3 + 1]
       ex, ey = hexgrid.hexToPixel(hexgrid.cubeToAxial(x, y, z))
-      love.graphics.setLineWidth(0.06)
       if touched[a][i] then
         love.graphics.push()
-        love.graphics.translate(0.03 * math.sin(s.time * 50 + a), 0.03 * math.cos(s.time * 50 + a))
+        love.graphics.translate(0.03 * math.sin(s.time * 50 + i + a),
+          0.03 * math.cos(s.time * 50 + i + a))
         love.graphics.line(sx, -sy, ex, -ey)
         love.graphics.pop()
       else
@@ -125,7 +132,7 @@ function patch.icon(time)
   love.graphics.rectangle('fill', -0.5, -1, 1, 2)
   -- strings
   love.graphics.setLineWidth(0.05)
-  love.graphics.setColor(colorScheme.strings)
+  love.graphics.setColor(colorScheme.strings[2])
   love.graphics.line(math.sin(50*time) * 0.02,   1,  0,   -1) -- this one vibrates
   love.graphics.line(-0.2, 1, -0.2, -1)
   love.graphics.line( 0.2, 1,  0.2, -1)
@@ -133,10 +140,10 @@ function patch.icon(time)
   local tilt = -0.2 + math.sin(time) * 0.1
   local gap = 0.15
   local span = 1.2
-  love.graphics.setColor(colorScheme.stick)
+  love.graphics.setColor(colorScheme.hair)
   love.graphics.setLineWidth(0.08)
   love.graphics.line(-span, tilt + gap, span, - tilt + gap)
-  love.graphics.setColor(colorScheme.hair)
+  love.graphics.setColor(colorScheme.stick)
   love.graphics.setLineWidth(0.14)
   love.graphics.line(-span, tilt, span, -tilt)
 end
