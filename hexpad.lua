@@ -16,11 +16,11 @@ function hexpad.new(displayNoteNames, noteOffset, radius)
        noteOffset = noteOffset or 4,  -- it's nice to have note E in the centre
        displayNoteNames = displayNoteNames or false,
        colorScheme = {
-        background    = {l.rgba(0x2d2734ff)},
-        highlight     = {l.rgba(0xe86630ff)},
-        surface       = {l.hsl(0.62, 0.16, 0.49)},
-        surfaceC      = {l.hsl(0.62, 0.10, 0.40)},
-        bright        = {l.rgba(0xa7a2b8ff)},
+        surface       = {l.hsl(0.67, 0.11, 0.25)},
+        surfaceC      = {l.hsl(0.67, 0.08, 0.23)},
+        background    = {l.hsl(0.68, 0.12, 0.31)},
+        highlight     = {l.hsl(0.05, 0.72, 0.58)},
+        bright        = {l.hsl(0.68, 0.12, 0.31)},
       },
     }, hexpad)
   -- would like to keep cell size constant across different devices, so have to
@@ -45,7 +45,7 @@ function hexpad:interpret(s)
     if hexgrid.distanceFromCenter(q, r) <= self.radius then
       local noteIndex = self:hexToNoteIndex(q, r)
       touch.qr       = {q, r}
-      touch.location = {x * 0.5, y * 0.5}
+      touch.location = {x * 0.2, y * 0.2}
       touch.note     = noteIndex
       touch.noteName = notes.toName[noteIndex % 12]
       -- retrigger note if it's new touch or if existing touch has crossed into another cell
@@ -102,13 +102,12 @@ function hexpad:drawCell(q, r, s, touch)
   else
     love.graphics.setColor(self.colorScheme.surface)
   end
-  love.graphics.polygon('fill', self.shape)
   if touch and touch.volume then
     love.graphics.scale(1 + touch.volume/10)
     self.colorScheme.highlight[4] = l.remap(touch.volume, 0, 1, 0.1, 1)
     love.graphics.setColor(self.colorScheme.highlight)
-    love.graphics.polygon('fill', self.shape)
   end
+  love.graphics.polygon('fill', self.shape)
   if self.displayNoteNames then
     -- note name text
     love.graphics.scale(0.01)
