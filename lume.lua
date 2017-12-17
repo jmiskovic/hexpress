@@ -134,8 +134,8 @@ function lume.pingpong(x)
   return 1 - math_abs(1 - x % 2)
 end
 
-function lume.bell(x, u, o)
-  return math.exp(-(x - u)^2 / (2 * o^2))
+function lume.bell(x, center, spread)
+  return math.exp(-(x - center)^2 / (2 * spread^2))
 end
 
 function lume.distance(x1, y1, x2, y2, squared)
@@ -793,7 +793,8 @@ function lume.argb(color, mul)
   return r, g, b, a
 end
 
-function lume.hsl(h, s, l)
+function lume.hsl(h, s, l, a)
+  a = a or 1
   -- hsl to rgb, input and output range: 0 - 1
   if s<=0 then
     return l,l,l
@@ -809,7 +810,7 @@ function lume.hsl(h, s, l)
   elseif h < 5 then r,g,b = x,0,c
   else              r,g,b = c,0,x
   end
-  return r+m, g+m, b+m
+  return r+m, g+m, b+m, a
 end
 
 function lume.colortohex(c)
