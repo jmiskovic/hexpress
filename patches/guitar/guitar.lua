@@ -7,7 +7,8 @@ local fretboard = require('fretboard')
 local keyboard
 local cello, doublebass
 local colorScheme = {
-  neck    = {l.rgba(0x2f2c26ff)},
+  wood    = {l.hsl(0.09, 0.25, 0.16)},
+  neck    = {l.hsl(0.11, 0.11, 0.16)},
   fret    = {l.hsl(0, 0, 0.5)},
   string  = {l.hsl(0, 0, 0.5)},
   dot     = {l.rgba(0x84816bff)},
@@ -15,8 +16,6 @@ local colorScheme = {
 }
 
 function patch.load()
-  --local hexpad = require('hexpad')
-  -- keyboard = hexpad.new()
   efx.reverb.decaytime = 2
   keyboard = fretboard.new()
   clean = sampler.new({
@@ -56,6 +55,12 @@ end
 
 function patch.process(s)
   keyboard:interpret(s)
+  -- whammy bar
+  for _,touch in pairs(s.touches) do
+    if touch.note then
+      touch.note = l.remap(s.tilt.lp[2], -0.2, -1, touch.note, touch.note - 3, 'clamp')
+    end
+  end
   -- increase the duration of released notes with vertical tilt
   clean.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 5,   'clamp')
   dirty.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 2,   'clamp')
@@ -77,7 +82,7 @@ end
 
 function patch.icon(time, s)
   -- neck
-  love.graphics.setColor(colorScheme.neck)
+  love.graphics.setColor(colorScheme.wood)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
   -- dot
   love.graphics.setColor(colorScheme.highlight)
@@ -85,89 +90,12 @@ function patch.icon(time, s)
   -- strings
   love.graphics.setLineWidth(0.08)
   love.graphics.setColor(colorScheme.string)
-  love.graphics.line(-1, 0.7 , 1, 0.7 + math.sin(50*time) * 0.02)
-  love.graphics.line(-1, -0.7, 1, -0.7)
-  love.graphics.setLineWidth(0.01)
+  love.graphics.line(-1, -0.7, 1, -0.7 + math.sin(50*time) * 0.02)
+  love.graphics.line(-1, 0.7 , 1,  0.7)
+  love.graphics.setLineWidth(0.04)
   love.graphics.setColor(colorScheme.highlight)
-  love.graphics.line(-1, 0.7 , 1, 0.7 + math.sin(50*time) * 0.02)
-  love.graphics.line(-1, -0.7, 1, -0.7)
+  love.graphics.line(-1, -0.7, 1, -0.7 + math.sin(50*time) * 0.02)
+  love.graphics.line(-1, 0.7 , 1,  0.7)
 end
 
 return patch
-
-
---[[
-
-{path='patches/guitar/dist-e.ogg', note =  -20},
-    {path='patches/guitar/dist-a.ogg', note =  -15},
-    {path='patches/guitar/dist-d.ogg', note =  -10},
-
-
-    {path='patches/guitar/a2_f_rr3.ogg',  note =-15 },
-    {path='patches/guitar/a3_f_rr3.ogg',  note = -3 },
-    {path='patches/guitar/a4_f_rr3.ogg',  note =  9 },
-    {path='patches/guitar/a5_f_rr3.ogg',  note = 21 },
-    {path='patches/guitar/c3_f_rr3.ogg',  note =-12 },
-    {path='patches/guitar/c4_f_rr3.ogg',  note =  0 },
-    {path='patches/guitar/c5_f_rr3.ogg',  note = 12 },
-    {path='patches/guitar/c6_f_rr3.ogg',  note = 24 },
-    {path='patches/guitar/d6_f_rr3.ogg',  note = 26 },
-    {path='patches/guitar/e2_f_rr3.ogg',  note =-20 },
-    {path='patches/guitar/db2_f_rr3.ogg', note =-23 },
-    {path='patches/guitar/eb3_f_rr3.ogg', note = -9 },
-    {path='patches/guitar/eb4_f_rr3.ogg', note =  3 },
-    {path='patches/guitar/eb5_f_rr3.ogg', note = 14 },
-    {path='patches/guitar/gb2_f_rr3.ogg', note =-18 },
-    {path='patches/guitar/gb3_f_rr3.ogg', note = -6 },
-    {path='patches/guitar/gb4_f_rr3.ogg', note =  6 },
-    {path='patches/guitar/gb5_f_rr3.ogg', note = 18 },
-
-
-
-  lowGain = sampler.new({
-    {path='patches/guitar/normJMHigh_40.ogg', note =  40 - 60},
-    {path='patches/guitar/normJMHigh_43.ogg', note =  43 - 60},
-    {path='patches/guitar/normJMHigh_46.ogg', note =  46 - 60},
-    {path='patches/guitar/normJMHigh_49.ogg', note =  49 - 60},
-    {path='patches/guitar/normJMHigh_52.ogg', note =  52 - 60},
-    {path='patches/guitar/normJMHigh_55.ogg', note =  55 - 60},
-    {path='patches/guitar/normJMHigh_58.ogg', note =  58 - 60},
-    {path='patches/guitar/normJMHigh_61.ogg', note =  61 - 60},
-    {path='patches/guitar/normJMHigh_64.ogg', note =  64 - 60},
-    {path='patches/guitar/normJMHigh_67.ogg', note =  67 - 60},
-    {path='patches/guitar/normJMHigh_70.ogg', note =  70 - 60},
-    {path='patches/guitar/normJMHigh_73.ogg', note =  73 - 60},
-    {path='patches/guitar/normJMHigh_76.ogg', note =  76 - 60},
-    {path='patches/guitar/normJMHigh_79.ogg', note =  79 - 60},
-    {path='patches/guitar/normJMHigh_82.ogg', note =  82 - 60},
-    {path='patches/guitar/normJMMed_40.ogg', note =  40 - 60},
-    {path='patches/guitar/normJMMed_43.ogg', note =  43 - 60},
-    {path='patches/guitar/normJMMed_46.ogg', note =  46 - 60},
-    {path='patches/guitar/normJMMed_49.ogg', note =  49 - 60},
-    {path='patches/guitar/normJMMed_52.ogg', note =  52 - 60},
-    {path='patches/guitar/normJMMed_56.ogg', note =  56 - 60},
-    {path='patches/guitar/normJMMed_59.ogg', note =  59 - 60},
-    {path='patches/guitar/normJMMed_62.ogg', note =  62 - 60},
-    {path='patches/guitar/normJMMed_65.ogg', note =  65 - 60},
-    {path='patches/guitar/normJMMed_68.ogg', note =  68 - 60},
-    {path='patches/guitar/normJMMed_71.ogg', note =  71 - 60},
-    {path='patches/guitar/normJMMed_74.ogg', note =  74 - 60},
-    {path='patches/guitar/normJMMed_77.ogg', note =  77 - 60},
-    {path='patches/guitar/normJMMed_80.ogg', note =  80 - 60},
-    {path='patches/guitar/normJMMed_83.ogg', note =  83 - 60},
-    {path='patches/guitar/normJMMuted_40.ogg', note =  40 - 60},
-    {path='patches/guitar/normJMMuted_43.ogg', note =  43 - 60},
-    {path='patches/guitar/normJMMuted_46.ogg', note =  46 - 60},
-    {path='patches/guitar/normJMMuted_49.ogg', note =  49 - 60},
-    {path='patches/guitar/normJMMuted_52.ogg', note =  52 - 60},
-    {path='patches/guitar/normJMMuted_55.ogg', note =  55 - 60},
-    {path='patches/guitar/normJMMuted_58.ogg', note =  58 - 60},
-    {path='patches/guitar/normJMMuted_61.ogg', note =  61 - 60},
-    {path='patches/guitar/normJMMuted_64.ogg', note =  64 - 60},
-    {path='patches/guitar/normJMMuted_67.ogg', note =  67 - 60},
-    {path='patches/guitar/normJMMuted_70.ogg', note =  70 - 60},
-    {path='patches/guitar/normJMMuted_73.ogg', note =  73 - 60},
-    {path='patches/guitar/normJMMuted_76.ogg', note =  76 - 60},
-    {path='patches/guitar/normJMMuted_79.ogg', note =  79 - 60},
-    {path='patches/guitar/normJMMuted_82.ogg', note =  82 - 60},
---]]

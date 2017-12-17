@@ -96,19 +96,20 @@ function fretboard:draw(s)
     love.graphics.setColor(self.colorScheme.highlight)
     love.graphics.line(fretX + dx, -neckWidth / 2 * 1.05, fretX + dx, neckWidth / 2 * 1.05)
   end
+  local fretX = -0.4 * 4
+  love.graphics.setLineWidth(0.09)
+  love.graphics.setColor(self.colorScheme.highlight)
+  love.graphics.line(fretX, -neckWidth / 2 * 1.05, fretX, neckWidth / 2 * 1.05)
   -- dots
   love.graphics.circle('fill', 0.2, 0, 0.05)
   love.graphics.circle('fill', 1.0, 0, 0.05)
-  local fretX = -0.4 * 4
-  love.graphics.setColor(self.colorScheme.string)
-  love.graphics.line(fretX, -neckWidth / 2 * 1.05, fretX, neckWidth / 2 * 1.05)
   -- draw strings
   for i = 1, #self.strings do
     local y = stringY(i, #self.strings)
     local dy = 0
     for id, touch in pairs(self.tones) do
       if touch.string == i then
-        dy = 0.01 * math.sin(s.time * 50 + i)
+        dy = 0.015 * math.sin(s.time * 50 + i)
       end
     end
     love.graphics.setLineWidth(l.remap(i, 1, #self.strings, 0.015, 0.03))
