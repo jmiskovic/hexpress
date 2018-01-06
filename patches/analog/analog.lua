@@ -7,7 +7,6 @@ local notes = require('notes')
 local sampler = require('sampler')
 local hexpad = require('hexpad')
 
-
 local colorScheme = {
   background = {l.hsl(0.21, 0.13, 0.28)},
   bright     = {l.hsl(0.19, 0.26, 0.45)},
@@ -24,13 +23,11 @@ local filter = {
   highgain = 0.5,
 }
 
-local chorus_synth, melanc_synth, sawsaw_synth
-
 function patch.load()
-  keyboard = hexpad.new()
+  patch.keyboard = hexpad.new()
   efx.reverb.decaytime = 2
 
-  chorus_synth = sampler.new({
+  patch.chorus_synth = sampler.new({
     -- BPB mini analogue collection from bedroomproducersblog.com
     {path='patches/analog/chorus_c1.ogg', note = notes.toIndex['C1']},
     {path='patches/analog/chorus_c2.ogg', note = notes.toIndex['C2']},
@@ -39,39 +36,39 @@ function patch.load()
     transpose = -24,
     envelope = { attack = 0.0, decay = 0, sustain = 1, release = 0.35 },
   })
-  melanc_synth = sampler.new({
+  patch.melanc_synth = sampler.new({
     -- BPB mini analogue collection from bedroomproducersblog.com
     {path='patches/analog/mela_c2.ogg',  note = notes.toIndex['C3']},
     {path='patches/analog/mela_c3.ogg',  note = notes.toIndex['C4']},
     {path='patches/analog/mela_c4.ogg',  note = notes.toIndex['C5']},
   })
-  sawsaw_synth = sampler.new({
+  patch.sawsaw_synth = sampler.new({
     -- ZynAddSubFx patch AnalogStrings
     {path='patches/analog/saw_c1.ogg', note = notes.toIndex['C1']},
     {path='patches/analog/saw_c2.ogg', note = notes.toIndex['C2']},
     {path='patches/analog/saw_c3.ogg', note = notes.toIndex['C3']},
     transpose = -24,
   })
-  keyboard.colorScheme.background = colorScheme.background
-  keyboard.colorScheme.highlight  = colorScheme.highlight
-  keyboard.colorScheme.surface    = colorScheme.surface
-  keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
-  keyboard.colorScheme.bright     = colorScheme.bright
+  patch.keyboard.colorScheme.background = colorScheme.background
+  patch.keyboard.colorScheme.highlight  = colorScheme.highlight
+  patch.keyboard.colorScheme.surface    = colorScheme.surface
+  patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
+  patch.keyboard.colorScheme.bright     = colorScheme.bright
   love.graphics.setBackgroundColor(colorScheme.background)
 end
 
 function patch.process(s)
-  keyboard:interpret(s)
-  chorus_synth.masterVolume = l.remap(s.tilt.lp[1], -0.1,  0.0, 0, 1, 'clamp')
-  melanc_synth.masterVolume = l.remap(s.tilt.lp[1],  0.1,  0.0, 0, 1, 'clamp')
-  sawsaw_synth.masterVolume = l.remap(s.tilt.lp[2], 0.7, 0.2, 1, 0, 'clamp')
-  chorus_synth:update(s.dt, s.touches)
-  melanc_synth:update(s.dt, s.touches)
-  sawsaw_synth:update(s.dt, s.touches)
+  patch.keyboard:interpret(s)
+  patch.chorus_synth.masterVolume = l.remap(s.tilt.lp[1], -0.1,  0.0, 0, 1, 'clamp')
+  patch.melanc_synth.masterVolume = l.remap(s.tilt.lp[1],  0.1,  0.0, 0, 1, 'clamp')
+  patch.sawsaw_synth.masterVolume = l.remap(s.tilt.lp[2], 0.7, 0.2, 1, 0, 'clamp')
+  patch.chorus_synth:processTouches(s.dt, s.touches)
+  patch.melanc_synth:processTouches(s.dt, s.touches)
+  patch.sawsaw_synth:processTouches(s.dt, s.touches)
 end
 
 function patch.draw(s)
-  keyboard:draw(s)
+  patch.keyboard:draw(s)
 end
 
 local sine = {}

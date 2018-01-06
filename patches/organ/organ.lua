@@ -13,15 +13,12 @@ local colorScheme = {
   background = {0,0,0},
 }
 
-local keyboard
-local samplerLoop, samplerStart
-
 function patch.load()
-  keyboard = hexpad.new()
+  patch.keyboard = hexpad.new()
   efx.setDryVolume(0.5)
   efx.addEffect(efx.tremolo)
   efx.tremolo.volume = 1
-  samplerLoop = sampler.new({
+  patch.tone = sampler.new({
     {path='patches/organ/Rode_Pedal_10.ogg', note= -3},
     {path='patches/organ/Rode_Pedal_13.ogg', note=  0},
     {path='patches/organ/Rode_Pedal_16.ogg', note=  3},
@@ -37,15 +34,15 @@ function patch.load()
 end
 
 function patch.process(s)
-  keyboard:interpret(s)
-  samplerLoop:update(s.dt, s.touches)
+  patch.keyboard:interpret(s)
+  patch.tone:processTouches(s.dt, s.touches)
   efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.3, 0.3, 0, 8, 'clamp')
   efx.reverb.decaytime = l.remap(s.tilt.lp[2], 1, 0, 1, 10)
   return s
 end
 
 function patch.draw(s)
-  keyboard:draw(s)
+  patch.keyboard:draw(s)
 end
 
 function patch.icon(time)

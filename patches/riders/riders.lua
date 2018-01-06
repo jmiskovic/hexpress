@@ -5,9 +5,6 @@ local efx = require('efx')
 
 local sampler = require('sampler')
 local hexpad = require('hexpad')
-local keyboard
-local rhodes
-local rainSound
 
 local colorScheme = {
   background = {l.rgba(0x0a0a0cff)},
@@ -35,9 +32,9 @@ function patch.load()
   efx.tremolo.volume = 1
   efx.tremolo.frequency = 4
 
-  keyboard = hexpad.new()
+  patch.keyboard = hexpad.new()
 
-  rhodes = sampler.new({
+  patch.rhodes = sampler.new({
     {path='patches/riders/A_029__F1_1.ogg', note =-19, velocity = 0.9},
     {path='patches/riders/A_029__F1_2.ogg', note =-19, velocity = 0.7},
     {path='patches/riders/A_029__F1_3.ogg', note =-19, velocity = 0.5},
@@ -61,29 +58,29 @@ function patch.load()
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.15 },
     synthCount = 6,
     })
-  keyboard.colorScheme.background = colorScheme.background
-  keyboard.colorScheme.highlight  = colorScheme.highlight
-  keyboard.colorScheme.surface    = colorScheme.surface
-  keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
-  keyboard.colorScheme.bright     = colorScheme.bright
+  patch.keyboard.colorScheme.background = colorScheme.background
+  patch.keyboard.colorScheme.highlight  = colorScheme.highlight
+  patch.keyboard.colorScheme.surface    = colorScheme.surface
+  patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
+  patch.keyboard.colorScheme.bright     = colorScheme.bright
   love.graphics.setBackgroundColor(colorScheme.background)
 end
 
 function patch.process(s)
-  keyboard:interpret(s)
+  patch.keyboard:interpret(s)
   if not s.pressureSupport then
     for _,touch in pairs(s.touches) do
       touch.pressure = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
     end
-    rhodes.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
+    patch.rhodes.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
   end
   efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.3, 0.3, 0, 15, 'clamp')
   filter.highgain = l.remap(s.tilt.lp[2], 0, 0.7, 0, 1, 'clamp')
-  rhodes:update(s.dt, s.touches)
+  patch.rhodes:processTouches(s.dt, s.touches)
 end
 
 function patch.draw(s)
-  keyboard:draw(s)
+  patch.keyboard:draw(s)
 end
 
 function patch.icon(time)
@@ -118,8 +115,6 @@ function patch.icon(time)
     love.graphics.pop()
     love.graphics.rotate(math.pi * 3 / 2 / 10)
   end
-
-
 end
 
 return patch

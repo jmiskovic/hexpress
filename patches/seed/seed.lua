@@ -16,17 +16,14 @@ local sampler = require('sampler')
 local hexpad = require('hexpad')
 local notes = require('notes')
 
-local keyboard
-local tone
-
 -- use hexpad as a method for inputing notes (we could have also selected fretboard here)
 -- sampler gives sound to our notes, it is heavily customizable and controllable
   -- first give list of soundfiles and context when to use (assigned note, velocity)
   -- then give basic settings like envelope, transposing and looping samples
 function patch.load()
-  keyboard = hexpad.new()
-  tone = sampler.new({
-    {path='patches/seed/nubia.ogg', notes = notes.toIndex['C4']},
+  patch.keyboard = hexpad.new()
+  patch.tone = sampler.new({
+    {path='patches/seed/nubia.ogg', note = notes.toIndex['C4']},
     envelope = { attack = 0.20, decay = 0.50, sustain = 0.85, release = 0.35 },
   })
 end
@@ -37,14 +34,14 @@ end
     -- we remap the tilt in range [-1, 1] into change of volume in range of [0, 1]
 -- react to note changes by playing sounds
 function patch.process(s)
-  keyboard:interpret(s)
-  tone.masterVolume = l.remap(s.tilt[2], -1, 1, 0, 1)
-  tone:update(s.dt, s.touches)
+  patch.keyboard:interpret(s)
+  patch.tone.masterVolume = l.remap(s.tilt[2], -1, 1, 0, 1)
+  patch.tone:processTouches(s.dt, s.touches)
 end
 
 -- use hexpad's default drawing method, here we could also visualize other stuff
 function patch.draw(s)
-  keyboard:draw(s)
+  patch.keyboard:draw(s)
 end
 
 -- icon drawn on selection screen, that can be animated with time

@@ -5,9 +5,6 @@ local sampler = require('sampler')
 local hexpad = require('hexpad')
 local efx = require('efx')
 
-local keyboard
-local tone
-
 local colorScheme = {
   skin   = {l.hsl(0.06, 0.38, 0.61)},
   mouth  = {l.hsl(0.00, 1.00, 0.15)},
@@ -20,8 +17,8 @@ local colorScheme = {
 }
 
 function patch.load()
-  keyboard = hexpad.new(true)
-  tone = sampler.new({
+  patch.keyboard = hexpad.new(true)
+  patch.tone = sampler.new({
     {path='patches/choir/choir_21.ogg',  note= -9},
     {path='patches/choir/choir_15.ogg',  note= -3},
     {path='patches/choir/choir_12.ogg',  note=  0},
@@ -34,21 +31,21 @@ function patch.load()
     looped = true,
     envelope = { attack = 0.30, decay = 0.40, sustain = 0.85, release = 0.35 },
   })
-  keyboard.colorScheme.background    = {l.rgba(0x2d2734ff)}
-  keyboard.colorScheme.highlight     = {l.rgba(0xe86630ff)}
-  keyboard.colorScheme.bright        = {l.rgba(0xa7a2b8ff)}
-  keyboard.colorScheme.surface       = {l.hsl(0.62, 0.16, 0.49)}
-  keyboard.colorScheme.surfaceC      = {l.hsl(0.62, 0.10, 0.40)}
+  patch.keyboard.colorScheme.background    = {l.rgba(0x2d2734ff)}
+  patch.keyboard.colorScheme.highlight     = {l.rgba(0xe86630ff)}
+  patch.keyboard.colorScheme.bright        = {l.rgba(0xa7a2b8ff)}
+  patch.keyboard.colorScheme.surface       = {l.hsl(0.62, 0.16, 0.49)}
+  patch.keyboard.colorScheme.surfaceC      = {l.hsl(0.62, 0.10, 0.40)}
 end
 
 function patch.process(s)
-  keyboard:interpret(s)
+  patch.keyboard:interpret(s)
   efx.reverb.decaytime = l.remap(s.tilt.lp[2], 1, -1, 1, 10)
-  tone:update(s.dt, s.touches)
+  patch.tone:processTouches(s.dt, s.touches)
 end
 
 function patch.draw(s)
-  keyboard:draw(s)
+  patch.keyboard:draw(s)
 end
 
 function drawDude(time)

@@ -15,13 +15,10 @@ local colorScheme = {
   highlight  = {1, 1, 1, 0.56},
 }
 
-local keyboard
-local trombone, trombuzz, ensemble
-
 function patch.load()
-  keyboard = hexpad.new()
+  patch.keyboard = hexpad.new()
 
-  trombone  = sampler.new({
+  patch.trombone  = sampler.new({
     {path='patches/brass/Trombone_Sustain_F1_v5_1.ogg',  note= -7},
     {path='patches/brass/Trombone_Sustain_A1_v5_1.ogg',  note= -3},
     {path='patches/brass/Trombone_Sustain_C2_v5_1.ogg',  note=  0},
@@ -33,7 +30,7 @@ function patch.load()
     looped=true,
     })
 
-  trombuzz = sampler.new({
+  patch.trombuzz = sampler.new({
     {path='patches/brass/Trombone_Buzz_F1_v2_1.ogg', note= notes.toIndex['F3']},
     {path='patches/brass/Trombone_Buzz_A1_v2_1.ogg', note= notes.toIndex['A3']},
     {path='patches/brass/Trombone_Buzz_C2_v2_1.ogg', note= notes.toIndex['C4']},
@@ -45,7 +42,7 @@ function patch.load()
     looped=true,
     })
 
-  ensemble = sampler.new({
+  patch.ensemble = sampler.new({
     {path='patches/brass/trumpet004.ogg',  note=  4},
     {path='patches/brass/trumpet005.ogg',  note=  7},
     {path='patches/brass/trumpet006.ogg',  note= 12},
@@ -58,12 +55,12 @@ function patch.load()
   })
   love.graphics.setBackgroundColor(colorScheme.background)
 
-  function keyboard:drawCell(q, r, s, touch)
+  function patch.keyboard:drawCell(q, r, s, touch)
     local delta = 0
     if touch and touch.volume then
       delta = touch.volume
     end
-    local note = keyboard:hexToNoteIndex(q, r)
+    local note = patch.keyboard:hexToNoteIndex(q, r)
     love.graphics.translate(0, delta/10)
     love.graphics.scale(0.8)
     if note % 12 == 0 then
@@ -79,19 +76,19 @@ function patch.load()
 end
 
 function patch.process(s)
-  keyboard:interpret(s)
+  patch.keyboard:interpret(s)
   -- crossfade between instruments
-  ensemble.masterVolume = l.remap(s.tilt.lp[1],-0.1,  0.1, 0,   1, 'clamp')
-  trombone.masterVolume = l.remap(s.tilt.lp[1], 0.1, -0.1, 0.2, 1, 'clamp')
-  trombuzz.masterVolume = l.remap(s.tilt.lp[2], 0.0, -0.4, 0,   1, 'clamp')
-  trombone:update(s.dt, s.touches)
-  trombuzz:update(s.dt, s.touches)
-  ensemble:update(s.dt, s.touches)
+  patch.ensemble.masterVolume = l.remap(s.tilt.lp[1],-0.1,  0.1, 0,   1, 'clamp')
+  patch.trombone.masterVolume = l.remap(s.tilt.lp[1], 0.1, -0.1, 0.2, 1, 'clamp')
+  patch.trombuzz.masterVolume = l.remap(s.tilt.lp[2], 0.0, -0.4, 0,   1, 'clamp')
+  patch.trombone:processTouches(s.dt, s.touches)
+  patch.trombuzz:processTouches(s.dt, s.touches)
+  patch.ensemble:processTouches(s.dt, s.touches)
   return s
 end
 
 function patch.draw(s)
-  keyboard:draw(s)
+  patch.keyboard:draw(s)
 end
 
 function patch.icon(time)

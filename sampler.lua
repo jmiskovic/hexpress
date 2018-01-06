@@ -41,7 +41,7 @@ function sampler.new(settings)
   return self
 end
 
-function sampler:update(dt, touches)
+function sampler:processTouches(dt, touches)
   -- hunt for new touches and play them
   for id, touch in pairs(touches) do
     if touch.noteRetrigger then

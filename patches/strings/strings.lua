@@ -5,8 +5,6 @@ local sampler = require('sampler')
 local hexpad = require('hexpad')
 local hexgrid = require('hexgrid')
 
-local keyboard
-local cello, doublebass
 local colorScheme = {
   wood    = {l.color('#8c3c00')},
   neck    = {l.color('#302400')},
@@ -20,9 +18,9 @@ local colorScheme = {
 }
 
 function patch.load()
-  keyboard = hexpad.new()
+  patch.keyboard = hexpad.new()
 
-  cello = sampler.new({
+  patch.cello = sampler.new({
     {path='patches/strings/susvib_A2_v3.ogg', note=  9},
     {path='patches/strings/susvib_B1_v3.ogg', note= -1},
     {path='patches/strings/susvib_C1_v3.ogg', note=-12},
@@ -39,7 +37,7 @@ function patch.load()
     envelope = {attack = 0.2, decay = 0.1, sustain = 0.8, release = 0.6},
   })
 
-  tremolo = sampler.new({
+  patch.tremolo = sampler.new({
     {path='patches/strings/trem_C1_v2.ogg', note = -24},
     {path='patches/strings/trem_E1_v2.ogg', note = -20},
     {path='patches/strings/trem_B1_v2.ogg', note = -13},
@@ -61,16 +59,16 @@ function patch.load()
 end
 
 function patch.process(s)
-  keyboard:interpret(s)
+  patch.keyboard:interpret(s)
   -- slow attack with forward tilt
-  cello.envelope.attack    = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.2, 10, 'clamp')
-  tremolo.envelope.attack  = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.0, 10, 'clamp')
+  patch.cello.envelope.attack    = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.2, 10, 'clamp')
+  patch.tremolo.envelope.attack  = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.0, 10, 'clamp')
   efx.reverb.decaytime     = l.remap(s.tilt.lp[2], 0.0, -0.9, 1.0, 8.0, 'clamp')
   -- crossfade between instruments
-  cello.masterVolume   = l.remap(s.tilt.lp[1], -0.2, 0.3, 1, 0.2, 'clamp')
-  tremolo.masterVolume = l.remap(s.tilt.lp[1], -0.1, 0.4, 0.2, 1, 'clamp')
-  cello:update(s.dt, s.touches)
-  tremolo:update(s.dt, s.touches)
+  patch.cello.masterVolume   = l.remap(s.tilt.lp[1], -0.2, 0.3, 1, 0.2, 'clamp')
+  patch.tremolo.masterVolume = l.remap(s.tilt.lp[1], -0.1, 0.4, 0.2, 1, 'clamp')
+  patch.cello:processTouches(s.dt, s.touches)
+  patch.tremolo:processTouches(s.dt, s.touches)
   return s
 end
 
@@ -86,10 +84,10 @@ function patch.draw(s)
     end
   end
   -- draw strings across 3 axes, vibrate strings that intersect touches
-  love.graphics.scale(keyboard.scaling)
+  love.graphics.scale(patch.keyboard.scaling)
   love.graphics.setLineWidth(0.12)
   local t1, t2, x, y, z, sx, sy, ex, ey
-  local r = keyboard.radius
+  local r = patch.keyboard.radius
   for i = -r, r do -- covering range on single axis
     t1 = {
       i,

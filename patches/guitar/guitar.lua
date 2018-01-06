@@ -4,8 +4,6 @@ local efx = require('efx')
 local sampler = require('sampler')
 local fretboard = require('fretboard')
 
-local keyboard
-local cello, doublebass
 local colorScheme = {
   wood    = {l.hsl(0.09, 0.25, 0.16)},
   neck    = {l.hsl(0.11, 0.11, 0.16)},
@@ -17,8 +15,8 @@ local colorScheme = {
 
 function patch.load()
   efx.reverb.decaytime = 2
-  keyboard = fretboard.new()
-  clean = sampler.new({
+  patch.keyboard = fretboard.new()
+  patch.clean = sampler.new({
     {path='patches/guitar/normGBLow_40.ogg', note =  40 - 60},
     {path='patches/guitar/normGBLow_46.ogg', note =  46 - 60},
     {path='patches/guitar/normGBLow_52.ogg', note =  52 - 60},
@@ -29,7 +27,7 @@ function patch.load()
     envelope = { attack = 0, decay = 0, sustain = 1, release = 1.8 },
     })
 
-  dirty = sampler.new({
+  patch.dirty = sampler.new({
     {path='patches/guitar/pic1_F#1.ogg', note = -30 + 12 },
     {path='patches/guitar/pic2_B2.ogg',  note = -25 + 12 },
     {path='patches/guitar/pic4_C3.ogg',  note = -12 + 12 },
@@ -41,7 +39,7 @@ function patch.load()
     envelope = { attack = 0, decay = 0, sustain = 1, release = 1.8 },
     })
 
-  power = sampler.new({
+  patch.power = sampler.new({
     {path='patches/guitar/cho1_F#1.ogg', note = -30 + 12},
     {path='patches/guitar/cho2_C2.ogg',  note = -24 + 12},
     {path='patches/guitar/cho3_F#2.ogg', note = -18 + 12},
@@ -54,7 +52,7 @@ function patch.load()
 end
 
 function patch.process(s)
-  keyboard:interpret(s)
+  patch.keyboard:interpret(s)
   -- whammy bar
   for _,touch in pairs(s.touches) do
     if touch.note then
@@ -62,22 +60,22 @@ function patch.process(s)
     end
   end
   -- increase the duration of released notes with vertical tilt
-  clean.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 5,   'clamp')
-  dirty.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 2,   'clamp')
-  power.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 1,   'clamp')
+  patch.clean.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 5,   'clamp')
+  patch.dirty.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 2,   'clamp')
+  patch.power.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 1,   'clamp')
   -- crossfade between clean / dirty / dirty+power
-  clean.masterVolume = l.remap(s.tilt.lp[1],-0.2, 0.1, 1, 0, 'clamp')
-  dirty.masterVolume = l.remap(s.tilt.lp[1],-0.1, 0.2, 0, 1, 'clamp')
-  power.masterVolume = l.remap(s.tilt.lp[1], 0.2, 0.3, 0, 1, 'clamp')
+  patch.clean.masterVolume = l.remap(s.tilt.lp[1],-0.2, 0.1, 1, 0, 'clamp')
+  patch.dirty.masterVolume = l.remap(s.tilt.lp[1],-0.1, 0.2, 0, 1, 'clamp')
+  patch.power.masterVolume = l.remap(s.tilt.lp[1], 0.2, 0.3, 0, 1, 'clamp')
 
-  clean:update(s.dt, s.touches)
-  dirty:update(s.dt, s.touches)
-  power:update(s.dt, s.touches)
+  patch.clean:processTouches(s.dt, s.touches)
+  patch.dirty:processTouches(s.dt, s.touches)
+  patch.power:processTouches(s.dt, s.touches)
   return s
 end
 
 function patch.draw(s)
-  keyboard:draw(s)
+  patch.keyboard:draw(s)
 end
 
 function patch.icon(time, s)
