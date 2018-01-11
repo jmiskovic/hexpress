@@ -11,7 +11,7 @@ fretboard.colorScheme = {
   highlight = {l.rgba(0xffffffc0)},
 }
 
-local neckWidth = 1.85  -- 1.0 is screen heightb
+fretboard.neckWidth = 1.85  -- 1.0 is screen height
 
 function fretboard.load()
 end
@@ -34,14 +34,6 @@ function fretboard.new(displayNoteNames, tuning)
   return self
 end
 
--- circus = {}
--- table.insert(circus, {'fill', x, y, 0.1,
---   col = {l.hsl(stringI / #self.strings, fretI / 10, 0.5)}})
--- for i,v in ipairs(circus) do
---   love.graphics.setColor(v.col)
---   love.graphics.circle(unpack(v))
--- end
-
 function fretboard:interpret(s)
   for id, touch in pairs(s.touches) do
     local x, y = unpack(touch)
@@ -51,7 +43,7 @@ function fretboard:interpret(s)
     love.graphics.pop()
     -- check if string is pressed, report string, fret and note
     local stringI, fretI
-    stringI = l.remap(y, -neckWidth / 2, neckWidth / 2, 1, #self.strings)
+    stringI = l.remap(y, -fretboard.neckWidth / 2, fretboard.neckWidth / 2, 1, #self.strings)
     stringI = math.floor(stringI + 0.5)
     fretI = math.floor(l.remap(x, -2, 2, 0, 10))
 
@@ -79,30 +71,23 @@ local function stringY(i, stringCount)
   if stringCount == 1 then
     return 0
   else
-    return l.remap( i , 1, stringCount, -neckWidth / 2, neckWidth / 2)
+    return l.remap( i , 1, stringCount, -fretboard.neckWidth / 2, fretboard.neckWidth / 2)
   end
 end
 
 function fretboard:draw(s)
   love.graphics.setColor(self.colorScheme.neck)
-  love.graphics.rectangle('fill', -15, -neckWidth / 2 * 1.05, 30, neckWidth * 1.05)
+  love.graphics.rectangle('fill', -15, -fretboard.neckWidth / 2 * 1.05, 30, fretboard.neckWidth * 1.05)
 
   -- draw frets
   love.graphics.setLineWidth(0.05)
   for fretX = -2, 2, 0.4 do
     love.graphics.setColor(self.colorScheme.fret)
-    love.graphics.line(fretX, -neckWidth / 2 * 1.05, fretX, neckWidth / 2 * 1.05)
+    love.graphics.line(fretX, -fretboard.neckWidth / 2 * 1.05, fretX, fretboard.neckWidth / 2 * 1.05)
     local dx = 0.01
     love.graphics.setColor(self.colorScheme.highlight)
-    love.graphics.line(fretX + dx, -neckWidth / 2 * 1.05, fretX + dx, neckWidth / 2 * 1.05)
+    love.graphics.line(fretX + dx, -fretboard.neckWidth / 2 * 1.05, fretX + dx, fretboard.neckWidth / 2 * 1.05)
   end
-  local fretX = -0.4 * 4
-  love.graphics.setLineWidth(0.09)
-  love.graphics.setColor(self.colorScheme.highlight)
-  love.graphics.line(fretX, -neckWidth / 2 * 1.05, fretX, neckWidth / 2 * 1.05)
-  -- dots
-  love.graphics.circle('fill', 0.2, 0, 0.05)
-  love.graphics.circle('fill', 1.0, 0, 0.05)
   -- draw strings
   for i = 1, #self.strings do
     local y = stringY(i, #self.strings)

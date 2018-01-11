@@ -8,14 +8,15 @@ local colorScheme = {
   wood    = {l.hsl(0.09, 0.25, 0.16)},
   neck    = {l.hsl(0.11, 0.11, 0.16)},
   fret    = {l.hsl(0, 0, 0.5)},
+  nut     = {l.rgba(0xffffffc0)},
   string  = {l.hsl(0, 0, 0.5)},
-  dot     = {l.rgba(0x84816bff)},
+  dot     = {l.rgba(0xffffffc0)},
   highlight = {l.rgba(0xffffffc0)},
 }
 
 function patch.load()
   efx.reverb.decaytime = 2
-  patch.keyboard = fretboard.new()
+  patch.keyboard = fretboard.new(false, 'EBGDAE')
   patch.clean = sampler.new({
     {path='patches/guitar/normGBLow_40.ogg', note =  40 - 60},
     {path='patches/guitar/normGBLow_46.ogg', note =  46 - 60},
@@ -48,6 +49,16 @@ function patch.load()
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.2 },
     })
 
+  patch.sustn = sampler.new({
+    {path='patches/guitar/sus1_F#1.ogg', note = -30 + 12},
+    {path='patches/guitar/sus2_C2.ogg',  note = -24 + 12},
+    {path='patches/guitar/sus3_F#2.ogg', note = -18 + 12},
+    {path='patches/guitar/sus4_C3.ogg',  note = -12 + 12},
+    {path='patches/guitar/sus5_F#3.ogg', note =  -6 + 12},
+    envelope = { attack = 5, decay = 0, sustain = 1, release = 0.2 },
+    looped = true,
+    })
+
   love.graphics.setBackgroundColor(colorScheme.neck)
 end
 
@@ -67,15 +78,27 @@ function patch.process(s)
   patch.clean.masterVolume = l.remap(s.tilt.lp[1],-0.2, 0.1, 1, 0, 'clamp')
   patch.dirty.masterVolume = l.remap(s.tilt.lp[1],-0.1, 0.2, 0, 1, 'clamp')
   patch.power.masterVolume = l.remap(s.tilt.lp[1], 0.2, 0.3, 0, 1, 'clamp')
+  patch.sustn.masterVolume = l.remap(s.tilt.lp[1], 0.2, 0.3, 0, 1, 'clamp')
 
   patch.clean:processTouches(s.dt, s.touches)
   patch.dirty:processTouches(s.dt, s.touches)
   patch.power:processTouches(s.dt, s.touches)
+  patch.sustn:processTouches(s.dt, s.touches)
   return s
 end
 
 function patch.draw(s)
   patch.keyboard:draw(s)
+  -- draw nut
+  local fretX = -0.4 * 4
+  love.graphics.setLineWidth(0.09)
+  love.graphics.setColor(colorScheme.nut)
+  love.graphics.line(fretX, -patch.keyboard.neckWidth / 2 * 1.05, fretX, patch.keyboard.neckWidth / 2 * 1.05)
+  -- dots
+  love.graphics.setColor(colorScheme.dot)
+  love.graphics.circle('fill', 0.2, 0, 0.05)
+  love.graphics.circle('fill', 1.0, 0, 0.05)
+
 end
 
 function patch.icon(time, s)
