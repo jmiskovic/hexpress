@@ -20,33 +20,33 @@ local selected = 1
 function patch.load()
   patch.layout = { -- elements are listed in draw order (lowest to highest)
 --[[
-    {path='patches/drum/rock/kick.ogg',         note = 0,  x= 0.003, y= 0.286, r= 0.577},
-    {path='patches/drum/rock/hat_closed.ogg',   note = 2,  x=-1.361, y= 0.339, r= 0.428},
-    {path='patches/drum/rock/hat_pedal.ogg',    note = 3,  x=-1.344, y= 0.181, r= 0.266},
-    {path='patches/drum/rock/hat_open.ogg',     note = 4,  x=-1.344, y= 0.117, r= 0.191},
-    {path='patches/drum/rock/sidestick.ogg',    note = 6,  x=-0.689, y= 0.281, r= 0.294},
-    {path='patches/drum/rock/snare_1.ogg',      note = 5,  x=-0.608, y= 0.078, r= 0.345},
-    {path='patches/drum/rock/floor_tom.ogg',    note = 9,  x= 0.750, y= 0.017, r= 0.351},
-    {path='patches/drum/rock/high_tom.ogg',     note = 12, x=-0.536, y=-0.428, r= 0.283},
-    {path='patches/drum/rock/mid_high_tom.ogg', note = 11, x=-0.069, y=-0.542, r= 0.288},
-    {path='patches/drum/rock/mid_low_tom.ogg',  note = 10, x= 0.397, y=-0.358, r= 0.300},
-    {path='patches/drum/rock/crash_1.ogg',      note = 7,  x=-1.128, y=-0.539, r= 0.464},
-    {path='patches/drum/rock/crash_2.ogg',      note = 8,  x= 1.297, y=-0.397, r= 0.512},
+    {path='patches/garage/rock/kick.ogg',         note = 0,  x= 0.003, y= 0.286, r= 0.577},
+    {path='patches/garage/rock/hat_closed.ogg',   note = 2,  x=-1.361, y= 0.339, r= 0.428},
+    {path='patches/garage/rock/hat_pedal.ogg',    note = 3,  x=-1.344, y= 0.181, r= 0.266},
+    {path='patches/garage/rock/hat_open.ogg',     note = 4,  x=-1.344, y= 0.117, r= 0.191},
+    {path='patches/garage/rock/sidestick.ogg',    note = 6,  x=-0.689, y= 0.281, r= 0.294},
+    {path='patches/garage/rock/snare_1.ogg',      note = 5,  x=-0.608, y= 0.078, r= 0.345},
+    {path='patches/garage/rock/floor_tom.ogg',    note = 9,  x= 0.750, y= 0.017, r= 0.351},
+    {path='patches/garage/rock/high_tom.ogg',     note = 12, x=-0.536, y=-0.428, r= 0.283},
+    {path='patches/garage/rock/mid_high_tom.ogg', note = 11, x=-0.069, y=-0.542, r= 0.288},
+    {path='patches/garage/rock/mid_low_tom.ogg',  note = 10, x= 0.397, y=-0.358, r= 0.300},
+    {path='patches/garage/rock/crash_1.ogg',      note = 7,  x=-1.128, y=-0.539, r= 0.464},
+    {path='patches/garage/rock/crash_2.ogg',      note = 8,  x= 1.297, y=-0.397, r= 0.512},
 --]]
-    {path='patches/drum/groovy/kick_1.ogg',       type='block',    x= 0.022, y= 0.417, r= 1.06},
-    {path='patches/drum/groovy/sidestick.ogg',    type='block',    x=-0.875, y= 0.500, r= 0.29},
-    {path='patches/drum/groovy/snare_2.ogg',      type='membrane', x=-0.356, y= 0.111, r= 0.59},
-    {path='patches/drum/groovy/low_tom.ogg',      type='membrane', x= 0.697, y= 0.128, r= 0.45},
-    {path='patches/drum/groovy/mid_tom.ogg',      type='membrane', x= 0.347, y=-0.394, r= 0.33},
-    {path='patches/drum/groovy/high_tom.ogg',     type='membrane', x=-0.294, y=-0.344, r= 0.32},
-    {path='patches/drum/groovy/extra_cymbal.ogg', type='cymbal',   x=-0.094, y=-0.694, r= 0.30},
-    {path='patches/drum/groovy/splash.ogg',       type='cymbal',   x=-1.006, y=-0.081, r= 0.31},
-    {path='patches/drum/groovy/extra_splash.ogg', type='cymbal',   x= 0.933, y= 0.672, r= 0.30},
-    {path='patches/drum/groovy/hat_open.ogg',     type='cymbal',   x= 1.167, y=-0.083, r= 0.55},
-    {path='patches/drum/groovy/hat_closed.ogg',   type='block',    x= 1.161, y=-0.081, r= 0.45},
-    {path='patches/drum/groovy/ride.ogg',         type='cymbal',   x= 0.622, y=-0.700, r= 0.46},
-    {path='patches/drum/groovy/ride_bell.ogg',    type='block',    x= 0.617, y=-0.703, r= 0.22},
-    {path='patches/drum/groovy/crash_1.ogg',      type='cymbal',   x=-0.756, y=-0.581, r= 0.40},
+    {path='patches/garage/groovy/kick_1.ogg',       type='block',    x= 0.022, y= 0.417, r= 1.06},
+    {path='patches/garage/groovy/sidestick.ogg',    type='block',    x=-0.875, y= 0.500, r= 0.29},
+    {path='patches/garage/groovy/snare_2.ogg',      type='membrane', x=-0.356, y= 0.111, r= 0.59},
+    {path='patches/garage/groovy/low_tom.ogg',      type='membrane', x= 0.697, y= 0.128, r= 0.45},
+    {path='patches/garage/groovy/mid_tom.ogg',      type='membrane', x= 0.347, y=-0.394, r= 0.33},
+    {path='patches/garage/groovy/high_tom.ogg',     type='membrane', x=-0.294, y=-0.344, r= 0.32},
+    {path='patches/garage/groovy/extra_cymbal.ogg', type='cymbal',   x=-0.094, y=-0.694, r= 0.30},
+    {path='patches/garage/groovy/splash.ogg',       type='cymbal',   x=-1.006, y=-0.081, r= 0.31},
+    {path='patches/garage/groovy/extra_splash.ogg', type='cymbal',   x= 0.933, y= 0.672, r= 0.30},
+    {path='patches/garage/groovy/hat_open.ogg',     type='cymbal',   x= 1.167, y=-0.083, r= 0.55},
+    {path='patches/garage/groovy/hat_closed.ogg',   type='block',    x= 1.161, y=-0.081, r= 0.45},
+    {path='patches/garage/groovy/ride.ogg',         type='cymbal',   x= 0.622, y=-0.700, r= 0.46},
+    {path='patches/garage/groovy/ride_bell.ogg',    type='block',    x= 0.617, y=-0.703, r= 0.22},
+    {path='patches/garage/groovy/crash_1.ogg',      type='cymbal',   x=-0.756, y=-0.581, r= 0.40},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.6 },
   }
 
@@ -151,7 +151,7 @@ function patch.draw(s)
       love.graphics.setColor(colorScheme.light)
       love.graphics.circle('fill', element.x, element.y, element.r)
     end
----[[
+--[[
     if i == selected then
       love.graphics.setColor(0, 1, 0, 0.3)
       love.graphics.circle('fill', element.x, element.y, element.r)
@@ -163,7 +163,7 @@ function patch.draw(s)
   end
 end
 
----[[
+--[[
 function love.keypressed(key)
   if key == 'tab' then
     selected = (selected % #patch.layout) + 1
