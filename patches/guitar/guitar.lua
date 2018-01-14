@@ -5,18 +5,19 @@ local sampler = require('sampler')
 local fretboard = require('fretboard')
 
 local colorScheme = {
-  wood    = {l.hsl(0.09, 0.25, 0.16)},
-  neck    = {l.hsl(0.11, 0.11, 0.16)},
+  wood    = {l.hsl(0.09, 0.05, 0.16)},
+  neck    = {l.rgba(0x2f2c26ff)},
   fret    = {l.hsl(0, 0, 0.5)},
-  nut     = {l.rgba(0xffffffc0)},
   string  = {l.hsl(0, 0, 0.5)},
   dot     = {l.rgba(0xffffffc0)},
-  highlight = {l.rgba(0xffffffc0)},
+  light   = {l.rgba(0xffffffc0)},
+  nut     = {l.rgba(0xffffffc0)},
 }
 
 function patch.load()
   efx.reverb.decaytime = 2
   patch.keyboard = fretboard.new(false, 'EBGDAE')
+  patch.keyboard.colorScheme = colorScheme
   patch.clean = sampler.new({
     {path='patches/guitar/normGBLow_40.ogg', note =  40 - 60},
     {path='patches/guitar/normGBLow_46.ogg', note =  46 - 60},
@@ -59,7 +60,7 @@ function patch.load()
     looped = true,
     })
 
-  love.graphics.setBackgroundColor(colorScheme.neck)
+  love.graphics.setBackgroundColor(colorScheme.wood)
 end
 
 function patch.process(s)
@@ -103,10 +104,10 @@ end
 
 function patch.icon(time, s)
   -- neck
-  love.graphics.setColor(colorScheme.wood)
+  love.graphics.setColor(colorScheme.neck)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
   -- dot
-  love.graphics.setColor(colorScheme.highlight)
+  love.graphics.setColor(colorScheme.dot)
   love.graphics.circle('fill', 0, 0, 0.4)
   -- strings
   love.graphics.setLineWidth(0.08)
@@ -114,7 +115,7 @@ function patch.icon(time, s)
   love.graphics.line(-1, -0.7, 1, -0.7 + math.sin(50*time) * 0.02)
   love.graphics.line(-1, 0.7 , 1,  0.7)
   love.graphics.setLineWidth(0.04)
-  love.graphics.setColor(colorScheme.highlight)
+  love.graphics.setColor(colorScheme.light)
   love.graphics.line(-1, -0.7, 1, -0.7 + math.sin(50*time) * 0.02)
   love.graphics.line(-1, 0.7 , 1,  0.7)
 end

@@ -43,7 +43,7 @@ function hexpad:interpret(s)
     love.graphics.pop()
     local q, r = hexgrid.pixelToHex(x, y)
     if hexgrid.distanceFromCenter(q, r) <= self.radius then
-      local noteIndex = self:hexToNoteIndex(q, r)
+      local noteIndex = self:toNoteIndex(q, r)
       touch.qr       = {q, r}
       touch.location = {x * 0.2, y * 0.2}
       touch.note     = noteIndex
@@ -94,7 +94,7 @@ function hexpad:draw(s)
 end
 
 function hexpad:drawCell(q, r, s, touch)
-  local note = self:hexToNoteIndex(q, r)
+  local note = self:toNoteIndex(q, r)
   -- shape
   love.graphics.scale(0.90)
   if note % 12 == 0 then
@@ -120,7 +120,7 @@ function hexpad:drawCell(q, r, s, touch)
   end
 end
 
-function hexpad:hexToNoteIndex(q, r)
+function hexpad:toNoteIndex(q, r)
   -- harmonic table layout is defined by two neighbor interval jumps:
   --  +4 semitones when going in NE direction (direction index 1)
   --  +7 semitones when going in N  direction (direction index 2)

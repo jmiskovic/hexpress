@@ -60,7 +60,7 @@ function patch.load()
     if touch and touch.volume then
       delta = touch.volume
     end
-    local note = patch.keyboard:hexToNoteIndex(q, r)
+    local note = patch.keyboard:toNoteIndex(q, r)
     love.graphics.translate(0, delta/10)
     love.graphics.scale(0.8)
     if note % 12 == 0 then
