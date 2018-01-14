@@ -33,25 +33,25 @@ function patch.load()
     {path='patches/drum/rock/crash_1.ogg',      note = 7,  x=-1.128, y=-0.539, r= 0.464},
     {path='patches/drum/rock/crash_2.ogg',      note = 8,  x= 1.297, y=-0.397, r= 0.512},
 --]]
-    {path='patches/drum/groovy/kick_1.ogg',       x= 0.022, y= 0.417, r= 0.67, type='block'},
-    {path='patches/drum/groovy/sidestick.ogg',    x=-0.764, y= 0.336, r= 0.29, type='block'},
-    {path='patches/drum/groovy/snare_2.ogg',      x=-0.597, y= 0.056, r= 0.42, type='membrane'},
-    {path='patches/drum/groovy/low_tom.ogg',      x= 0.656, y= 0.239, r= 0.38, type='membrane'},
-    {path='patches/drum/groovy/mid_tom.ogg',      x= 0.353, y=-0.244, r= 0.31, type='membrane'},
-    {path='patches/drum/groovy/high_tom.ogg',     x=-0.211, y=-0.342, r= 0.32, type='membrane'},
-    {path='patches/drum/groovy/extra_cymbal.ogg', x=-0.294, y=-0.781, r= 0.30, type='cymbal'},
-    {path='patches/drum/groovy/splash.ogg',       x=-1.178, y=-0.128, r= 0.31, type='cymbal'},
-    {path='patches/drum/groovy/extra_splash.ogg', x= 0.192, y=-0.689, r= 0.30, type='cymbal'},
-    {path='patches/drum/groovy/hat_open.ogg',     x= 1.100, y= 0.150, r= 0.40, type='cymbal'},
-    {path='patches/drum/groovy/hat_closed.ogg',   x= 1.108, y= 0.150, r= 0.32, type='block'},
-    {path='patches/drum/groovy/ride.ogg',         x= 0.881, y=-0.592, r= 0.51, type='cymbal'},
-    {path='patches/drum/groovy/ride_bell.ogg',    x= 0.886, y=-0.600, r= 0.23, type='block'},
-    {path='patches/drum/groovy/crash_1.ogg',      x=-0.756, y=-0.581, r= 0.41, type='cymbal'},
+    {path='patches/drum/groovy/kick_1.ogg',       type='block',    x= 0.022, y= 0.417, r= 1.06},
+    {path='patches/drum/groovy/sidestick.ogg',    type='block',    x=-0.875, y= 0.500, r= 0.29},
+    {path='patches/drum/groovy/snare_2.ogg',      type='membrane', x=-0.356, y= 0.111, r= 0.59},
+    {path='patches/drum/groovy/low_tom.ogg',      type='membrane', x= 0.697, y= 0.128, r= 0.45},
+    {path='patches/drum/groovy/mid_tom.ogg',      type='membrane', x= 0.347, y=-0.394, r= 0.33},
+    {path='patches/drum/groovy/high_tom.ogg',     type='membrane', x=-0.294, y=-0.344, r= 0.32},
+    {path='patches/drum/groovy/extra_cymbal.ogg', type='cymbal',   x=-0.094, y=-0.694, r= 0.30},
+    {path='patches/drum/groovy/splash.ogg',       type='cymbal',   x=-1.006, y=-0.081, r= 0.31},
+    {path='patches/drum/groovy/extra_splash.ogg', type='cymbal',   x= 0.933, y= 0.672, r= 0.30},
+    {path='patches/drum/groovy/hat_open.ogg',     type='cymbal',   x= 1.167, y=-0.083, r= 0.55},
+    {path='patches/drum/groovy/hat_closed.ogg',   type='block',    x= 1.161, y=-0.081, r= 0.45},
+    {path='patches/drum/groovy/ride.ogg',         type='cymbal',   x= 0.622, y=-0.700, r= 0.46},
+    {path='patches/drum/groovy/ride_bell.ogg',    type='block',    x= 0.617, y=-0.703, r= 0.22},
+    {path='patches/drum/groovy/crash_1.ogg',      type='cymbal',   x=-0.756, y=-0.581, r= 0.40},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.6 },
   }
 
   for i,element in ipairs(patch.layout) do
-    element.note = i * 3
+    element.note = i * 3 --by spreading out note indexes we allow for more pitch range on single sample
   end
   patch.drums = sampler.new(patch.layout)
   love.graphics.setBackgroundColor(colorScheme.background)
@@ -68,8 +68,10 @@ function patch.interpret(s)
         if not patch.tones[id] or patch.tones[id] ~= element then
           patch.tones[id] = element
           touch.noteRetrigger = true
+          -- insert random pitch variation on each new note
+          element.noteVariation = element.note + (0.5 - math.random()) * 0.5
         end
-        touch.note = element.note + (0.5 - math.random()) * 2
+        touch.note = element.noteVariation
         touch.location = {x * 0.7, 0.5}
         break
       end
@@ -168,7 +170,7 @@ function love.keypressed(key)
   end
   if key == 'return' then
     for i,v in ipairs(patch.layout) do
-      print(string.format('x=% 1.3f, y=% 1.3f, r=% 1.2f, ',v.x, v.y, v.r))
+      print(string.format('x=% 1.3f, y=% 1.3f, r=% 1.2f},',v.x, v.y, v.r))
     end
   end
   if key == '=' then

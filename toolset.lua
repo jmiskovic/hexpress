@@ -26,7 +26,11 @@ local function imposterLoveDraw()
   local line = 0
   love.graphics.setColor(1, 1, 1)
   for k,v in pairs(tracking) do
-    love.graphics.print(string.format(k,v), sw*3/5, 5 + line * fontSize)
+    if type(v) == 'table' then
+      love.graphics.print(string.format(k,unpack(v)), sw*3/5, 5 + line * fontSize)
+    else
+      love.graphics.print(string.format(k,v), sw*3/5, 5 + line * fontSize)
+    end
     line = line + 1
   end
   for _,v in ipairs(draw_functions) do
