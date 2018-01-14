@@ -83,5 +83,8 @@ function love.keypressed(key)
       loadPatch(selector)
       love.audio.stop()
     end
+  elseif key == 'menu' then
+    controls.frozen = not controls.frozen
   end
+
 end

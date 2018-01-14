@@ -4,6 +4,7 @@ local l = require('lume')
 
 controls.readTilt = function() return 0, 0, 0 end -- stub
 local tiltP = {0,0,0}
+controls.frozen = false   -- ability to freeze tilt reading
 
 local minPressure =  math.huge
 local maxPressure = -math.huge
@@ -41,15 +42,19 @@ function controls.process(s)
     end
   end
 
-  s.tilt = {0,0,0}
-  s.tilt = {controls.readTilt()}
-
-  -- simple IIR low-pass filtering of tilt
-  local a0 = 0.05
-  s.tilt.lp = {}
-  for i,v in ipairs(s.tilt) do
-    s.tilt.lp[i] = s.tilt[i] * a0 + tiltP[i] * (1 - a0)
-    tiltP[i] = s.tilt.lp[i]
+  if controls.frozen then
+    s.tilt    = tiltP
+    s.tilt.lp = tiltP
+  else
+    s.tilt = {0,0,0}
+    s.tilt = {controls.readTilt()}
+    -- simple IIR low-pass filtering of tilt
+    local a0 = 0.05
+    s.tilt.lp = {}
+    for i,v in ipairs(s.tilt) do
+      s.tilt.lp[i] = s.tilt[i] * a0 + tiltP[i] * (1 - a0)
+      tiltP[i] = s.tilt.lp[i]
+    end
   end
 
   return s
