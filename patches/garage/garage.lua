@@ -12,41 +12,26 @@ local colorScheme = {
   light    = {l.rgba(0xffffff50)},
   membrane = {l.rgba(0xd7d0aeff)},
   rim      = {l.rgba(0x606060ff)},
-  background = {0,0,0},
+  stick    = {l.rgba(0xc0a883ff)},
+  background = {l.rgba(0x38404a)},
 }
-
-local selected = 1
 
 function patch.load()
   patch.layout = { -- elements are listed in draw order (lowest to highest)
---[[
-    {path='patches/garage/rock/kick.ogg',         note = 0,  x= 0.003, y= 0.286, r= 0.577},
-    {path='patches/garage/rock/hat_closed.ogg',   note = 2,  x=-1.361, y= 0.339, r= 0.428},
-    {path='patches/garage/rock/hat_pedal.ogg',    note = 3,  x=-1.344, y= 0.181, r= 0.266},
-    {path='patches/garage/rock/hat_open.ogg',     note = 4,  x=-1.344, y= 0.117, r= 0.191},
-    {path='patches/garage/rock/sidestick.ogg',    note = 6,  x=-0.689, y= 0.281, r= 0.294},
-    {path='patches/garage/rock/snare_1.ogg',      note = 5,  x=-0.608, y= 0.078, r= 0.345},
-    {path='patches/garage/rock/floor_tom.ogg',    note = 9,  x= 0.750, y= 0.017, r= 0.351},
-    {path='patches/garage/rock/high_tom.ogg',     note = 12, x=-0.536, y=-0.428, r= 0.283},
-    {path='patches/garage/rock/mid_high_tom.ogg', note = 11, x=-0.069, y=-0.542, r= 0.288},
-    {path='patches/garage/rock/mid_low_tom.ogg',  note = 10, x= 0.397, y=-0.358, r= 0.300},
-    {path='patches/garage/rock/crash_1.ogg',      note = 7,  x=-1.128, y=-0.539, r= 0.464},
-    {path='patches/garage/rock/crash_2.ogg',      note = 8,  x= 1.297, y=-0.397, r= 0.512},
---]]
-    {path='patches/garage/groovy/kick_1.ogg',       type='block',    x= 0.022, y= 0.417, r= 1.06},
-    {path='patches/garage/groovy/sidestick.ogg',    type='block',    x=-0.875, y= 0.500, r= 0.29},
-    {path='patches/garage/groovy/snare_2.ogg',      type='membrane', x=-0.356, y= 0.111, r= 0.59},
-    {path='patches/garage/groovy/low_tom.ogg',      type='membrane', x= 0.697, y= 0.128, r= 0.45},
-    {path='patches/garage/groovy/mid_tom.ogg',      type='membrane', x= 0.347, y=-0.394, r= 0.33},
-    {path='patches/garage/groovy/high_tom.ogg',     type='membrane', x=-0.294, y=-0.344, r= 0.32},
-    {path='patches/garage/groovy/extra_cymbal.ogg', type='cymbal',   x=-0.094, y=-0.694, r= 0.30},
-    {path='patches/garage/groovy/splash.ogg',       type='cymbal',   x=-1.006, y=-0.081, r= 0.31},
-    {path='patches/garage/groovy/extra_splash.ogg', type='cymbal',   x= 0.933, y= 0.672, r= 0.30},
-    {path='patches/garage/groovy/hat_open.ogg',     type='cymbal',   x= 1.167, y=-0.083, r= 0.55},
-    {path='patches/garage/groovy/hat_closed.ogg',   type='block',    x= 1.161, y=-0.081, r= 0.45},
-    {path='patches/garage/groovy/ride.ogg',         type='cymbal',   x= 0.622, y=-0.700, r= 0.46},
-    {path='patches/garage/groovy/ride_bell.ogg',    type='block',    x= 0.617, y=-0.703, r= 0.22},
-    {path='patches/garage/groovy/crash_1.ogg',      type='cymbal',   x=-0.756, y=-0.581, r= 0.40},
+    {path='patches/garage/groovy/kick_1.ogg',       type='block',    x= 0.022, y= 0.417, r= 1.06, pitchVariation=0.8},
+    {path='patches/garage/groovy/sidestick.ogg',    type='block',    x=-0.875, y= 0.500, r= 0.29, pitchVariation=0.8},
+    {path='patches/garage/groovy/snare_2.ogg',      type='membrane', x=-0.356, y= 0.111, r= 0.59, pitchVariation=0.8},
+    {path='patches/garage/groovy/low_tom.ogg',      type='membrane', x= 0.697, y= 0.128, r= 0.45, pitchVariation=0.8},
+    {path='patches/garage/groovy/mid_tom.ogg',      type='membrane', x= 0.347, y=-0.394, r= 0.33, pitchVariation=0.8},
+    {path='patches/garage/groovy/high_tom.ogg',     type='membrane', x=-0.294, y=-0.344, r= 0.32, pitchVariation=0.8},
+    {path='patches/garage/groovy/extra_cymbal.ogg', type='cymbal',   x=-0.094, y=-0.694, r= 0.30, pitchVariation=0.1},
+    {path='patches/garage/groovy/splash.ogg',       type='cymbal',   x=-1.006, y=-0.081, r= 0.31, pitchVariation=0.1},
+    {path='patches/garage/groovy/extra_splash.ogg', type='cymbal',   x= 0.933, y= 0.672, r= 0.30, pitchVariation=0.1},
+    {path='patches/garage/groovy/hat_open.ogg',     type='cymbal',   x= 1.167, y=-0.083, r= 0.55, pitchVariation=0.05},
+    {path='patches/garage/groovy/hat_closed.ogg',   type='block',    x= 1.161, y=-0.081, r= 0.40, pitchVariation=0.5},
+    {path='patches/garage/groovy/ride.ogg',         type='cymbal',   x= 0.622, y=-0.700, r= 0.46, pitchVariation=0.05},
+    {path='patches/garage/groovy/ride_bell.ogg',    type='block',    x= 0.620, y=-0.703, r= 0.17, pitchVariation=0.1},
+    {path='patches/garage/groovy/crash_1.ogg',      type='cymbal',   x=-0.756, y=-0.581, r= 0.40, pitchVariation=0.05},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.6 },
   }
 
@@ -56,6 +41,7 @@ function patch.load()
   patch.drums = sampler.new(patch.layout)
   love.graphics.setBackgroundColor(colorScheme.background)
   patch.tones = {}
+  love.graphics.setBackgroundColor(colorScheme.background)
 end
 
 function patch.interpret(s)
@@ -151,7 +137,7 @@ function patch.draw(s)
       love.graphics.setColor(colorScheme.light)
       love.graphics.circle('fill', element.x, element.y, element.r)
     end
---[[
+--[[ for arranging layout of elements (on desktop)
     if i == selected then
       love.graphics.setColor(0, 1, 0, 0.3)
       love.graphics.circle('fill', element.x, element.y, element.r)
@@ -163,7 +149,7 @@ function patch.draw(s)
   end
 end
 
---[[
+--[[ for arranging layout of elements (on desktop)
 function love.keypressed(key)
   if key == 'tab' then
     selected = (selected % #patch.layout) + 1
@@ -182,8 +168,33 @@ end
 --]]
 
 function patch.icon(time)
-  love.graphics.setColor(0.2, 0.4, 0.7)
-  love.graphics.circle('fill', 0, 0, 0.7)
+  local speed = 4
+  love.graphics.setColor(colorScheme.background)
+  love.graphics.rectangle('fill', -1, -1, 2, 2)
+  -- drum
+  love.graphics.setColor(colorScheme.shade)
+  love.graphics.rectangle('fill', -1.22, 0, 2.44, 1)
+  love.graphics.ellipse('fill', 0, 1, 1.22, 0.6)
+  love.graphics.setColor(colorScheme.membrane)
+  love.graphics.ellipse('fill', 0, 0, 1.2, 0.6)
+  love.graphics.setLineWidth(0.08)
+  love.graphics.setColor(colorScheme.rim)
+  love.graphics.ellipse('line', 0, 0, 1.2, 0.6)
+  -- left stick
+ love.graphics.setColor(colorScheme.stick)
+  love.graphics.push()
+    love.graphics.translate(-2, -0.5)
+    love.graphics.rotate(math.pi / 8 - math.pi / 4 * math.abs(math.sin(speed * time)))
+    love.graphics.line(-0.5, 0, 1.7, 0)
+    love.graphics.circle('fill', 1.7, 0, 0.07)
+  love.graphics.pop()
+  -- other left stick
+  love.graphics.push()
+    love.graphics.translate(2, -0.5)
+    love.graphics.rotate(-math.pi / 8 + math.pi / 4 * math.abs(math.cos(speed * time)))
+    love.graphics.line(0.5, 0, -1.7, 0)
+    love.graphics.circle('fill', -1.7, 0, 0.07)
+  love.graphics.pop()
 end
 
 return patch
