@@ -25,11 +25,16 @@ local function hexRounder(x, y, z)
 end
 
 local axial_directions = {
-   { 1, -1}, { 0, -1}, {-1,  0}, {-1,  1}, { 0,  1}, { 1,  0}
+   { 0, -1}, {-1,  0}, {-1,  1}, { 0,  1}, { 1,  0}, { 1, -1}
 }
 
--- get QR of cell in specified direction from QR cell
--- direction 1 is NE, 2 is N, 3 is NW...
+-- get QR of cell in specified direction from QR cell, directions coding:
+--     1
+--  2     6
+--
+--  3     5
+--     4
+-- (direction 1 is N, 2 is NW, 3 is SW...)
 local function hexNeighbor(q, r, direction)
   local dir = axial_directions[direction]
   return q + dir[1], r + dir[2]
@@ -39,10 +44,10 @@ end
 function hexgrid.spiralIter(q, r, radius)
   local q, r = q, r
   local rad = 0
-  local ring = 0
+  local ring = 0 -- iterator over ring, when completed set to -1
 
   return function()
-    if rad == 0 then
+    if rad == 0 then    -- center hex
       rad = rad + 1
       ring = -1
       return q, r

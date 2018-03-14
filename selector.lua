@@ -34,10 +34,10 @@ function selector.load()
       log(err)
       patches[q][r] = faultyPatch.new(err)
     end
-
     radius = hexgrid.distanceFromCenter(q, r)
     i = i+1
   end
+  radius = radius - 0.5 -- TODO: improve 16:9 screen utilization and remove line
   scale = 1 / (2 * radius + 0.7)
 end
 
