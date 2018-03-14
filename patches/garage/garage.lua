@@ -55,7 +55,7 @@ function patch.interpret(s)
           patch.tones[id] = element
           touch.noteRetrigger = true
           -- insert random pitch variation on each new note
-          element.noteVariation = element.note + (0.5 - math.random()) * 0.5
+          element.noteVariation = element.note + (0.5 - math.random()) * element.pitchVariation
         end
         touch.note = element.noteVariation
         touch.location = {x * 0.7, 0.5}
@@ -73,7 +73,7 @@ end
 
 function patch.process(s)
   patch.interpret(s)
-  efx.reverb.decaytime = l.remap(s.tilt.lp[2], 0.1, -0.5, 0.5, 4)
+  efx.reverb.decaytime = l.remap(s.tilt.lp[1], 0.1, -0.5, 0.5, 4)
   patch.drums:processTouches(s.dt, s.touches)
   return s
 end

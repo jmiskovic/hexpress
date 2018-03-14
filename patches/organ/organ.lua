@@ -2,7 +2,7 @@ local patch = {}
 
 local sampler = require('sampler')
 local hexgrid = require('hexgrid')
-local hexpad = require('hexpad')
+local keyboard = require('hexpad')
 local efx = require('efx')
 local l = require('lume')
 
@@ -14,7 +14,7 @@ local colorScheme = {
 }
 
 function patch.load()
-  patch.keyboard = hexpad.new()
+  patch.keyboard = keyboard.new()
   efx.setDryVolume(0.5)
   efx.addEffect(efx.tremolo)
   efx.tremolo.volume = 1
@@ -35,9 +35,9 @@ end
 
 function patch.process(s)
   patch.keyboard:interpret(s)
-  patch.tone:processTouches(s.dt, s.touches)
   efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.3, 0.3, 0, 8, 'clamp')
   efx.reverb.decaytime = l.remap(s.tilt.lp[2], 1, 0, 1, 10)
+  patch.tone:processTouches(s.dt, s.touches)
   return s
 end
 

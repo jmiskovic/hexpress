@@ -63,6 +63,8 @@ function patch.process(s)
   -- slow attack with forward tilt
   patch.cello.envelope.attack    = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.2, 10, 'clamp')
   patch.tremolo.envelope.attack  = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.0, 10, 'clamp')
+  patch.cello.envelope.release   = l.remap(s.tilt.lp[2], -0.05, -0.2, 0.6, 4, 'clamp')
+  patch.tremolo.envelope.release = l.remap(s.tilt.lp[2], -0.05, -0.2, 0.5, 2, 'clamp')
   efx.reverb.decaytime     = l.remap(s.tilt.lp[2], 0.0, -0.9, 1.0, 8.0, 'clamp')
   -- crossfade between instruments
   patch.cello.masterVolume   = l.remap(s.tilt.lp[1], -0.2, 0.3, 1, 0.2, 'clamp')

@@ -25,6 +25,10 @@ local filter = {
 
 function patch.load()
   patch.keyboard = hexpad.new()
+  if love.system.getOS() == 'Android' then
+    efx.setDryVolume(0.2)
+    efx.addEffect(efx.wah)
+  end
   efx.reverb.decaytime = 2
 
   patch.chorus_synth = sampler.new({
@@ -62,6 +66,7 @@ function patch.process(s)
   patch.chorus_synth.masterVolume = l.remap(s.tilt.lp[1], -0.1,  0.0, 0, 1, 'clamp')
   patch.melanc_synth.masterVolume = l.remap(s.tilt.lp[1],  0.1,  0.0, 0, 1, 'clamp')
   patch.sawsaw_synth.masterVolume = l.remap(s.tilt.lp[2], 0.7, 0.2, 1, 0, 'clamp')
+  efx.wah.position = l.remap(math.abs(s.tilt[2]), 0.7, 0, 0.3, 1.0, 'clamp')
   patch.chorus_synth:processTouches(s.dt, s.touches)
   patch.melanc_synth:processTouches(s.dt, s.touches)
   patch.sawsaw_synth:processTouches(s.dt, s.touches)

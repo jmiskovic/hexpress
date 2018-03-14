@@ -56,6 +56,7 @@ function love.update(dt)
 
   patch.process(stream)
   efx.process(stream)
+  -- falls
 end
 
 function love.draw()

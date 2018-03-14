@@ -10,6 +10,10 @@ hexpad.font = love.graphics.newFont("Ubuntu-B.ttf", 64)
 
 local touchToQR = {}
 
+-- create new hexagonal keyboard with following customizations:
+--  displayNoteNames: pass true to display note name on each hex, false to hide them
+--  noteOffset: transpose all notes by this offset, pass 0 to set center note to C4
+--  radius: number of hexes in keyboard measured as maximum hex distance from central hex
 function hexpad.new(displayNoteNames, noteOffset, radius)
   local self = setmetatable({
        -- defaults start with C on center of screen and fill whole screen with cells of size
@@ -32,6 +36,7 @@ function hexpad.new(displayNoteNames, noteOffset, radius)
   return self
 end
 
+-- convert touches into notes
 function hexpad:interpret(s)
     -- apply hex grid to find out coordinates and desired note pitch
   for id, touch in pairs(s.touches) do
@@ -73,6 +78,7 @@ function hexpad:interpret(s)
   return s
 end
 
+-- default drawing method that renders hexes and optionally note names
 function hexpad:draw(s)
   -- prepare touches for visualization
   local touches = table.autotable(2)

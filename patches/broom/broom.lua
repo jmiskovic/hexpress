@@ -15,7 +15,6 @@ local colorScheme = {
 }
 
 function patch.load()
-  local tapePath = 'patches/broom/seventies-pop-funk-groove.ogg'
   patch.keyboard = fretboard.new(false, {-29, -24, -19, -14, -9, -4, 1, 6})
   patch.keyboard.fretWidth = 0.4
   if love.system.getOS() == 'Android' then
@@ -40,17 +39,17 @@ function patch.load()
     {path='patches/broom/acbass_G31.ogg', note = notes.toIndex['G3']},
     envelope = {attack = 0.0, decay = 0, sustain = 1, release = 0.05 },
     })
-
+  --[[
+  local tapePath = 'patches/broom/seventies-pop-funk-groove.ogg'
   patch.tapePlayer = love.audio.newSource(love.sound.newDecoder(tapePath))
   patch.tapePlayer:setLooping(true)
-  patch.tapePlayerFinalVolume = 0.0
   patch.tapePlayer:setPitch(1) -- here we could modify tempo
   patch.tapePlayer:play()
+  --]]
 end
 
 function patch.process(s)
   patch.keyboard:interpret(s)
-  patch.tapePlayer:setVolume(l.remap(s.time, 0, 10, 0, patch.tapePlayerFinalVolume, 'clamp'))
   efx.wah.position = l.remap(s.tilt[2], 0.7, -0.2, 0.2, 1.0, 'clamp')
   patch.tone.masterVolume = l.remap(efx.wah.position, 0, 0.5, 0, 1, 'clamp')
   efx.reverb.decaytime = l.remap(s.tilt.lp[1], -1, 1, 0.5, 2)
