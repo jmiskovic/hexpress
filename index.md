@@ -1,123 +1,33 @@
----
-layout: default
----
+# Hexpress
 
-Text can be **bold**, _italic_, or ~~strikethrough~~.
+[Hexpress on Google Play](https://play.google.com/store/apps/details?id=com.castlewrath.hexpress)
 
-[Link to another page](another-page).
+Hexpress is a playground for constructing interactive musical experiments for use on Android devices. It's built on top of LÖVE framework. It is available as free-of-charge Android app and open-source project.
 
-There should be whitespace between paragraphs.
+![App screenshot](media/screenshot_trail.png?raw=true)
 
-There should be whitespace between paragraphs. We recommend including a README, or a file with information about your project.
+# Note layout
 
-# [](#header-1)Header 1
+Hexpress currently implements two note layouts, hexagonal note layout and fretboard.
 
-This is a normal paragraph following a header. GitHub is a code hosting platform for version control and collaboration. It lets you and others work together on projects from anywhere.
+Hexagonal layout (in hexpad module) is based on [Harmonic table note layout](https://en.wikipedia.org/wiki/Harmonic_table_note_layout). This arrangement has quite simple patterns for chords & arpeggios, and it was used historically as a method for music theory analysis.
 
-## [](#header-2)Header 2
+Fretboard is mostly modeled after guitar, but can also be used for other instruments. It supports sliding and different tuning.
 
-> This is a blockquote following a header.
->
-> When something is important enough, you do it even if the odds are not in your favor.
+# Design & architecture
 
-### [](#header-3)Header 3
+Hexpress runs on Android & desktop versions of LÖVE framework. LÖVE is an *awesome* framework for 2D games, which also makes it suitable virtual instruments. Hexpress uses still unreleased LÖVE v0.11 that can be found on *minor* branch of LÖVE repo.
 
-```js
-// Javascript code with syntax highlighting.
-var fun = function lang(l) {
-  dateformat.i18n = require('./lang/' + l)
-  return true;
-}
-```
+LÖVE uses openal-soft library for cross-platform audio. It supports spatial audio, real-time effects (reverb, chorus, distortion, echo, flanger, modulator, compressor, equalizer), and sound capture. It's not meant for professional music applications, but so far it's proven to be effective for the needed scope.
 
-```ruby
-# Ruby code with syntax highlighting
-GitHubPages::Dependencies.gems.each do |gem, version|
-  s.add_dependency(gem, "= #{version}")
-end
-```
+Platform supports unlimited number of instruments. Several instruments are provided in *patches* subdirectory. When application starts, a *selector* module scans for patches and presents them to user for selection. For this purpose, patch contains icon() function that is called each frame by selector to render representation of patch to user. Once a patch is selected, it starts executing in place of selector module.
 
-#### [](#header-4)Header 4
+Each frame, the input controls are read, processed and forwarded to patch. The patch can use a note layout module (hexpad, fretboard) to convert input touches to notes. Then this information can be manipulated to implement note bending, vibrato, chords/arpeggios or anything else. This manipulated information is sent to *sampler* module to convert to audio output. Sampler selects correct audio sample, manipulates its pitch to adapt it to desired note and tweaks its volume according to [ADSR envelope](https://en.wikipedia.org/wiki/Synthesizer#ADSR_envelope). Sampler is heavily customizable and controllable from Lua script.
 
-*   This is an unordered list following a header.
-*   This is an unordered list following a header.
-*   This is an unordered list following a header.
+[Seed patch]('patches/seed/seed.lua') is well-documented example of a patch.
 
-##### [](#header-5)Header 5
+Aside from built-in patches, Hexpress Android app can open external project with different set of patches or changed codebase. Lua is interpreted language, so these changes don't require recompilation or app reinstallation. To see run new version on your phone, copy content of whole project to internal phone memory and use file browser to open 'main.lua' with Hexpress app.
 
-1.  This is an ordered list following a header.
-2.  This is an ordered list following a header.
-3.  This is an ordered list following a header.
+# Audio latency
 
-###### [](#header-6)Header 6
-
-| head1        | head two          | three |
-|:-------------|:------------------|:------|
-| ok           | good swedish fish | nice  |
-| out of stock | good and plenty   | nice  |
-| ok           | good `oreos`      | hmm   |
-| ok           | good `zoute` drop | yumm  |
-
-### There's a horizontal rule below this.
-
-* * *
-
-### Here is an unordered list:
-
-*   Item foo
-*   Item bar
-*   Item baz
-*   Item zip
-
-### And an ordered list:
-
-1.  Item one
-1.  Item two
-1.  Item three
-1.  Item four
-
-### And a nested list:
-
-- level 1 item
-  - level 2 item
-  - level 2 item
-    - level 3 item
-    - level 3 item
-- level 1 item
-  - level 2 item
-  - level 2 item
-  - level 2 item
-- level 1 item
-  - level 2 item
-  - level 2 item
-- level 1 item
-
-### Small image
-
-![](https://assets-cdn.github.com/images/icons/emoji/octocat.png)
-
-### Large image
-
-![](https://guides.github.com/activities/hello-world/branching.png)
-
-
-### Definition lists can be used with HTML syntax.
-
-<dl>
-<dt>Name</dt>
-<dd>Godzilla</dd>
-<dt>Born</dt>
-<dd>1952</dd>
-<dt>Birthplace</dt>
-<dd>Japan</dd>
-<dt>Color</dt>
-<dd>Green</dd>
-</dl>
-
-```
-Long, single-line code blocks should not wrap. They should horizontally scroll if they are too long. This line should be long enough to demonstrate this.
-```
-
-```
-The final element.
-```
+One large set-back for serious digital instrument is the audio latency, the lag between touch and resulting sound. It is affected by touch sensing latency, audio software stack (openal-soft), the Android OS and hardware audio drivers. Some of latency can be eliminated by correctly configuring the audio stack, this is still in progress. Android was not designed for professional audio applications, but there were some improvements in recent years. Hopefully with some more effort latency can be lowered bellow 20 ms, at least for some devices.
