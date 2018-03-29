@@ -37,6 +37,8 @@ function patch.load()
 
   for i,element in ipairs(patch.layout) do
     element.note = i * 3 --by spreading out note indexes we allow for more pitch range on single sample
+    element.oscM = 0 --oscilation magnitude
+    element.oscA = 0 --oscilation angle
   end
   patch.drums = sampler.new(patch.layout)
   love.graphics.setBackgroundColor(colorScheme.background)
@@ -56,6 +58,8 @@ function patch.interpret(s)
           touch.noteRetrigger = true
           -- insert random pitch variation on each new note
           element.noteVariation = element.note + (0.5 - math.random()) * element.pitchVariation
+          element.oscA = l.angle(x, y, element.x, element.y)
+          element.oscM = l.distance(x, y, element.x, element.y)
         end
         touch.note = element.noteVariation
         touch.location = {x * 0.7, 0.5}
@@ -80,8 +84,13 @@ end
 
 function drawCymbal(s, element)
   love.graphics.push()
-    local aoff = touched and math.cos(5 * s.time) or 0 -- angle offset
     love.graphics.translate(element.x, element.y)
+    -- emulate cymbal swinging
+    love.graphics.rotate(element.oscA)
+    love.graphics.scale(1 - 0.1 * element.oscM * (math.sin(5 * s.time) + 1), 1)
+    love.graphics.rotate(-element.oscA)
+    element.oscM = element.oscM * (1 - 0.99 * s.dt)
+    local aoff = element.oscM * math.cos(5 * s.time) -- reflections angle offset
     -- cymbal surface
     love.graphics.setColor(colorScheme.cymbal)
     love.graphics.circle('fill', 0, 0, element.r)
@@ -135,7 +144,7 @@ function patch.draw(s)
       drawCymbal(s, element)
     elseif element.type == 'block' then
       love.graphics.setColor(colorScheme.light)
-      love.graphics.circle('fill', element.x, element.y, element.r)
+      love.graphics.circle('fill', element.x, element.y, touched and element.r - 0.01 or element.r)
     end
 --[[ for arranging layout of elements (on desktop)
     if i == selected then
