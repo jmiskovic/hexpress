@@ -18,21 +18,23 @@ local colorScheme = {
 
 function patch.load()
   patch.layout = { -- elements are listed in draw order (lowest to highest)
-    {path='patches/garage/groovy/kick_1.ogg',       type='block',    x= 0.022, y= 0.417, r= 1.06, pitchVariation=0.8},
-    {path='patches/garage/groovy/sidestick.ogg',    type='block',    x=-0.875, y= 0.500, r= 0.29, pitchVariation=0.8},
-    {path='patches/garage/groovy/snare_2.ogg',      type='membrane', x=-0.356, y= 0.111, r= 0.59, pitchVariation=0.8},
-    {path='patches/garage/groovy/low_tom.ogg',      type='membrane', x= 0.697, y= 0.128, r= 0.45, pitchVariation=0.8},
-    {path='patches/garage/groovy/mid_tom.ogg',      type='membrane', x= 0.347, y=-0.394, r= 0.33, pitchVariation=0.8},
-    {path='patches/garage/groovy/high_tom.ogg',     type='membrane', x=-0.294, y=-0.344, r= 0.32, pitchVariation=0.8},
-    {path='patches/garage/groovy/extra_cymbal.ogg', type='cymbal',   x=-0.094, y=-0.694, r= 0.30, pitchVariation=0.1},
-    {path='patches/garage/groovy/splash.ogg',       type='cymbal',   x=-1.006, y=-0.081, r= 0.31, pitchVariation=0.1},
-    {path='patches/garage/groovy/extra_splash.ogg', type='cymbal',   x= 0.933, y= 0.672, r= 0.30, pitchVariation=0.1},
-    {path='patches/garage/groovy/hat_open.ogg',     type='cymbal',   x= 1.167, y=-0.083, r= 0.55, pitchVariation=0.05},
-    {path='patches/garage/groovy/hat_closed.ogg',   type='block',    x= 1.161, y=-0.081, r= 0.40, pitchVariation=0.5},
-    {path='patches/garage/groovy/ride.ogg',         type='cymbal',   x= 0.622, y=-0.700, r= 0.46, pitchVariation=0.05},
-    {path='patches/garage/groovy/ride_bell.ogg',    type='block',    x= 0.620, y=-0.703, r= 0.17, pitchVariation=0.1},
-    {path='patches/garage/groovy/crash_1.ogg',      type='cymbal',   x=-0.756, y=-0.581, r= 0.40, pitchVariation=0.05},
-    envelope = { attack = 0, decay = 0, sustain = 1, release = 0.6 },
+    {path='patches/garage/groovy/kick_1.ogg',       type='block',    pitchVariation=0.8,  x= 0.022, y= 0.417, r= 1.06},
+    {path='patches/garage/groovy/sidestick.ogg',    type='block',    pitchVariation=0.8,  x= 0.233, y= 0.061, r= 0.45},
+    {path='patches/garage/snare_quiet.ogg',         type='block',    pitchVariation=1.8,  x=-1.019, y= 0.358, r= 0.40},
+    {path='patches/garage/groovy/snare_2.ogg',      type='membrane', pitchVariation=1.2,  x=-0.297, y= 0.039, r= 0.59},
+    {path='patches/garage/groovy/low_tom.ogg',      type='membrane', pitchVariation=0.8,  x= 0.697, y= 0.128, r= 0.45},
+    {path='patches/garage/groovy/mid_tom.ogg',      type='membrane', pitchVariation=0.8,  x= 0.347, y=-0.394, r= 0.33},
+    {path='patches/garage/groovy/high_tom.ogg',     type='membrane', pitchVariation=0.8,  x=-0.294, y=-0.344, r= 0.32},
+    {path='patches/garage/shaker.ogg',              type='block',    pitchVariation=0.5,  x= 1.606, y=-0.267, r= 0.48},
+    {path='patches/garage/groovy/extra_splash.ogg', type='cymbal',   pitchVariation=0.1,  x=-0.117, y=-0.717, r= 0.31},
+    {path='patches/garage/groovy/splash.ogg',       type='cymbal',   pitchVariation=0.1,  x=-1.006, y=-0.081, r= 0.31},
+    {path='patches/garage/groovy/hat_open.ogg',     type='cymbal',   pitchVariation=0.05, x= 1.389, y= 0.239, r= 0.43},
+    {path='patches/garage/groovy/hat_closed.ogg',   type='cymbal',   pitchVariation=0.5,  x= 1.089, y=-0.481, r= 0.45},
+    {path='patches/garage/groovy/hat_quiet.ogg',    type='block',    pitchVariation=0.7,  x= 0.831, y=-0.444, r= 0.18},
+    {path='patches/garage/groovy/ride.ogg',         type='cymbal',   pitchVariation=0.05, x= 0.519, y=-0.842, r= 0.46},
+    {path='patches/garage/groovy/ride_bell.ogg',    type='block',    pitchVariation=0.1,  x= 0.522, y=-0.836, r= 0.17},
+    {path='patches/garage/groovy/crash_1.ogg',      type='cymbal',   pitchVariation=0.05, x=-0.756, y=-0.581, r= 0.40},
+    envelope = { attack = 0, decay = 0, sustain = 1, release = 0.7 },
   }
 
   for i,element in ipairs(patch.layout) do
@@ -97,7 +99,7 @@ function drawCymbal(s, element)
     love.graphics.setColor(colorScheme.light)
     -- cymbal outline
     love.graphics.circle('line', 0, 0, element.r - 0.01)
-    -- light reflections
+    ---[[ light reflections
     for j = 1, 5 do
       love.graphics.push()
         if j % 2 == 0 then
@@ -115,6 +117,7 @@ function drawCymbal(s, element)
     for r = element.r * 0.2, element.r - 0.03, 0.03 do
       love.graphics.circle('line', 0, 0, r)
     end
+    --]]
     -- center bell
     love.graphics.circle('fill', 0, 0, element.r * 0.2)
     love.graphics.setColor(colorScheme.light)
