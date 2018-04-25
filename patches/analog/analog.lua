@@ -24,7 +24,7 @@ local filter = {
 }
 
 function patch.load()
-  patch.keyboard = hexpad.new()
+  patch.keyboard = hexpad.new(true)
   if love.system.getOS() == 'Android' then
     efx.setDryVolume(0.2)
     efx.addEffect(efx.wah)

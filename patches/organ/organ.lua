@@ -14,7 +14,7 @@ local colorScheme = {
 }
 
 function patch.load()
-  patch.keyboard = keyboard.new()
+  patch.keyboard = keyboard.new(true)
   efx.setDryVolume(0.5)
   efx.addEffect(efx.tremolo)
   efx.tremolo.volume = 1

@@ -12,7 +12,7 @@ local colorScheme = {
   surface    = {l.hsl(0.66, 0.25, 0.26)},
   surfaceC   = {l.hsl(0.66, 0.20, 0.23)},
   knob       = {l.hsl(0.67, 0.09, 0.15)},
-  bright     = {l.rgba(0x4a515cff)},
+  bright     = {l.hsl(0.66, 0.18, 0.38)},
   text       = {l.hsl(0.24, 0.09, 0.72)},
   shiny      = {l.hsl(0.24, 0.09, 0.96, 0.5)},
 }
@@ -32,7 +32,7 @@ function patch.load()
   efx.tremolo.volume = 1
   efx.tremolo.frequency = 4
 
-  patch.keyboard = hexpad.new()
+  patch.keyboard = hexpad.new(true)
 
   patch.rhodes = sampler.new({
     {path='patches/riders/A_029__F1_1.ogg', note =-19, velocity = 0.9},
