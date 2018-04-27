@@ -30,7 +30,7 @@ function patch.load()
     {path='patches/garage/groovy/splash.ogg',       type='cymbal',   pitchVariation=0.1,  x=-1.006, y=-0.081, r= 0.31},
     {path='patches/garage/groovy/hat_open.ogg',     type='cymbal',   pitchVariation=0.05, x= 1.389, y= 0.239, r= 0.43},
     {path='patches/garage/groovy/hat_closed.ogg',   type='cymbal',   pitchVariation=0.5,  x= 1.089, y=-0.481, r= 0.45},
-    {path='patches/garage/groovy/hat_quiet.ogg',    type='block',    pitchVariation=0.7,  x= 0.831, y=-0.444, r= 0.18},
+    {path='patches/garage/groovy/hat_quiet.ogg',    type='block',    pitchVariation=0.7,  x= 0.886, y=-0.447, r= 0.23},
     {path='patches/garage/groovy/ride.ogg',         type='cymbal',   pitchVariation=0.05, x= 0.519, y=-0.842, r= 0.46},
     {path='patches/garage/groovy/ride_bell.ogg',    type='block',    pitchVariation=0.1,  x= 0.522, y=-0.836, r= 0.17},
     {path='patches/garage/groovy/crash_1.ogg',      type='cymbal',   pitchVariation=0.05, x=-0.756, y=-0.581, r= 0.40},
