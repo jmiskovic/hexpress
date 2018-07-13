@@ -76,8 +76,8 @@ end
 
 function sampler:assignSynth(touchId, touch)
   -- find synth with longest duration
-  maxDuration = -100
-  selected = nil
+  local maxDuration = -100
+  local selected = nil
   for i, synth in ipairs(self.synths) do
     if synth.duration > maxDuration + (synth.active and 10 or 0) then
       maxDuration = synth.duration
@@ -109,11 +109,11 @@ function sampler:assignSynth(touchId, touch)
 end
 
 function sampler:assignSample(note, velocity)
-  -- first look for closest pitch, then for closest sample velocity
+  -- first look for closest sample velocity, then for closest pitch
   local bestFitness = math.huge
   local selected = nil
   for i, sample in ipairs(self.samples) do
-    local fitness = 10 * math.abs(sample.note - note) + math.abs(sample.velocity - velocity)
+    local fitness = math.abs(sample.note - note) + 100 * math.abs(sample.velocity - velocity)
     if fitness < bestFitness then
       selected = i
       bestFitness = fitness

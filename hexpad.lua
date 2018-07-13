@@ -122,7 +122,7 @@ function hexpad:drawCell(q, r, s, touch)
     local h = self.font:getHeight()
     local w = self.font:getWidth(text)
     love.graphics.setColor(self.colorScheme.bright)
-    love.graphics.print(text, -w / 2, -h / 2) -- +5, because of some obscure getWidth() bug
+    love.graphics.print(text, -w / 2, -h / 2)
   end
 end
 

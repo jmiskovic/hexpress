@@ -21,7 +21,7 @@ local defaults = {
     volume   = 0.0,
     type     = 'crybaby',
     position = 0.5,
-  }
+  },
 }
 
 efx.activeEffects = {}

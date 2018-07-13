@@ -69,6 +69,7 @@ end
 -- usage:   track('speed: %1.2f m/s', self.speed)
 function track(format, value)
   tracking[format] = value
+  return value
 end
 
 function drawTable(t, x, y)
