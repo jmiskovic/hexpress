@@ -19,7 +19,7 @@ local colorScheme = {
 function patch.load()
   patch.layout = { -- elements are listed in draw order (lowest to highest)
     {path='patches/garage/groovy/kick_1.ogg',       type='block',    pitchVariation=0.8,  x= 0.022, y= 0.417, r= 1.06},
-    {path='patches/garage/groovy/sidestick.ogg',    type='block',    pitchVariation=0.8,  x= 0.233, y= 0.061, r= 0.45},
+    {path='patches/garage/groovy/sidestick.ogg',    type='block',    pitchVariation=0.8,  x= 0.256, y= 0.108, r= 0.45},
     {path='patches/garage/snare_quiet.ogg',         type='block',    pitchVariation=1.8,  x=-1.019, y= 0.358, r= 0.40},
     {path='patches/garage/groovy/snare_2.ogg',      type='membrane', pitchVariation=1.2,  x=-0.297, y= 0.039, r= 0.59},
     {path='patches/garage/groovy/low_tom.ogg',      type='membrane', pitchVariation=0.8,  x= 0.697, y= 0.128, r= 0.45},
@@ -58,8 +58,7 @@ function patch.interpret(s)
         if not patch.tones[id] or patch.tones[id] ~= element then
           patch.tones[id] = element
           touch.noteRetrigger = true
-          -- insert random pitch variation on each new note
-          element.noteVariation = element.note + (0.5 - math.random()) * element.pitchVariation
+          element.noteVariation = element.note
           element.oscA = l.angle(x, y, element.x, element.y)
           element.oscM = l.distance(x, y, element.x, element.y)
         end
@@ -124,6 +123,8 @@ function drawCymbal(s, element)
     love.graphics.circle('fill', 0, 0, element.r * 0.2)
   love.graphics.pop()
 end
+
+local selected = 1
 
 function patch.draw(s)
   love.graphics.setLineWidth(0.02)
@@ -195,17 +196,17 @@ function patch.icon(time)
   -- left stick
  love.graphics.setColor(colorScheme.stick)
   love.graphics.push()
-    love.graphics.translate(-2, -0.5)
+    love.graphics.translate(-2.2, 0.3)
     love.graphics.rotate(math.pi / 8 - math.pi / 4 * math.abs(math.sin(speed * time)))
-    love.graphics.line(-0.5, 0, 1.7, 0)
-    love.graphics.circle('fill', 1.7, 0, 0.07)
+    love.graphics.line(-0.5, 0, 1.7, -0.9)
+    love.graphics.circle('fill', 1.7, -0.9, 0.07)
   love.graphics.pop()
   -- other left stick
   love.graphics.push()
-    love.graphics.translate(2, -0.5)
+    love.graphics.translate(2.2, 0.3)
     love.graphics.rotate(-math.pi / 8 + math.pi / 4 * math.abs(math.cos(speed * time)))
-    love.graphics.line(0.5, 0, -1.7, 0)
-    love.graphics.circle('fill', -1.7, 0, 0.07)
+    love.graphics.line(0.5, 0, -1.7, -0.9)
+    love.graphics.circle('fill', -1.7, -0.9, 0.07)
   love.graphics.pop()
 end
 
