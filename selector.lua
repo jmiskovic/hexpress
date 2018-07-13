@@ -22,20 +22,25 @@ function selector.load()
   -- try to load all patches in directory, store them in hexagonal spiral
   local fileList = love.filesystem.getDirectoryItems('patches')
   for q, r in hexgrid.spiralIter(0, 0, math.huge) do
-    if i > #fileList then
-      break
-    end
-    local iterName = fileList[i]
-    local loadPath = 'patches/' .. iterName .. '/' .. iterName
-    local m, err = l.hotswap(loadPath)
-    if m then
-      patches[q][r] = m
+    if i == 12 then -- skip this one for better layout
+      i = i+1
     else
-      log(err)
-      patches[q][r] = faultyPatch.new(err)
+      if #fileList == 0 then
+        break
+      end
+      local iterName = fileList[#fileList]
+      fileList[#fileList] = nil
+      local loadPath = 'patches/' .. iterName .. '/' .. iterName
+      local m, err = l.hotswap(loadPath)
+      if m then
+        patches[q][r] = m
+      else
+        log(err)
+        patches[q][r] = faultyPatch.new(err)
+      end
+      radius = hexgrid.distanceFromCenter(q, r)
+      i = i+1
     end
-    radius = hexgrid.distanceFromCenter(q, r)
-    i = i+1
   end
   radius = radius - 0.5 -- TODO: improve 16:9 screen utilization and remove line
   scale = 1 / (2 * radius + 0.7)
