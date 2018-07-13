@@ -9,16 +9,17 @@ local colorScheme = {
   skin   = {l.hsl(0.06, 0.38, 0.61)},
   mouth  = {l.hsl(0.00, 1.00, 0.15)},
   hair   = {l.hsl(0.00, 0.00, 0.12)},
-  robes  = {l.hsl(0.71, 0.68, 0.55)},
+  robes  = {l.rgba(0x3f0963ff)},
   collar = {l.hsl(0.14, 0.86, 0.64)},
   tongue = {l.hsl(0.00, 0.70, 0.5)},
-  fog    = {l.hsl(0.62, 0.21, 0.52)},
-  fog    = {l.hsl(0.62, 0.21, 0.52, 0.3)},
+  fog    = {l.hsl(0.62, 0.21, 0.52, 0.25)},
 }
 
 function patch.load()
   patch.keyboard = hexpad.new(true)
   patch.tone = sampler.new({
+    {path='patches/hao.wav',  note=10},
+--[[
     {path='patches/choir/choir_21.ogg',  note= -9},
     {path='patches/choir/choir_15.ogg',  note= -3},
     {path='patches/choir/choir_12.ogg',  note=  0},
@@ -28,6 +29,7 @@ function patch.load()
     {path='patches/choir/choir_0.ogg',   note= 12},
     {path='patches/choir/choir_-3.ogg',  note= 15},
     {path='patches/choir/choir_-6.ogg',  note= 18},
+]]
     looped = true,
     envelope = { attack = 0.30, decay = 0.40, sustain = 0.85, release = 0.35 },
   })
@@ -48,7 +50,7 @@ function patch.draw(s)
   patch.keyboard:draw(s)
 end
 
-function drawDude(time)
+local function drawDude(time)
   local gape = 0.7 + 0.3 * math.cos(time * 2)^2
   love.graphics.setColor(colorScheme.robes)
   love.graphics.ellipse('fill', 0, 0, 0.5, 0.8)
