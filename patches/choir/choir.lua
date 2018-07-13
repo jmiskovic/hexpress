@@ -18,8 +18,6 @@ local colorScheme = {
 function patch.load()
   patch.keyboard = hexpad.new(true)
   patch.tone = sampler.new({
-    {path='patches/hao.wav',  note=10},
---[[
     {path='patches/choir/choir_21.ogg',  note= -9},
     {path='patches/choir/choir_15.ogg',  note= -3},
     {path='patches/choir/choir_12.ogg',  note=  0},
@@ -29,7 +27,6 @@ function patch.load()
     {path='patches/choir/choir_0.ogg',   note= 12},
     {path='patches/choir/choir_-3.ogg',  note= 15},
     {path='patches/choir/choir_-6.ogg',  note= 18},
-]]
     looped = true,
     envelope = { attack = 0.30, decay = 0.40, sustain = 0.85, release = 0.35 },
   })
