@@ -78,9 +78,9 @@ end
 function patch.process(s)
   patch.keyboard:interpret(s)
   -- crossfade between instruments
-  patch.ensemble.masterVolume = l.remap(s.tilt.lp[1],-0.1,  0.1, 0,   1, 'clamp')
-  patch.trombone.masterVolume = l.remap(s.tilt.lp[1], 0.1, -0.1, 0.2, 1, 'clamp')
-  patch.trombuzz.masterVolume = l.remap(s.tilt.lp[2], 0.0, -0.4, 0,   1, 'clamp')
+  patch.ensemble.masterVolume = l.remap(s.tilt.lp[1],-.2,  .1, 0, 1, 'clamp')
+  patch.trombone.masterVolume = l.remap(s.tilt.lp[1], .1, -.1, 0, 1, 'clamp')
+  patch.trombuzz.masterVolume = l.remap(s.tilt.lp[2],-.0, -.1, 0, 1, 'clamp')
   patch.trombone:processTouches(s.dt, s.touches)
   patch.trombuzz:processTouches(s.dt, s.touches)
   patch.ensemble:processTouches(s.dt, s.touches)

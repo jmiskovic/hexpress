@@ -18,6 +18,21 @@ local colorScheme = {
   bright     = {l.hsl(0.66, 0.18, 0.38)},
   text       = {l.hsl(0.24, 0.09, 0.72)},
   shiny      = {l.hsl(0.24, 0.09, 0.96, 0.5)},
+  noteColors = {
+    {0.42, 0.42, 0.25},
+    {0.99, 0.88, 0.71},
+    {0.10, 0.99, 0.60},
+    {0.58, 0.77, 0.30},
+    {0.14, 0.99, 0.69},
+    {0.01, 0.34, 0.34},
+    {0.99, 0.76, 0.56},
+    {0.30, 0.52, 0.54},
+    {0.91, 0.41, 0.51},
+    {0.06, 0.65, 0.55},
+    {0.51, 0.91, 0.57},
+    {0.82, 0.32, 0.32},
+    --{0.07, 0.64, 0.75},
+  },
 }
 
 local noteTracker = {}
@@ -33,7 +48,7 @@ function patch.load()
 
   patch.keyboard = hexpad.new(true)
 
-  patch.rhodes = sampler.new({
+  patch.synth = sampler.new({
 
     {path='patches/chromakey/synthpad.ogg',  note= notes.toIndex['C3']},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.15 },
@@ -50,21 +65,19 @@ function patch.load()
   patch.keyboard.drawCell = patch.drawCell
 end
 
-  function patch.drawCell(self, q, r, s, touch)
+function patch.drawCell(self, q, r, s, touch)
   local note = self:toNoteIndex(q, r)
   love.graphics.scale(.90)
 
   local ch, cs, cl
-  local centralHue = .32
-  ch = (((note - keyCenter) * 7 + 12 * centralHue) % 12) / 12
-  cs = .05 + .45 * (1- math.exp(-(noteTracker[note % 12] or 0)/3))
-  cl = .1  + .35 * (1- math.exp(-(noteTracker[note % 12] or 0)/3))
 
-  if touch and touch.volume then
-    love.graphics.scale(1 + touch.volume/10)
-    cs = cs - touch.volume * 0.5
-    cl = cl + touch.volume * 0.5
+  if s.tilt[1] > .3 and note ~= keyCenter then
+    ch, cs, cl = .0, .1, .1
+  else
+    ch, cs, cl = unpack(colorScheme.noteColors[math.floor(note-keyCenter+.5) % 12 + 1])
+    cl = cl * (1 - math.exp(-(noteTracker[note % 12] or 0)/2))
   end
+
   love.graphics.setColor(l.hsl(ch, cs, cl))
   love.graphics.circle('fill', 0, 0, 0.8)
   if self.displayNoteNames then
@@ -74,7 +87,7 @@ end
     love.graphics.setFont(self.font)
     local h = self.font:getHeight()
     local w = self.font:getWidth(text)
-    cl = 1 - cl
+    cl = (cl + 0.5) % 1
     love.graphics.setColor(l.hsl(ch, cs, cl))
     love.graphics.print(text, -w / 2, -h / 2)
   end
@@ -82,23 +95,22 @@ end
 
 function patch.process(s)
   patch.keyboard:interpret(s)
-  if not s.pressureSupport then
-    for _,touch in pairs(s.touches) do
-      touch.pressure = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
-      if touch.noteRetrigger then
-        noteTracker[touch.note  % 12] = (noteTracker[touch.note % 12] or 0) + 1
-        if not controls.frozen then
-          keyCenter = touch.note
-        end
-      end
+  for _,touch in pairs(s.touches) do
+    touch.pressure = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
+    if touch.noteRetrigger then
+      noteTracker[touch.note  % 12] = (noteTracker[touch.note % 12] or 0) + 20000
     end
-    patch.rhodes.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
+    if s.tilt[1] > .3 then
+      keyCenter = touch.note
+    end
   end
+  patch.synth.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
+
   efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.3, 0.3, 0, 8, 'clamp')
-  patch.rhodes:processTouches(s.dt, s.touches)
+  patch.synth:processTouches(s.dt, s.touches)
 
   for note,decay in pairs(noteTracker) do
-    noteTracker[note] = decay * (1 - s.dt * 0.3)
+    noteTracker[note] = decay * (1 - s.dt * 3)
   end
 end
 
@@ -106,22 +118,36 @@ function patch.draw(s)
   patch.keyboard:draw(s)
 end
 
+
+local iconDecay = {}
+local i = 1
+for q, r in hexgrid.spiralIter(0, 0, 2) do
+  iconDecay[i] = -10
+  i = i + 1
+end
+
 function patch.icon(time)
-  love.graphics.setColor(colorScheme.surface)
+  love.graphics.setColor(colorScheme.background)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
-  local i = 0
+  local i = 1
   for q, r in hexgrid.spiralIter(0, 0, 2) do
+    -- simulate random notes on grid
+    if i == math.floor(q * 17293 + r * 13457 + time / 2) % 19 then
+      iconDecay[i] = time
+    end
+    -- note size drops with time
+    local size = math.max(.2,  math.exp((iconDecay[i] - time) / 4))
+
     love.graphics.setColor(l.hsl(
-      (i / 12 + time/5) % 1,
-      0.3,
-      0.4
+        unpack(colorScheme.noteColors[(i % #colorScheme.noteColors) + 1])
       ))
+
     love.graphics.push()
     local x, y = hexgrid.hexToPixel(q, r)
       love.graphics.scale(0.15)
       local x, y = hexgrid.hexToPixel(q, r)
       love.graphics.translate(x,y)
-      love.graphics.circle('fill', x, y, 1.6)
+      love.graphics.circle('fill', x, y, 1.2 * size)
     love.graphics.pop()
     i = i + 1
   end
