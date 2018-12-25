@@ -50,7 +50,7 @@ end
 
 function patch.process(s)
   patch.keyboard:interpret(s)
-  efx.wah.position = l.remap(s.tilt[1], -.3, .3, 0, 1, 'camp')
+  efx.wah.position = l.remap(s.tilt[1], -.2, .2, 0, 1, 'camp')
   patch.tone.masterVolume = l.remap(efx.wah.position, 0, 0.5, .2, 1, 'clamp')
   efx.reverb.decaytime = l.remap(s.tilt.lp[2], 0.7, -0.1, 0.2, 2.0, 'clamp')
   -- sustain pedal

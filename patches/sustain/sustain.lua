@@ -21,7 +21,7 @@ local colorScheme = {
   background = {l.rgba(0x262626ff)},
   highlight  = {l.rgba(0x44617bff)},
   surface    = {l.rgba(0x444444ff)},
-  surfaceC   = {l.rgba(0x404040ff)},
+  surfaceC   = {l.rgba(0x353535ff)},
   bright     = {l.rgba(0x75ade699)},
 }
 

@@ -46,7 +46,7 @@ end
 
 function patch.process(s)
   patch.keyboard:interpret(s)
-  efx.wah.position = l.remap(s.tilt[1], -0.3, 0.3, 0.2, 1.0, 'clamp')
+  efx.wah.position = l.remap(s.tilt[1], -0.2, 0.2, 0.2, 1.0, 'clamp')
   patch.tone.masterVolume = l.remap(efx.wah.position, 0, 0.5, .2, 1, 'clamp')
   efx.reverb.decaytime = l.remap(s.tilt.lp[2], -.1, 2, 0.5, 2)
   patch.tone:processTouches(s.dt, s.touches)

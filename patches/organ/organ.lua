@@ -18,8 +18,9 @@ function patch.load()
   efx.setDryVolume(0.5)
   efx.addEffect(efx.tremolo)
   efx.tremolo.volume = .7
+  efx.reverb.decaytime = 4
 
-  patch.man = sampler.new({
+  patch.manOp = sampler.new({
     {path='patches/organ/Rode_Man3Open_04.ogg', note= -9},
     {path='patches/organ/Rode_Man3Open_07.ogg', note= -6},
     {path='patches/organ/Rode_Man3Open_10.ogg', note= -3},
@@ -31,7 +32,7 @@ function patch.load()
     {path='patches/organ/Rode_Man3Open_28.ogg', note= 15},
     {path='patches/organ/Rode_Man3Open_31.ogg', note= 18},
     {path='patches/organ/Rode_Man3Open_34.ogg', note= 21},
-    envelope = { attack = 0.1, decay = 0.50, sustain = 0.85, release = 1.2 },
+    envelope = { attack = 0.1, decay = 0.50, sustain = 0.85, release = 0.4 },
   })
 
   patch.pedal = sampler.new({
@@ -44,18 +45,18 @@ function patch.load()
     {path='patches/organ/Rode_Pedal_28.ogg', note= 15},
     {path='patches/organ/Rode_Pedal_31.ogg', note= 18},
     looped = true,
-    envelope = { attack = 0.1, decay = 0.50, sustain = 0.85, release = 1.2 },
+    envelope = { attack = 0.1, decay = 0.50, sustain = 0.85, release = 0.4 },
   })
   love.graphics.setBackgroundColor(colorScheme.background)
 end
 
 function patch.process(s)
   patch.keyboard:interpret(s)
-  efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.3, 0.3, 0, 4, 'clamp')
-  patch.pedal.masterVolume = l.remap(s.tilt.lp[2], -.2, .2, 1, 0, 'clamp')
-  patch.man.masterVolume   = l.remap(s.tilt.lp[2], -.3, .1, 0, 1, 'clamp')
+  efx.tremolo.frequency    = l.remap(s.tilt.lp[1],-.3, .3, 0, 4, 'clamp')
+  patch.pedal.masterVolume = l.remap(s.tilt.lp[2], .6,  0, 0, .7, 'clamp')
+  patch.manOp.masterVolume = l.remap(s.tilt.lp[2], .1, .3, 0, .9, 'clamp')
   patch.pedal:processTouches(s.dt, s.touches)
-  patch.man:processTouches(s.dt, s.touches)
+  patch.manOp:processTouches(s.dt, s.touches)
   return s
 end
 
