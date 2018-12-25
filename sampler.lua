@@ -131,6 +131,7 @@ function sampler:assignSample(note, velocity)
 end
 
 function sampler:applyEnvelope(dt, vol, active, duration)
+  -- ADSR envelope
   if active then
     if self.envelope.attack == 0 and duration < 0.01 then             -- flat
       return self.envelope.sustain

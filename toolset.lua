@@ -81,7 +81,7 @@ function drawTable(t, x, y)
   for k,v in pairs(t) do
     if type(v) == 'table' then
       love.graphics.print(tostring(k), x, y)
-      y = y + fontSize
+      y = y + fontSize *.2
       x, y = drawTable(v, x + tabSize, y)
       x = x - tabSize
     else
@@ -93,7 +93,7 @@ function drawTable(t, x, y)
       end
       love.graphics.print(line, x, y)
     end
-    y = y + fontSize
+    y = y + fontSize  *.6
   end
   return x, y
 end
