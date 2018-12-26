@@ -114,7 +114,7 @@ function sampler:assignSample(note, velocity)
   local selected = nil
   for i, sample in ipairs(self.samples) do
     local fitness = math.abs(sample.note - note) + 100 * math.abs(sample.velocity - velocity)
-    if fitness < bestFitness then
+    if fitness < bestFitness - .5 then
       selected = i
       bestFitness = fitness
     end
@@ -131,6 +131,7 @@ function sampler:assignSample(note, velocity)
 end
 
 function sampler:applyEnvelope(dt, vol, active, duration)
+  -- ADSR envelope
   if active then
     if self.envelope.attack == 0 and duration < 0.01 then             -- flat
       return self.envelope.sustain

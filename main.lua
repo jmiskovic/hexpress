@@ -53,9 +53,9 @@ function love.update(dt)
   if love.system.getOS() ~= 'Android' then
     mock.process(stream)
   end
-
   patch.process(stream)
   efx.process(stream)
+  love.timer.sleep(0.003)
   -- falls
 end
 
@@ -67,6 +67,12 @@ function love.draw()
   --mock.draw(stream)
   --drawTable(stream)
   --track('fps %2.1f', love.timer.getFPS())
+end
+
+function love.visible(visible)
+  if not visible then
+    love.event.quit()
+  end
 end
 
 function loadPatch(newPatch)
@@ -84,7 +90,7 @@ function love.keypressed(key)
       loadPatch(selector)
       love.audio.stop()
     end
-  elseif key == 'menu' then
+  elseif key == 'menu' or key == 'f' then
     controls.frozen = not controls.frozen
   end
 

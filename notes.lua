@@ -10,7 +10,23 @@ for i=-48,48 do
   notes.toIndex[notes.toName[i] .. math.floor(i / 12 + 4)] = i
 end
 
--- map from index to pitch (C5 -> 1.0, C5 -> 2.0)
+local justRatios = {
+  1/1,   -- perfect unison
+  16/15, -- minor second
+  9/8,   -- major second
+  6/5,   -- minor third
+  5/4,   -- major third
+  4/3,   -- perfect fourth
+  45/32, -- augmented fourth
+  64/45, -- diminished fifth
+  3/2,   -- perfect fifth
+  8/5,   -- minor sixth
+  5/3,   -- major sixth
+  16/9,  -- minor seventh
+  15/8   -- major seventh
+}
+
+-- map from index to pitch (C4 -> 1.0, C5 -> 2.0)
 function notes.toPitch(noteIndex)
   -- equal temperament
   return math.pow(math.pow(2, 1/12), noteIndex)
