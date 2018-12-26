@@ -6,6 +6,7 @@ local notes = require('notes')
 
 local sampler = require('sampler')
 local hexpad = require('hexpad')
+local hexgrid = require('hexgrid')
 
 local colorScheme = {
   background = {l.hsl(0.21, 0.13, 0.28)},
@@ -59,6 +60,46 @@ function patch.load()
   patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
   patch.keyboard.colorScheme.bright     = colorScheme.bright
   love.graphics.setBackgroundColor(colorScheme.background)
+
+  function patch.keyboard:drawCell(q, r, s, touch)
+    love.graphics.scale(0.70)
+
+    local expandTo = expandTo or 1.02
+    local slices = 4
+    local fraction = (expandTo - 1) / slices
+
+    local color = self.colorScheme.surfaceC
+    love.graphics.push()
+    if touch then
+      color = self.colorScheme.highlight
+      love.graphics.scale(1 + touch.volume/10)
+    end
+
+    for slice = 2, slices do
+      love.graphics.push()
+      local sX = 2600 * (slice - 1) * fraction   -- sX and sY define distance from center
+      local sY = 1600 * (slice - 1) * fraction
+      if expandTo < 1 then
+        sY = -sY
+        sX = -sX
+      end
+      local x = fraction * l.remap(s.tilt.lp[1], -.30,  .30, sX, -sX)
+      local y = fraction * l.remap(s.tilt.lp[2],  .80,  .5, -sY,  sY)
+      local s = l.remap(slice, 1, slices, 1, expandTo)
+
+      color[4] = math.exp(-2.5 * (slice - 1) /slices)
+      love.graphics.setColor(color)
+      love.graphics.scale(s)
+      love.graphics.translate(x, y)
+      love.graphics.setLineWidth(1/6)
+      love.graphics.polygon('fill', hexgrid.shape)
+      love.graphics.pop()
+    end
+    love.graphics.pop()
+    love.graphics.setColor(self.colorScheme.surface)
+    love.graphics.polygon('fill', self.shape)
+  end
+
 end
 
 function patch.process(s)
@@ -67,6 +108,7 @@ function patch.process(s)
   patch.melanc_synth.masterVolume = l.remap(s.tilt.lp[1],  0.1,  0.0, 0, 1, 'clamp')
   patch.sawsaw_synth.masterVolume = l.remap(s.tilt.lp[2], 0.7, 0.2, 1, 0, 'clamp')
   efx.wah.position = l.remap(math.abs(s.tilt[2]), 0.7, 0, 0.3, 1.0, 'clamp')
+
   patch.chorus_synth:processTouches(s.dt, s.touches)
   patch.melanc_synth:processTouches(s.dt, s.touches)
   patch.sawsaw_synth:processTouches(s.dt, s.touches)

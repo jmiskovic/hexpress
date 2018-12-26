@@ -21,7 +21,7 @@ local colorScheme = {
   background = {l.rgba(0x262626ff)},
   highlight  = {l.rgba(0x44617bff)},
   surface    = {l.rgba(0x444444ff)},
-  surfaceC   = {l.rgba(0x404040ff)},
+  surfaceC   = {l.rgba(0x353535ff)},
   bright     = {l.rgba(0x75ade699)},
 }
 
@@ -97,12 +97,12 @@ end
 function patch.process(s)
   patch.keyboard:interpret(s)
   sustain(s)
-  -- slow attack with forward tilt
-  patch.cello.envelope.attack    = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.2, 10, 'clamp')
-  patch.cello.envelope.release   = l.remap(s.tilt.lp[2], -0.05, -0.2, 0.6, 4, 'clamp')
-  efx.reverb.decaytime     = l.remap(s.tilt.lp[2], 0.0, -0.9, 1.0, 8.0, 'clamp')
-  -- crossfade between instruments
-  patch.cello.masterVolume   = l.remap(s.tilt.lp[1], -0.2, 0.3, 1, 0.2, 'clamp')
+  -- slower attack & release when tilted forward
+  patch.cello.envelope.attack    = l.remap(s.tilt.lp[2],  .00, -.2, .2, 2, 'clamp')
+  patch.cello.envelope.release   = l.remap(s.tilt.lp[2], -.05, -.4, .6, 4, 'clamp')
+  efx.reverb.decaytime           = l.remap(s.tilt.lp[2],  .00, -.4, 1,  8, 'clamp')
+  -- volume control
+  patch.cello.masterVolume   = l.remap(s.tilt.lp[1], -0.1, 0.6, 1, .05, 'clamp')
   patch.cello:processTouches(s.dt, s.touches)
   return s
 end

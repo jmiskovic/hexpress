@@ -71,6 +71,9 @@ function patch.process(s)
   patch.tremolo.masterVolume = l.remap(s.tilt.lp[1], -0.1, 0.4, 0.2, 1, 'clamp')
   patch.cello:processTouches(s.dt, s.touches)
   patch.tremolo:processTouches(s.dt, s.touches)
+
+  colorScheme.neck[1] = .22 + l.remap(s.tilt.lp[1], -.2, .2, -.03, .03, 'clamp')
+  love.graphics.setBackgroundColor(colorScheme.neck)
   return s
 end
 

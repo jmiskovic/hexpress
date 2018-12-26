@@ -50,11 +50,11 @@ end
 
 function patch.process(s)
   patch.keyboard:interpret(s)
-  efx.wah.position = l.remap(s.tilt[2], 0.7, -0.2, 0.2, 1.0, 'clamp')
-  patch.tone.masterVolume = l.remap(efx.wah.position, 0, 0.5, 0, 1, 'clamp')
-  efx.reverb.decaytime = l.remap(s.tilt.lp[1], -1, 1, 0.5, 2)
+  efx.wah.position = l.remap(s.tilt[1], -.2, .2, 0, 1, 'camp')
+  patch.tone.masterVolume = l.remap(efx.wah.position, 0, 0.5, .2, 1, 'clamp')
+  efx.reverb.decaytime = l.remap(s.tilt.lp[2], 0.7, -0.1, 0.2, 2.0, 'clamp')
   -- sustain pedal
-  patch.tone.envelope.release = l.remap(s.tilt.lp[1], 0.2, 0.3, 0.05, 5, 'clamp')
+  patch.tone.envelope.release = l.remap(s.tilt[2], .0, -0.2, 0.05, 5, 'clamp')
   patch.tone:processTouches(s.dt, s.touches)
 end
 

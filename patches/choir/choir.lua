@@ -28,8 +28,9 @@ function patch.load()
     {path='patches/choir/choir_-3.ogg',  note= 15},
     {path='patches/choir/choir_-6.ogg',  note= 18},
     looped = true,
-    envelope = { attack = 0.30, decay = 0.40, sustain = 0.85, release = 0.35 },
+    envelope = { attack = 0.05, decay = 0.40, sustain = 0.85, release = 0.35 },
   })
+
   patch.keyboard.colorScheme.background    = {l.rgba(0x2d2734ff)}
   patch.keyboard.colorScheme.highlight     = {l.rgba(0xe86630ff)}
   patch.keyboard.colorScheme.bright        = {l.rgba(0xa7a2b8ff)}
@@ -38,6 +39,12 @@ function patch.load()
 end
 
 function patch.process(s)
+  if not s.pressureSupport then
+    for _,touch in pairs(s.touches) do
+      touch.pressure = l.remap(s.tilt[1], -0.2, 0.2, 0.1, 0.9, 'clamp')
+    end
+  end
+
   patch.keyboard:interpret(s)
   efx.reverb.decaytime = l.remap(s.tilt.lp[2], 1, -1, 1, 10)
   patch.tone:processTouches(s.dt, s.touches)
