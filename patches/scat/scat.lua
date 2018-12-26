@@ -19,38 +19,22 @@ local colorScheme = {
 }
 
 function patch.load()
-  patch.keyboard = hexpad.new(true)
+  patch.keyboard = hexpad.new(true, 7)
   patch.tone = sampler.new({
---[[
-  {path='patches/scat/O_A#1.wav', note = notes.toIndex['A#1']},
-  {path='patches/scat/O_A#2.wav', note = notes.toIndex['A#2']},
-  {path='patches/scat/O_C3.wav', note = notes.toIndex['C3']},
-  {path='patches/scat/O_C#1.wav', note = notes.toIndex['C#1']},
-  {path='patches/scat/O_C#2.wav', note = notes.toIndex['C#2']},
-  {path='patches/scat/O_D#3.wav', note = notes.toIndex['D#3']},
-  {path='patches/scat/O_E1.wav', note = notes.toIndex['E1']},
-  {path='patches/scat/O_E2.wav', note = notes.toIndex['E2']},
-  {path='patches/scat/O_G1.wav', note = notes.toIndex['G1']},
-  {path='patches/scat/O_G2.wav', note = notes.toIndex['G2']},
-  transpose = -24,
---]]
----[[
-  {path='patches/scat/Daah01.ogg', note=-10, velocity = .1},
+  {path='patches/scat/Daah01.ogg', note=-9, velocity = .1},
   {path='patches/scat/Daah02.ogg', note=-4, velocity = .1},
   {path='patches/scat/Daah03.ogg', note=-1, velocity = .1},
   {path='patches/scat/Daah04.ogg', note= 3, velocity = .1},
-  --{path='patches/scat/Daah05.ogg', note= 6, velocity = .1},
   {path='patches/scat/Daah06.ogg', note= 7, velocity = .1},
   {path='patches/scat/Daah07.ogg', note=10, velocity = .1},
   {path='patches/scat/Daah08.ogg', note=13, velocity = .1},
   {path='patches/scat/Daah09.ogg', note=16, velocity = .1},
   {path='patches/scat/Daah10.ogg', note=18, velocity = .1},
   {path='patches/scat/Daah11.ogg', note=21, velocity = .1},
---  {path='patches/scat/Daah12.ogg', note= 9, velocity = .1},
---  {path='patches/scat/Daah13.ogg', note= 9, velocity = .1},
+  {path='patches/scat/Daah12.ogg', note=25, velocity = .1},
   {path='patches/scat/Paah01.ogg', note=-9, velocity = .9},
-  {path='patches/scat/Paah02.ogg', note=-4, velocity = .9},
-  {path='patches/scat/Paah03.ogg', note=0, velocity = .9},
+  {path='patches/scat/Paah02.ogg', note=-5, velocity = .9},
+  {path='patches/scat/Paah03.ogg', note=0,  velocity = .9},
   {path='patches/scat/Paah04.ogg', note= 4, velocity = .9},
   {path='patches/scat/Paah05.ogg', note= 5, velocity = .9},
   {path='patches/scat/Paah06.ogg', note= 9, velocity = .9},
@@ -59,8 +43,8 @@ function patch.load()
   {path='patches/scat/Paah09.ogg', note=19, velocity = .9},
   {path='patches/scat/Paah10.ogg', note=24, velocity = .9},
   {path='patches/scat/Paah11.ogg', note=28, velocity = .9},
---]]
     looped = false,
+    transpose = 0,
   })
   patch.keyboard.colorScheme.background    = {l.rgba(0x2d2734ff)}
   patch.keyboard.colorScheme.highlight     = {l.rgba(0xe86630ff)}
