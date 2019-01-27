@@ -17,10 +17,10 @@ local colorScheme = {
 function patch.load()
   patch.keyboard = fretboard.new(false, {-29, -24, -19, -14, -9, -4, 1, 6})
   patch.keyboard.fretWidth = 0.4
-  if love.system.getOS() == 'Android' then
+  if efx.addEffect(efx.wah) then
     efx.setDryVolume(0)
-    efx.addEffect(efx.wah)
   end
+
   patch.tone = sampler.new({
 
     {path='patches/broom/acbass_A21.ogg', note = notes.toIndex['A2']},

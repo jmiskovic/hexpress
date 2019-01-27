@@ -18,9 +18,8 @@ function patch.load()
   local tapePath = 'patches/broom/seventies-pop-funk-groove.ogg'
   patch.keyboard = fretboard.new(false, {-47, -42, -37, -32, -27, -22, -17, -12})
   patch.keyboard.fretWidth = 0.4
-  if love.system.getOS() == 'Android' then
+  if efx.addEffect(efx.wah) then
     efx.setDryVolume(0)
-    efx.addEffect(efx.wah)
   end
   patch.tone = sampler.new({
     {path='patches/fretless/C1.ogg',  note = notes.toIndex['C1']},

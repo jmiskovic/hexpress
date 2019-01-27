@@ -42,19 +42,25 @@ resetEffects()
 function efx.load()
   resetEffects()
   for i,effect in ipairs(efx.activeEffects) do
-    love.audio.setEffect(effect.type, effect)
+    local ok, err = pcall(love.audio.setEffect, effect.type, effect)
   end
 end
 
 function efx.addEffect(effect)
-  table.insert(efx.activeEffects, effect)
-  love.audio.setEffect(effect.type, effect)
+  -- some platforms don't have all effects, ignore request if not available
+  local ok, result = pcall(love.audio.setEffect, effect.type, effect)
+  if ok then
+    table.insert(efx.activeEffects, effect)
+  else
+    -- log(err)
+  end
+  return ok
 end
 
 function efx.process(s)
   for i,effect in ipairs(efx.activeEffects) do
-    ok, err = pcall(love.audio.setEffect, effect.type, effect)
-    if not ok then log(err) end
+    local ok, err = pcall(love.audio.setEffect, effect.type, effect)
+    --if not ok then log(err) end
   end
 end
 
