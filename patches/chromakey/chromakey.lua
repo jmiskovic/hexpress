@@ -71,7 +71,7 @@ function patch.drawCell(self, q, r, s, touch)
 
   local ch, cs, cl
 
-  if s.tilt[1] > .3 and note ~= keyCenter then
+  if s.tilt[1] > .5 and note ~= keyCenter then
     ch, cs, cl = .0, .1, .1
   else
     ch, cs, cl = unpack(colorScheme.noteColors[math.floor(note-keyCenter+.5) % 12 + 1])
@@ -100,7 +100,7 @@ function patch.process(s)
     if touch.noteRetrigger then
       noteTracker[touch.note  % 12] = (noteTracker[touch.note % 12] or 0) + 20000
     end
-    if s.tilt[1] > .3 then
+    if s.tilt[1] > .5 then
       keyCenter = touch.note
     end
   end
@@ -110,7 +110,7 @@ function patch.process(s)
   patch.synth:processTouches(s.dt, s.touches)
 
   for note,decay in pairs(noteTracker) do
-    noteTracker[note] = decay * (1 - s.dt * 3)
+    noteTracker[note] = decay * (1 - s.dt * 1)
   end
 end
 
