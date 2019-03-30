@@ -90,12 +90,6 @@ function love.draw()
   --track('fps %2.1f', love.timer.getFPS())
 end
 
-function love.visible(visible)
-  if not visible then
-    love.event.quit()
-  end
-end
-
 function loadPatch(newPatch)
   time = 0   -- back to big bang
   efx.load() -- restore efx to defaults
