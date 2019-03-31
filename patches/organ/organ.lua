@@ -48,6 +48,12 @@ function patch.load()
     envelope = { attack = 0.1, decay = 0.50, sustain = 0.85, release = 0.4 },
   })
   love.graphics.setBackgroundColor(colorScheme.background)
+  patch.keyboard.colorScheme.background    = {l.rgba(0x000000ff)}
+  patch.keyboard.colorScheme.highlight     = {l.rgba(0xd3660aff)}
+  patch.keyboard.colorScheme.bright        = {l.rgba(0x3e3c23ff)}
+  patch.keyboard.colorScheme.surface       = {l.rgba(0x302e19ff)}
+  patch.keyboard.colorScheme.surfaceC      = {l.rgba(0x2a2510ff)}
+
 end
 
 function patch.process(s)

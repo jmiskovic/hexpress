@@ -19,13 +19,12 @@ function patch.load()
   patch.keyboard = fretboard.new(false, 'EBGDAE')
   patch.keyboard.colorScheme = colorScheme
   patch.clean = sampler.new({
-    {path='patches/guitar/normGBLow_40.ogg', note =  40 - 60},
-    {path='patches/guitar/normGBLow_46.ogg', note =  46 - 60},
-    {path='patches/guitar/normGBLow_52.ogg', note =  52 - 60},
-    {path='patches/guitar/normGBLow_58.ogg', note =  58 - 60},
-    {path='patches/guitar/normGBLow_64.ogg', note =  64 - 60},
-    {path='patches/guitar/normGBLow_70.ogg', note =  70 - 60},
-    {path='patches/guitar/normGBLow_76.ogg', note =  76 - 60},
+
+    {path='patches/guitar/clean-e1st-str-pluck.ogg',  note =  4},
+    {path='patches/guitar/clean-g-str-pluck.ogg',     note = -5},
+    {path='patches/guitar/clean-d-str-pluck.ogg',     note = -10},
+    {path='patches/guitar/clean-a-str-pluck.ogg',     note = -15},
+    {path='patches/guitar/clean-e-str-pluck.ogg',     note = -20},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 1.8 },
     })
 
@@ -68,7 +67,7 @@ function patch.process(s)
   -- whammy bar
   for _,touch in pairs(s.touches) do
     if touch.note then
-      touch.note = l.remap(s.tilt.lp[2], -0.2, -1, touch.note, touch.note - 3, 'clamp')
+      touch.note = l.remap(s.tilt[2], -0.1, -1, touch.note, touch.note - 3, 'clamp')
     end
   end
   -- increase the duration of released notes with vertical tilt
