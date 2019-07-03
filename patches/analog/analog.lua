@@ -70,7 +70,7 @@ function patch.load()
 
     local color = self.colorScheme.surfaceC
     love.graphics.push()
-    if touch then
+    if touch and touch.volume then
       color = self.colorScheme.highlight
       love.graphics.scale(1 + touch.volume/10)
     end
