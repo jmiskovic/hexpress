@@ -50,7 +50,7 @@ function patch.load()
   love.graphics.setBackgroundColor(colorScheme.background)
   patch.keyboard.colorScheme.background    = {l.rgba(0x000000ff)}
   patch.keyboard.colorScheme.highlight     = {l.rgba(0xd3660aff)}
-  patch.keyboard.colorScheme.bright        = {l.rgba(0x3e3c23ff)}
+  patch.keyboard.colorScheme.text          = {l.rgba(0x3e3c23ff)}
   patch.keyboard.colorScheme.surface       = {l.rgba(0x302e19ff)}
   patch.keyboard.colorScheme.surfaceC      = {l.rgba(0x2a2510ff)}
 

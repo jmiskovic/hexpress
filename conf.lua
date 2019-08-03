@@ -13,7 +13,7 @@ function love.conf(t)
   }
   t.window.title = "Hexpress"
   t.window.width, t.window.height = unpack(resolutions[5])
-  t.window.fullscreen = not true
+  t.window.fullscreen = true
   t.window.resizable = true
   t.window.vsync = false
 end
