@@ -22,7 +22,7 @@ local colorScheme = {
   highlight  = {l.rgba(0x44617bff)},
   surface    = {l.rgba(0x444444ff)},
   surfaceC   = {l.rgba(0x353535ff)},
-  bright     = {l.rgba(0x75ade699)},
+  text       = {l.rgba(0x75ade699)},
 }
 
 function patch.load()
@@ -49,7 +49,7 @@ function patch.load()
   patch.keyboard.colorScheme.highlight  = colorScheme.highlight
   patch.keyboard.colorScheme.surface    = colorScheme.surface
   patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
-  patch.keyboard.colorScheme.bright     = colorScheme.bright
+  patch.keyboard.colorScheme.text       = colorScheme.text
   love.graphics.setBackgroundColor(colorScheme.background)
 end
 
@@ -112,7 +112,6 @@ function patch.draw(s)
 end
 
 function patch.icon(time)
-  -- TODO: meaningful icon
   love.graphics.setColor(colorScheme.background)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
   local i = 0

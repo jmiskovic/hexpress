@@ -6,21 +6,11 @@ local hexpad = require('hexpad')
 local hexgrid = require('hexgrid')
 
 local colorScheme = {
-  wood    = {l.color('#8c3c00')},
-  neck    = {l.color('#302400')},
-  strings = {
-    {l.color('#a69b87')},
-    {l.color('#988c75')},
-    {l.color('#847965')},
-  },
-  hair    = {l.color('#a39782')},
-  stick   = {l.color('#5e2400')},
-
-  background = {l.rgba(0x262626ff)},
-  highlight  = {l.hsl(0.66, 0.20, 0.23)},
-  surface    = {l.rgba(0x444444ff)},
-  surfaceC   = {l.rgba(0x353535ff)},
-  bright     = {l.rgba(0x75ade699)},
+  background = {l.rgba(0x957037ff)},
+  highlight  = {l.rgba(0xcd8e43ff)},
+  surface    = {l.rgba(0xdfb558e5)},
+  surfaceC   = {l.rgba(0xe3bd6bff)},
+  text       = {l.rgba(0x846b43ff)},
 }
 
 function patch.load()
@@ -44,7 +34,7 @@ function patch.load()
   patch.keyboard.colorScheme.highlight  = colorScheme.highlight
   patch.keyboard.colorScheme.surface    = colorScheme.surface
   patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
-  patch.keyboard.colorScheme.bright     = colorScheme.bright
+  patch.keyboard.colorScheme.text       = colorScheme.text
   love.graphics.setBackgroundColor(colorScheme.background)
 end
 
@@ -107,16 +97,15 @@ function patch.draw(s)
 end
 
 function patch.icon(time)
-  -- TODO: meaningful icon
-  love.graphics.setColor(colorScheme.background)
+  love.graphics.setColor(colorScheme.text)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
   local i = 0
   love.graphics.rotate(time/5 + 0.2*math.sin(time))
   for q, r in hexgrid.spiralIter(0, 0, 1) do
     if i % 2 == 0 then
-      love.graphics.setColor(colorScheme.highlight)
+      love.graphics.setColor(colorScheme.surfaceC)
     else
-      love.graphics.setColor(colorScheme.surface)
+      love.graphics.setColor(colorScheme.highlight)
     end
     love.graphics.push()
     local x, y = hexgrid.hexToPixel(q, r)

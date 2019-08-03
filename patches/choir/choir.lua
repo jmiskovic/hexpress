@@ -33,7 +33,7 @@ function patch.load()
 
   patch.keyboard.colorScheme.background    = {l.rgba(0x2d2734ff)}
   patch.keyboard.colorScheme.highlight     = {l.rgba(0xe86630ff)}
-  patch.keyboard.colorScheme.bright        = {l.rgba(0xa7a2b8ff)}
+  patch.keyboard.colorScheme.text          = {l.rgba(0xa7a2b8ff)}
   patch.keyboard.colorScheme.surface       = {l.hsl(0.62, 0.16, 0.49)}
   patch.keyboard.colorScheme.surfaceC      = {l.hsl(0.62, 0.10, 0.40)}
 end

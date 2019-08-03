@@ -18,9 +18,7 @@ function patch.load()
   local tapePath = 'patches/broom/seventies-pop-funk-groove.ogg'
   patch.keyboard = fretboard.new(false, {-47, -42, -37, -32, -27, -22, -17, -12})
   patch.keyboard.fretWidth = 0.4
-  if efx.addEffect(efx.wah) then
-    efx.setDryVolume(0)
-  end
+
   patch.tone = sampler.new({
     {path='patches/fretless/C1.ogg',  note = notes.toIndex['C1']},
     {path='patches/fretless/D#1.ogg', note = notes.toIndex['D#1']},
@@ -45,8 +43,6 @@ end
 
 function patch.process(s)
   patch.keyboard:interpret(s)
-  efx.wah.position = l.remap(s.tilt[1], -0.2, 0.2, 0.2, 1.0, 'clamp')
-  patch.tone.masterVolume = l.remap(efx.wah.position, 0, 0.5, .2, 1, 'clamp')
   efx.reverb.decaytime = l.remap(s.tilt.lp[2], -.1, 2, 0.5, 2)
   patch.tone:processTouches(s.dt, s.touches)
 end

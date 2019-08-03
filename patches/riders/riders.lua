@@ -12,8 +12,8 @@ local colorScheme = {
   surface    = {l.hsl(0.66, 0.25, 0.26)},
   surfaceC   = {l.hsl(0.66, 0.20, 0.23)},
   knob       = {l.hsl(0.67, 0.09, 0.15)},
-  bright     = {l.hsl(0.66, 0.18, 0.38)},
-  text       = {l.hsl(0.24, 0.09, 0.72)},
+  text       = {l.hsl(0.66, 0.18, 0.38)},
+  label      = {l.hsl(0.24, 0.09, 0.72)},
   shiny      = {l.hsl(0.24, 0.09, 0.96, 0.5)},
 }
 
@@ -62,7 +62,7 @@ function patch.load()
   patch.keyboard.colorScheme.highlight  = colorScheme.highlight
   patch.keyboard.colorScheme.surface    = colorScheme.surface
   patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
-  patch.keyboard.colorScheme.bright     = colorScheme.bright
+  patch.keyboard.colorScheme.text       = colorScheme.text
   love.graphics.setBackgroundColor(colorScheme.background)
 end
 
@@ -90,7 +90,7 @@ function patch.icon(time)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
 
   love.graphics.translate(0, 0.4)
-  love.graphics.setColor(colorScheme.text)
+  love.graphics.setColor(colorScheme.label)
   love.graphics.arc('fill', 0, -0.78, 0.18, -math.pi / 2 - math.pi / 5, -math.pi / 2 + math.pi / 5)
   love.graphics.setColor(colorScheme.knob)
   love.graphics.circle('fill', 0, 0, 0.8)

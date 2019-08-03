@@ -17,11 +17,6 @@ local defaults = {
     type      = 'ringmodulator',
     frequency = 0.6
   },
-  wah = {
-    volume   = 0.0,
-    type     = 'crybaby',
-    position = 0.5,
-  },
 }
 
 efx.activeEffects = {}

@@ -24,7 +24,7 @@ function hexpad.new(displayNoteNames, noteOffset, radius)
         surfaceC      = {l.hsl(0.67, 0.08, 0.23)},
         background    = {l.hsl(0.68, 0.12, 0.31)},
         highlight     = {l.hsl(0.05, 0.72, 0.58)},
-        bright        = {l.hsl(0.68, 0.12, 0.31)},
+        text          = {l.hsl(0.68, 0.12, 0.31)},
       },
     }, hexpad)
   -- would like to keep cell size constant across different devices, so have to
@@ -121,7 +121,7 @@ function hexpad:drawCell(q, r, s, touch)
     love.graphics.setFont(self.font)
     local h = self.font:getHeight()
     local w = self.font:getWidth(text)
-    love.graphics.setColor(self.colorScheme.bright)
+    love.graphics.setColor(self.colorScheme.text)
     love.graphics.print(text, -w / 2, -h / 2)
   end
 end
