@@ -6,6 +6,7 @@ Hexpress is a playground for constructing interactive musical experiments for us
 
 ![App screenshot](media/garage_framed.jpg)
 
+
 # Note layouts
 
 Hexpress currently implements three note layouts: 
@@ -20,19 +21,29 @@ Fretboard is mostly modeled after guitar, but can also be used for other instrum
 
 Free-form layout allows placing any number of circular zones that act as note triggers. It's meant to be used for percussive instruments.
 
+
 # Design & architecture
 
 Hexpress runs on Android & desktop versions of LÖVE framework. LÖVE is an *awesome* framework for 2D games, which also makes it decent fit for implementing virtual musical instruments.
 
-LÖVE uses openal-soft library for cross-platform audio. It supports spatial audio, real-time effects (reverb, chorus, distortion, echo, flanger, modulator, compressor, equalizer), and sound capture. It's not meant for professional music applications, but so far it's proven to be effective for the needed scope. The released Hexpress app makes some modifications to LÖVE framework code. The only notable thing is adding wah effect to openal-soft lib. The framework code and Android building environment is currently not included in this repository because of maintainability problems. Please open issue if this is of any interest.  
+LÖVE uses openal-soft library for cross-platform audio. It supports spatial audio, real-time effects (reverb, chorus, distortion, echo, flanger, modulator, compressor, equalizer), and sound capture. It's not meant for professional music applications, but so far it's proven to be effective for the needed scope. The released Hexpress app makes some modifications to LÖVE framework code. The framework code and Android building environment is currently not included in this repository because of maintainability problems. Please open an issue if this is of any interest.  
 
 Hexpress supports any number of virtual instruments. Several instruments are provided in *patches* subdirectory. When application starts, a *selector* module scans for patches and presents them to user for selection. For this purpose, patch contains icon() function that is called each frame by selector to render representation of patch to user. Once a patch is selected, it starts executing in place of selector module.
 
 Each frame, the input controls are read, processed and forwarded to patch. The patch can use a note layout module (hexpad, fretboard) to convert input touches to notes. Then this information can be manipulated to implement note bending, vibrato, chords/arpeggios or anything else. This manipulated information is sent to *sampler* module to convert to audio output. Sampler selects correct audio sample, adjusts its pitch to adapt it to desired note and tweaks its volume according to [ADSR envelope](https://en.wikipedia.org/wiki/Synthesizer#ADSR_envelope). Sampler is heavily customizable and controllable from Lua script. The patch acts like a mini-app and has full control over input, sound and rendering.
 
-[Seed patch]('patches/seed/seed.lua') is well-documented example of a patch, to serve as starting point.
+Aside from using built-in patches, Hexpress app can also open external project with different set of patches, or a completely changed codebase. Lua is interpreted language, so these changes don't require recompilation or app reinstallation. 
 
-Aside from using built-in patches, Hexpress app can also open external project with different set of patches, or a completely changed codebase. Lua is interpreted language, so these changes don't require recompilation or app reinstallation. To see run new version on your phone, copy content of whole project to internal phone memory under directory /sdcard/hexpress, and launch the app.
+
+# Modifying instruments
+
+[Seed patch]('patches/seed/seed.lua') is well-documented example of a patch, to serve as starting point for building custom instruments. Other option is to take most suited existing instrument and make desired modifications.
+
+As mentioned, modified codebase doesn't require any compilation or building a new APK. The installed Hexpress app can load modified codebase instead of built-in codebase. This allows for tweaking setting, designing new insturments, modifying visuals, changing sound samples, all by modifying text files on your phone.
+
+To see run modified version on your phone, copy content of whole project to internal device memory under directory /sdcard/hexpress, and launch the app. It will scan for project in this directory and run that instead of default project. It's good idea to change the background color in selector.lua, to be certain which version is currently running on device:  ```background = {l.rgba(0x003f20ff)}```
+
+Please note: this feature will prevent you from seeing the updates in official app. To switch back to official project, just delete or rename hexpress directory in device memory.
 
 
 # Unexplored ideas

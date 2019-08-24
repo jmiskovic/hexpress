@@ -17,15 +17,9 @@ local colorScheme = {
   shiny      = {l.hsl(0.24, 0.09, 0.96, 0.5)},
 }
 
-
-local filter = {
-  volume   = 1.0,
-  type     = 'lowpass',
-  highgain = 0.5,
-}
-
 function patch.load()
   efx.addEffect(efx.tremolo)
+  efx.addEffect(efx.flanger)
   efx.setDryVolume(0.4)
   efx.reverb.volume = 1
   efx.reverb.decaytime = 2
@@ -74,8 +68,11 @@ function patch.process(s)
     end
     patch.rhodes.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
   end
-  efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.3, 0.3, 0, 15, 'clamp')
-  filter.highgain = l.remap(s.tilt.lp[2], 0, 0.7, 0, 1, 'clamp')
+  efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.2, 0.3, 0, 15)
+
+  efx.flanger.volume    = l.remap(s.tilt.lp[1], 0, -0.2, 0, 1, 'clamp')
+  efx.flanger.rate      = l.remap(s.tilt.lp[1], 0, -0.7, 0, 0.5, 'clamp')
+
   patch.rhodes:processTouches(s.dt, s.touches)
 end
 
@@ -102,7 +99,6 @@ function patch.icon(time)
   love.graphics.setColor(colorScheme.shiny)
   love.graphics.arc('fill', 0, 0, 0.4, 0, math.pi / 6)
   love.graphics.arc('fill', 0, 0, 0.4, math.pi,  math.pi + math.pi / 6)
-
 
   love.graphics.setFont(font)
   love.graphics.setColor(colorScheme.text)

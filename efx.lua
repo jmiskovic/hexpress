@@ -12,11 +12,40 @@ local defaults = {
     type      = 'reverb',
     decaytime = 1,
   },
-  tremolo = {
-    volume    = 0.0,
-    type      = 'ringmodulator',
-    frequency = 0.6
+  distortion = {
+    gain        = 0.05,
+    edge        = 0.2,
+    lowcut      = 8000.0,
+    center      = 24000.0,
+    bandwidth   = 36000.0,
+    type        = 'distortion',
   },
+  echo = {
+    volume    = 1.0,
+    delay     = 0.0,
+    tapdelay  = 0.0,
+    damping   = 0.0,
+    feedback  = 0.0,
+    spread    = 0.0,
+    type      = 'echo',
+  },
+  tremolo = {
+    volume    = 0.8,
+    frequency = 440.0,
+    waveform  = 'sine',
+    highcut   = 800.0,
+    type      = 'ringmodulator',
+  },
+  flanger = {
+    waveform  = 'triangle',
+    volume    = 1.0,
+    phase     = 0,
+    rate      = 0.27,
+    depth     = 1,
+    feedback  = -0.5,
+    delay     = 0.002,
+    type      = 'flanger',
+  }
 }
 
 efx.activeEffects = {}

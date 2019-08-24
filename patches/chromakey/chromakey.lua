@@ -49,12 +49,18 @@ function patch.load()
   patch.keyboard = hexpad.new(true)
 
   patch.synth = sampler.new({
-
     {path='patches/chromakey/synthpad.ogg',  note= notes.toIndex['C3']},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.15 },
     synthCount = 10,
     transpose = -24,
     })
+  patch.sustain = sampler.new({
+    {path='patches/chromakey/sustain.ogg',  note= notes.toIndex['C5']},
+    envelope = { attack = 6, decay = 0, sustain = 1, release = 0.15 },
+    looped = true,
+    synthCount = 10,
+    })
+
   patch.keyboard.colorScheme.background = colorScheme.background
   patch.keyboard.colorScheme.highlight  = colorScheme.highlight
   patch.keyboard.colorScheme.surface    = colorScheme.surface
@@ -105,9 +111,13 @@ function patch.process(s)
     end
   end
   patch.synth.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
+  patch.sustain.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
 
-  efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.3, 0.3, 0, 8, 'clamp')
+  efx.tremolo.frequency = l.remap(s.tilt.lp[1], 0.05, 0.3, 0, 8, 'clamp')
+  efx.tremolo.volume = l.remap(s.tilt.lp[1], 0, 1, 0, 0.9, 'clamp')
+
   patch.synth:processTouches(s.dt, s.touches)
+  patch.sustain:processTouches(s.dt, s.touches)
 
   for note,decay in pairs(noteTracker) do
     noteTracker[note] = decay * (1 - s.dt * 1)

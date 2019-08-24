@@ -49,36 +49,15 @@ function love.update(dt)
   }
 
   controls.process(stream)
-
   if love.system.getOS() ~= 'Android' then
     mock.process(stream)
   end
   patch.process(stream)
   efx.process(stream)
   love.timer.sleep(0.003)
-  --record(stream)
   -- falls
 end
 
-function record(s, tape)
-  for _,touch in pairs(s.touches) do
-    if touch.noteRetrigger then
-      table.insert(tape, {s.time, touch.note})
-      print(s.time, touch.note)
-    end
-  end
-end
-
-function play(s, tape, when)
-  for _, e in ipairs(tape) do
-    local time, note = e
-
-    if time > when - s.dt and time < when then
-      table.insert(s.touches)
-    end
-    if time > when then break end
-  end
-end
 
 function love.draw()
   love.graphics.origin()

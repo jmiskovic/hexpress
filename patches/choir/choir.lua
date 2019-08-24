@@ -47,6 +47,8 @@ function patch.process(s)
 
   patch.keyboard:interpret(s)
   efx.reverb.decaytime = l.remap(s.tilt.lp[2], 1, -1, 1, 10)
+  patch.tone.envelope.attack = math.abs(s.tilt.lp[1])
+  patch.tone.envelope.release = 0.35 + math.abs(s.tilt.lp[1]) / 2
   patch.tone:processTouches(s.dt, s.touches)
 end
 
