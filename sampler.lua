@@ -100,7 +100,7 @@ function sampler:assignSynth(touchId, touch)
   synth.note = sample.note
   efx.applyFilter(synth.source)
   if touch.location then
-    synth.source:setPosition(touch.location[1] or 0, touch.location[2] or 0, 0.5)
+    synth.source:setPosition(touch.location[1] / 2, touch.location[2] / 2, 0.5)
   end
   synth.source:setLooping(self.looped)
   synth.source:setVolume(0) -- envelope will correct this
