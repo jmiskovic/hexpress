@@ -28,15 +28,6 @@ function patch.load()
   patch.keyboard = hexpad.new(true)
   efx.reverb.decaytime = 2
 
-  patch.chorus_synth = sampler.new({
-    -- BPB mini analogue collection from bedroomproducersblog.com
-    {path='patches/analog/chorus_c1.ogg', note = notes.toIndex['C1']},
-    {path='patches/analog/chorus_c2.ogg', note = notes.toIndex['C2']},
-    {path='patches/analog/chorus_c3.ogg', note = notes.toIndex['C3']},
-    {path='patches/analog/chorus_c4.ogg', note = notes.toIndex['C4']},
-    transpose = -24,
-    envelope = { attack = 0.0, decay = 0, sustain = 1, release = 0.35 },
-  })
   patch.melanc_synth = sampler.new({
     -- BPB mini analogue collection from bedroomproducersblog.com
     {path='patches/analog/mela_c2.ogg',  note = notes.toIndex['C3']},
@@ -100,11 +91,9 @@ end
 
 function patch.process(s)
   patch.keyboard:interpret(s)
-  patch.chorus_synth.masterVolume = l.remap(s.tilt.lp[1], -0.1,  0.0, 0, 1, 'clamp')
-  patch.melanc_synth.masterVolume = l.remap(s.tilt.lp[1],  0.1,  0.0, 0, 1, 'clamp')
-  patch.sawsaw_synth.masterVolume = l.remap(s.tilt.lp[2], 0.7, 0.2, 1, 0, 'clamp')
+  patch.melanc_synth.masterVolume = l.remap(s.tilt.lp[1],  0.2,  0.0, 0, 1, 'clamp')
+  patch.sawsaw_synth.masterVolume = l.remap(s.tilt.lp[2],  0.0,  0.7, 0, 1, 'clamp')
 
-  patch.chorus_synth:processTouches(s.dt, s.touches)
   patch.melanc_synth:processTouches(s.dt, s.touches)
   patch.sawsaw_synth:processTouches(s.dt, s.touches)
 end
