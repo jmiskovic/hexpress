@@ -22,7 +22,8 @@ function love.load()
   controls.load()
   selector.load('patches')
   mock.load()
-  love.audio.setPosition(0, -1, 0)
+  love.audio.setPosition(0, 0, 0)
+  love.audio.setVolume(1)
   love.graphics.translate(sw / 2, sh / 2)
 end
 

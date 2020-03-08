@@ -171,7 +171,7 @@ function patch.icon(time)
   local i = 1
   for q, r in hexgrid.spiralIter(0, 0, 2) do
     -- simulate random notes on grid
-    if i == math.floor(q * 17293 + r * 13457 + time / 2) % 19 then
+    if i == math.floor(q * 29327 + r * 95479 + time) % 19 then
       iconDecay[i] = time
     end
     -- note size drops with time
