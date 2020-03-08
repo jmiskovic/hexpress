@@ -1,17 +1,19 @@
 local l = require('lume')
 
+-- this is main screen for selecting between patches
 local selector = {}
 
 local colorScheme = {
   background = {l.rgba(0x2d2734ff)},
-  frame      = {l.rgba(0xffffff22)}
+  frame      = {l.rgba(0xffffff22)},
+  shadow     = {l.rgba(0x00000040)}
 }
 
 require('autotable')
 local hexgrid = require('hexgrid')
 local faultyPatch = require('faultyPatch')
-local radius = 0     -- inflated to actual size while loading patches
-local scale = 1 / 2.7  -- fit about this many icons along vertical
+local radius = 0   -- number of rings of icons around central icon, (inflated to actual size while loading patches)
+local scale = 0    -- fit about this many icons along vertical screen space
 
 local patches = {}
 
@@ -36,7 +38,7 @@ function selector.load()
         patches[q][r] = m
       else
         log(err)
-        patches[q][r] = faultyPatch.new(err)
+        patches[q][r] = faultyPatch.new(err) -- if cannot load, show error icon and description
       end
       radius = hexgrid.distanceFromCenter(q, r)
       i = i+1
@@ -47,6 +49,7 @@ function selector.load()
 end
 
 function selector.process(s)
+  -- if sceen is touched, find patch icon closest to touch and load that patch
   for _,id in ipairs(love.touch.getTouches()) do
     local x, y = love.touch.getPosition(id)
     love.graphics.scale(scale)
@@ -68,10 +71,15 @@ function selector.draw(s)
     for r, patch in pairs(t) do
       local x, y = hexgrid.hexToPixel(q, r)
       love.graphics.push()
+        -- swaying of individual icons
         love.graphics.scale(scale + 0.004 * math.sin(s.time * 5 + r))
         love.graphics.translate(x, y)
+        -- space between icons
         love.graphics.scale(0.75)
-        -- draw icon inside circle cutout
+        -- draw shadow
+        love.graphics.setColor(colorScheme.shadow)
+        love.graphics.ellipse ('fill', 0, 0.35, 0.95, 0.8)
+        -- draw icon inside cutout shape defined by stencilFunc
         love.graphics.stencil(stencilFunc, "replace", 1)
         love.graphics.setStencilTest("greater", 0)
         if patch.icon then
@@ -83,7 +91,8 @@ function selector.draw(s)
           love.graphics.setColor(1, 1, 1, 1)
           selector.defaultIcon(q, r)
         end
-        love.graphics.setStencilTest()
+        love.graphics.setStencilTest() -- disable stencil
+        -- draw circular frame around icon
         love.graphics.setLineWidth(0.1)
         love.graphics.setColor(colorScheme.frame)
         love.graphics.circle('line', 0, 0, 1)
@@ -92,6 +101,7 @@ function selector.draw(s)
   end
 end
 
+-- if patch doesn't have icon, use single color unique to patch name
 function selector.defaultIcon(q, r)
   local name = patches[q][r].name
   if name then -- quick & dirty way to have unique color per patch name
@@ -107,6 +117,7 @@ function selector.defaultIcon(q, r)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
 end
 
+-- icon cutout shape
 function stencilFunc()
   love.graphics.circle('fill', 0, 0, 1)
 end

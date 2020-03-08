@@ -9,12 +9,6 @@ local l = require('lume')
 roundhex = {1.001,0.065,0.984,0.143,0.940,0.254,0.876,0.388,0.798,0.530,0.714,0.668,0.630,0.791,0.556,0.885,0.496,0.938,0.421,0.963,0.302,0.981,0.154,0.991,-0.008,0.995,-0.170,0.991,-0.318,0.981,-0.437,0.963,-0.512,0.938,-0.572,0.885,-0.646,0.791,-0.729,0.668,-0.814,0.530,-0.892,0.388,-0.956,0.254,-1.000,0.143,-1.017,0.065,-1.000,-0.013,-0.956,-0.125,-0.892,-0.258,-0.814,-0.400,-0.729,-0.539,-0.646,-0.662,-0.572,-0.756,-0.512,-0.809,-0.437,-0.834,-0.318,-0.851,-0.170,-0.862,-0.008,-0.866,0.154,-0.862,0.302,-0.851,0.421,-0.834,0.496,-0.809,0.556,-0.756,0.630,-0.662,0.714,-0.539,0.798,-0.400,0.876,-0.258,0.940,-0.125,0.984,-0.013}
 
 local colorScheme = {
-  cymbal   = {l.rgba(0xccad00ff)},
-  shade    = {l.rgba(0x00000050)},
-  light    = {l.rgba(0x3e89489d)},
-  membrane = {l.rgba(0xd7d0aeff)},
-  rim      = {l.rgba(0x606060ff)},
-  stick    = {l.rgba(0xc0a883ff)},
            -- pad color             frame color
   green    = {{l.rgba(0x2a6222ff)}, {l.rgba(0x559644ff)}},
   red      = {{l.rgba(0x91251cff)}, {l.rgba(0xd83a2cff)}},
@@ -110,18 +104,16 @@ function patch.load()
 
   for i,element in ipairs(patch.layout) do
     element.note = i * 3 --by spreading out note indexes we allow for more pitch range on single sample
-    element.oscM = 0 --oscilation magnitude
-    element.oscA = 0 --oscilation angle
   end
   patch.drums = sampler.new(patch.layout)
   love.graphics.setBackgroundColor(colorScheme.background)
   patch.tones = {}
-  love.graphics.setBackgroundColor(colorScheme.background)
 end
 
 function patch.interpret(s)
   for id,touch in pairs(s.touches) do
     local x, y = love.graphics.inverseTransformPoint(touch[1], touch[2])
+    -- find closes element to touch position, retrigger as necessary
     for i = #patch.layout, 1, -1 do
       local element = patch.layout[i]
       local radius2 = (element.r * 1.2)^2
@@ -130,11 +122,8 @@ function patch.interpret(s)
         if not patch.tones[id] or patch.tones[id] ~= element then
           patch.tones[id] = element
           touch.noteRetrigger = true
-          element.noteVariation = element.note
-          element.oscA = l.angle(x, y, element.x, element.y)
-          element.oscM = l.distance(x, y, element.x, element.y)
         end
-        touch.note = element.noteVariation
+        touch.note = element.note
         touch.location = {x * 0.7, 0.5}
         break
       end
@@ -150,7 +139,7 @@ end
 
 function patch.process(s)
   patch.interpret(s)
-  efx.reverb.decaytime = l.remap(s.tilt.lp[1], 0.1, -0.5, 0.5, 4)
+  efx.reverb.decaytime  = l.remap(s.tilt.lp[1],  0.1, -0.5, 0.5, 4)
   patch.drums:processTouches(s.dt, s.touches)
   return s
 end
@@ -158,8 +147,7 @@ end
 local selected = 1
 
 function patch.draw(s)
-  love.graphics.setLineWidth(0.02)
-
+  -- ouch, O(N^2) on each frame
   for i, element in ipairs(patch.layout) do
     touched = false
     for id, touch in pairs(patch.tones) do
@@ -183,7 +171,7 @@ function patch.draw(s)
     end
     love.graphics.pop()
 
----[[ for arranging layout of elements (on desktop)
+--[[ for arranging layout of elements (on desktop)
     if i == selected then
       love.graphics.setColor(0, 1, 0, 0.3)
       love.graphics.circle('fill', element.x, element.y, element.r)
@@ -195,7 +183,7 @@ function patch.draw(s)
   end
 end
 
----[[ for arranging layout of elements (on desktop)
+--[[ for arranging layout of elements (on desktop)
 function love.keypressed(key)
   if key == 'tab' then
     selected = (selected % #patch.layout) + 1
@@ -226,15 +214,13 @@ end
 
 function patch.icon(time)
   local speed = 1
-  local amp = 0.2
+  local amp = 0.1
   love.graphics.setColor(colorScheme.background)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
-  love.graphics.rotate(math.sin(time)^5)
-  love.graphics.scale((0.75 - amp) + amp * math.sin(time * math.pi * speed)^2)
+  love.graphics.rotate(0.5 * math.sin(time)^5)
+  love.graphics.scale((0.75 - amp) + amp * math.sin(time * math.pi * speed * 2)^6)
   color = colors[1 + (math.floor(time * speed) % #colors)]
   love.graphics.setColor(colorScheme[color][2])
-  love.graphics.translate(0, 0)
-  -- love.graphics.rotate(-math.pi/12)
   love.graphics.polygon('fill', roundhex)
   love.graphics.setColor(colorScheme[color][1])
   love.graphics.translate(0, -0.1)
