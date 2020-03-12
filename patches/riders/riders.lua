@@ -62,12 +62,10 @@ end
 
 function patch.process(s)
   patch.keyboard:interpret(s)
-  if not s.pressureSupport then
-    for _,touch in pairs(s.touches) do
-      touch.pressure = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
-    end
-    patch.rhodes.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
+  for _,touch in pairs(s.touches) do
+    touch.velocity = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
   end
+  patch.rhodes.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
   efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.2, 0.3, 0, 15)
 
   efx.flanger.volume    = l.remap(s.tilt.lp[1], 0, -0.2, 0, 1, 'clamp')

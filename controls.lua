@@ -6,8 +6,6 @@ controls.readTilt = function() return 0, 0, 0 end -- stub
 local tiltP = {0,0,0}
 controls.frozen = false   -- ability to freeze tilt reading
 
-local minPressure =  math.huge
-local maxPressure = -math.huge
 
 function controls.load()
   -- finding accelerometer
@@ -22,6 +20,7 @@ function controls.load()
   end
 end
 
+
 function controls.process(s)
   s.touches = {}
 
@@ -29,17 +28,6 @@ function controls.process(s)
   for _,id in ipairs(touches) do
     local x, y = love.touch.getPosition(id)
     s.touches[id] = {x, y}
-    local pressure = love.touch.getPressure(id)
-    maxPressure = math.max(maxPressure, pressure)
-    minPressure = math.min(minPressure, pressure)
-    if minPressure < maxPressure then
-      -- eumulate note velocity with surface area of touch
-      s.touches[id].pressure = l.remap(pressure, minPressure, maxPressure, 0, 1)
-      s.pressureSupport = true
-    else  -- if same, let's not div by 0 (CPU might explode)
-      s.touches[id].pressure = 1
-      s.pressureSupport = false
-    end
   end
 
   if controls.frozen then
@@ -59,5 +47,6 @@ function controls.process(s)
 
   return s
 end
+
 
 return controls

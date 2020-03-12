@@ -68,9 +68,8 @@ function patch.load()
   patch.keyboard.colorScheme.surface    = colorScheme.surface
   patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
   patch.keyboard.colorScheme.text       = colorScheme.text
-  love.graphics.setBackgroundColor(colorScheme.background)
-
   patch.keyboard.drawCell = patch.drawCell
+  love.graphics.setBackgroundColor(colorScheme.background)
 end
 
 function patch.drawCell(self, q, r, s, touch)
@@ -125,11 +124,8 @@ function patch.drawCell(self, q, r, s, touch)
 end
 
 function patch.process(s)
-  love.graphics.setBackgroundColor(colorScheme.background)
-
   patch.keyboard:interpret(s)
   for _,touch in pairs(s.touches) do
-    touch.pressure = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
     if touch.noteRetrigger then
       noteOctaveTracker[touch.note  % 12] = 0
       noteTracker[touch.note] = 0

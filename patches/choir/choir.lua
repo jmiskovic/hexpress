@@ -15,6 +15,7 @@ local colorScheme = {
   fog    = {l.hsl(0.62, 0.21, 0.52, 0.25)},
 }
 
+
 function patch.load()
   patch.keyboard = hexpad.new(true)
   patch.tone = sampler.new({
@@ -38,13 +39,8 @@ function patch.load()
   patch.keyboard.colorScheme.surfaceC      = {l.hsl(0.62, 0.10, 0.40)}
 end
 
-function patch.process(s)
-  if not s.pressureSupport then
-    for _,touch in pairs(s.touches) do
-      touch.pressure = l.remap(s.tilt[1], -0.2, 0.2, 0.1, 0.9, 'clamp')
-    end
-  end
 
+function patch.process(s)
   patch.keyboard:interpret(s)
   efx.reverb.decaytime = l.remap(s.tilt.lp[2], 1, -1, 1, 10)
   patch.tone.envelope.attack = math.abs(s.tilt.lp[1])
@@ -52,9 +48,11 @@ function patch.process(s)
   patch.tone:processTouches(s.dt, s.touches)
 end
 
+
 function patch.draw(s)
   patch.keyboard:draw(s)
 end
+
 
 local function drawDude(time)
   local gape = 0.7 + 0.3 * math.cos(time * 2)^2
@@ -71,6 +69,7 @@ local function drawDude(time)
   love.graphics.setColor(colorScheme.tongue)
   love.graphics.ellipse('fill', 0, -0.85 + 0.05 * gape, 0.07, 0.03 * gape)
 end
+
 
 function patch.icon(time)
   local sway = 0.05

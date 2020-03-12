@@ -38,6 +38,7 @@ local colorScheme = {
 local noteTracker = {}
 local keyCenter = 0
 
+
 function patch.load()
   efx.addEffect(efx.tremolo)
   efx.setDryVolume(0.4)
@@ -47,7 +48,6 @@ function patch.load()
   efx.tremolo.frequency = 4
 
   patch.keyboard = hexpad.new(true)
-
   patch.synth = sampler.new({
     {path='patches/chromakey/synthpad.ogg',  note= notes.toIndex['C3']},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.15 },
@@ -67,9 +67,9 @@ function patch.load()
   patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
   patch.keyboard.colorScheme.text       = colorScheme.text
   love.graphics.setBackgroundColor(colorScheme.background)
-
   patch.keyboard.drawCell = patch.drawCell
 end
+
 
 function patch.drawCell(self, q, r, s, touch)
   local note = self:toNoteIndex(q, r)
@@ -99,10 +99,10 @@ function patch.drawCell(self, q, r, s, touch)
   end
 end
 
+
 function patch.process(s)
   patch.keyboard:interpret(s)
   for _,touch in pairs(s.touches) do
-    touch.pressure = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
     if touch.noteRetrigger then
       noteTracker[touch.note  % 12] = (noteTracker[touch.note % 12] or 0) + 20000
     end
@@ -124,6 +124,7 @@ function patch.process(s)
   end
 end
 
+
 function patch.draw(s)
   patch.keyboard:draw(s)
 end
@@ -135,6 +136,7 @@ for q, r in hexgrid.spiralIter(0, 0, 2) do
   iconDecay[i] = -10
   i = i + 1
 end
+
 
 function patch.icon(time)
   love.graphics.setColor(colorScheme.background)
@@ -162,5 +164,6 @@ function patch.icon(time)
     i = i + 1
   end
 end
+
 
 return patch

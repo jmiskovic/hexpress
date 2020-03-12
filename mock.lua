@@ -33,16 +33,19 @@ function mock.process(s)
   }
 
   if love.keyboard.isDown('a') then
-    s.pressureSupport = true
-    s.touches[1] = {250, 250, pressure = 0.1}
+    s.touches[1] = {250, 250, velocity = 0.1}
   end
   if love.keyboard.isDown('s') then
-    s.pressureSupport = true
-    s.touches[1] = {250, 250, pressure = 0.5}
+    s.touches[1] = {250, 250, velocity = 0.9}
   end
   if love.keyboard.isDown('d') then
-    s.pressureSupport = true
-    s.touches[1] = {250, 250, pressure = 0.9}
+    s.touches[1] = {250, 550, velocity = 0.9}
+  end
+  if love.keyboard.isDown('1') then
+    s.touches[1] = {144, 74, velocity = 0.9}
+  end
+  if love.keyboard.isDown('2') then
+    s.touches[2] = {144, 74, velocity = 0.9}
   end
   if love.keyboard.isDown('f1') then
     local sampler = require('sampler')
