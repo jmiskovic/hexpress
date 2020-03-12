@@ -1,3 +1,5 @@
+-- implementation of hex lattice note layout with configurable relation between neighbor notes
+
 local hexpad = {}
 hexpad.__index = hexpad
 local hexgrid = require('hexgrid')

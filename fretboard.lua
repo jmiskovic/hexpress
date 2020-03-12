@@ -1,3 +1,5 @@
+-- implementation of rectangular grid note layout with configurable relation between neighbor notes
+
 local fretboard = {}
 fretboard.__index = fretboard
 
