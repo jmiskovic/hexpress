@@ -3,9 +3,10 @@ local controls = {}
 local l = require('lume')
 
 controls.readTilt = function() return 0, 0, 0 end -- stub
-local tiltP = {0,0,0}
-controls.frozen = false   -- ability to freeze tilt reading
 
+controls.frozen = false   -- ability to freeze tilt reading
+local tiltP = {0,0,0}
+local activeTouches = {}
 
 function controls.load()
   -- finding accelerometer
@@ -22,12 +23,23 @@ end
 
 
 function controls.process(s)
+  local frameTouches = {} -- temp map for pruning non-active touches
   s.touches = {}
-
-  local touches = love.touch.getTouches()
-  for _,id in ipairs(touches) do
-    local x, y = love.touch.getPosition(id)
-    s.touches[id] = {x, y}
+  local touches = love.touch.getTouches() -- returns array of 'light userdata' ids, guaranteed to be unique only for duration of touch
+  -- udid is user data id that Love2D provides, it is not Lua datatype and not serializable
+  -- seqid is integer id that is locally generated and sequential
+  for _,udid in ipairs(touches) do
+    local x, y = love.touch.getPosition(udid)
+    local seqid = activeTouches[udid] or nextId()
+    activeTouches[udid] = seqid
+    frameTouches[udid] = true
+    s.touches[seqid] = {x, y}
+  end
+  -- prune active touches that dissapeared from this frame list of touches
+  for udid, seqid in pairs(activeTouches) do
+    if not frameTouches[udid] then
+      activeTouches[udid] = nil
+    end
   end
 
   if controls.frozen then
@@ -48,5 +60,12 @@ function controls.process(s)
   return s
 end
 
+
+local lastId = 0
+
+function nextId()
+  lastId = lastId + 1
+  return lastId
+end
 
 return controls
