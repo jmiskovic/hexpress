@@ -1,4 +1,5 @@
 local patch = {}
+patch.__index = patch
 
 local sampler = require('sampler')
 local freeform = require('freeform')
@@ -15,6 +16,7 @@ local colorScheme = {
 
 
 function patch.load()
+  local self = setmetatable({}, patch)
   local triggers = { -- elements are listed in draw order (lowest to highest)
     {path='patches/garage/acustic/CyCdh_K3Kick-03.ogg',       type='block',    x= 0.052, y= 0.839, r= 1.06},
     {path='patches/garage/acustic/CYCdh_LudSdStC-04.ogg',     type='block',    x= 0.461, y= 0.018, r= 0.57},
@@ -36,22 +38,23 @@ function patch.load()
     envelope = { attack = 0, decay = 0, sustain = 1, release = 1.0 },
   }
 
-  patch.layout = freeform.new(triggers)
-  patch.sampler = sampler.new(triggers)
+  self.layout = freeform.new(triggers)
+  self.sampler = sampler.new(triggers)
   love.graphics.setBackgroundColor(colorScheme.background)
+  return self
 end
 
 
-function patch.process(s)
-  patch.layout:interpret(s)
+function patch:process(s)
+  self.layout:interpret(s)
   efx.reverb.decaytime = l.remap(s.tilt.lp[1], 0.1, -0.5, 0.5, 4)
-  patch.sampler:processTouches(s.dt, s.touches)
+  self.sampler:processTouches(s.dt, s.touches)
   return s
 end
 
 
-function patch.draw(s)
-  patch.layout:draw(s)
+function patch:draw(s)
+  self.layout:draw(s)
 end
 
 

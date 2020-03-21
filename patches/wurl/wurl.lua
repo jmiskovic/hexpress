@@ -1,4 +1,5 @@
 local patch = {}
+patch.__index = patch
 
 local l = require('lume')
 local efx = require('efx')
@@ -42,6 +43,7 @@ noteOctaveTracker[0] = 10
 
 
 function patch.load()
+  local self = setmetatable({}, patch)
   efx.addEffect(efx.tremolo)
   efx.setDryVolume(0.4)
   efx.reverb.volume = 0.2
@@ -49,9 +51,9 @@ function patch.load()
   efx.tremolo.volume = 0.25
   efx.tremolo.frequency = 3
 
-  patch.keyboard = hexpad.new(true)
+  self.layout = hexpad.new(true)
 
-  patch.synth = sampler.new({
+  self.sampler = sampler.new({
     {path='patches/wurl/wurl_a0.ogg', note = notes.toIndex['A0']},
     {path='patches/wurl/wurl_a1.ogg', note = notes.toIndex['A1']},
     {path='patches/wurl/wurl_a2.ogg', note = notes.toIndex['A2']},
@@ -61,15 +63,16 @@ function patch.load()
     synthCount = 6,
     })
 
-  patch.synth.masterVolume = 1
+  self.sampler.masterVolume = 1
 
-  patch.keyboard.colorScheme.background = colorScheme.background
-  patch.keyboard.colorScheme.highlight  = colorScheme.highlight
-  patch.keyboard.colorScheme.surface    = colorScheme.surface
-  patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
-  patch.keyboard.colorScheme.text       = colorScheme.text
-  patch.keyboard.drawCell = patch.drawCell
+  self.layout.colorScheme.background = colorScheme.background
+  self.layout.colorScheme.highlight  = colorScheme.highlight
+  self.layout.colorScheme.surface    = colorScheme.surface
+  self.layout.colorScheme.surfaceC   = colorScheme.surfaceC
+  self.layout.colorScheme.text       = colorScheme.text
+  self.layout.drawCell = patch.drawCell
   love.graphics.setBackgroundColor(colorScheme.background)
+  return self
 end
 
 function patch.drawCell(self, q, r, s, touch)
@@ -123,8 +126,8 @@ function patch.drawCell(self, q, r, s, touch)
   end
 end
 
-function patch.process(s)
-  patch.keyboard:interpret(s)
+function patch:process(s)
+  self.layout:interpret(s)
   for _,touch in pairs(s.touches) do
     if touch.noteRetrigger then
       noteOctaveTracker[touch.note  % 12] = 0
@@ -136,9 +139,9 @@ function patch.process(s)
   end
 
   efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.2, 0.2, 0, 5, 'clamp')
-  patch.synth.envelope.attack = l.remap(s.tilt.lp[2], -.1, -0.3, 0, 0.8, 'clamp')
+  self.sampler.envelope.attack = l.remap(s.tilt.lp[2], -.1, -0.3, 0, 0.8, 'clamp')
 
-  patch.synth:processTouches(s.dt, s.touches)
+  self.sampler:processTouches(s.dt, s.touches)
 
   for note,decay in pairs(noteTracker) do
     noteTracker[note] = decay + s.dt
@@ -149,8 +152,8 @@ function patch.process(s)
 
 end
 
-function patch.draw(s)
-  patch.keyboard:draw(s)
+function patch:draw(s)
+  self.layout:draw(s)
 end
 
 

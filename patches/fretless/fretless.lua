@@ -1,4 +1,5 @@
 local patch = {}
+patch.__index = patch
 
 local l = require('lume')
 local efx = require('efx')
@@ -14,12 +15,13 @@ local colorScheme = {
   light  = {l.rgba(0xffffff70)},
 }
 
-function patch.load()
-  local tapePath = 'patches/broom/seventies-pop-funk-groove.ogg'
-  patch.keyboard = fretboard.new(false, {-47, -42, -37, -32, -27, -22, -17, -12})
-  patch.keyboard.fretWidth = 0.4
 
-  patch.tone = sampler.new({
+function patch.load()
+  local self = setmetatable({}, patch)
+  self.layout = fretboard.new(false, {-47, -42, -37, -32, -27, -22, -17, -12})
+  self.layout.fretWidth = 0.4
+
+  self.sampler = sampler.new({
     {path='patches/fretless/C1.ogg',  note = notes.toIndex['C1']},
     {path='patches/fretless/D#1.ogg', note = notes.toIndex['D#1']},
     {path='patches/fretless/F#1.ogg', note = notes.toIndex['F#1']},
@@ -39,22 +41,26 @@ function patch.load()
     envelope = {attack = 0.0, decay = 0, sustain = 1, release = 0.05 },
     transpose= 0,
     })
+  return self
 end
 
-function patch.process(s)
-  patch.keyboard:interpret(s)
+
+function patch:process(s)
+  self.layout:interpret(s)
   efx.reverb.decaytime = l.remap(s.tilt.lp[2], -.1, 2, 0.5, 2)
-  patch.tone:processTouches(s.dt, s.touches)
+  self.sampler:processTouches(s.dt, s.touches)
 end
 
-function patch.draw(s)
-  patch.keyboard:draw(s)
+
+function patch:draw(s)
+  self.layout:draw(s)
   -- dots
   love.graphics.setColor(colorScheme.dot)
-  for _, cNote in ipairs(patch.keyboard.cNotePositions) do
+  for _, cNote in ipairs(self.layout.cNotePositions) do
     love.graphics.circle('fill', -0.2 + cNote[1], cNote[2] - 0.08, 0.05)
   end
 end
+
 
 function patch.icon(time, s)
   -- body

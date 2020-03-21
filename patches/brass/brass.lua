@@ -1,4 +1,5 @@
 local patch = {}
+patch.__index = patch
 
 local notes = require('notes')
 local sampler = require('sampler')
@@ -15,10 +16,12 @@ local colorScheme = {
   highlight  = {1, 1, 1, 0.56},
 }
 
-function patch.load()
-  patch.keyboard = hexpad.new()
 
-  patch.trombone  = sampler.new({
+function patch.load()
+  local self = setmetatable({}, patch)
+  self.layout = hexpad.new()
+
+  self.trombone  = sampler.new({
     {path='patches/brass/Trombone_Sustain_F1_v5_1.ogg',  note= -7},
     {path='patches/brass/Trombone_Sustain_A1_v5_1.ogg',  note= -3},
     {path='patches/brass/Trombone_Sustain_C2_v5_1.ogg',  note=  0},
@@ -30,7 +33,7 @@ function patch.load()
     looped=true,
     })
 
-  patch.trombuzz = sampler.new({
+  self.trombuzz = sampler.new({
     {path='patches/brass/Trombone_Buzz_F1_v2_1.ogg', note= notes.toIndex['F3']},
     {path='patches/brass/Trombone_Buzz_A1_v2_1.ogg', note= notes.toIndex['A3']},
     {path='patches/brass/Trombone_Buzz_C2_v2_1.ogg', note= notes.toIndex['C4']},
@@ -42,7 +45,7 @@ function patch.load()
     looped=true,
     })
 
-  patch.ensemble = sampler.new({
+  self.ensemble = sampler.new({
     {path='patches/brass/trumpet004.ogg',  note=  4},
     {path='patches/brass/trumpet005.ogg',  note=  7},
     {path='patches/brass/trumpet006.ogg',  note= 12},
@@ -53,14 +56,13 @@ function patch.load()
     {path='patches/brass/trumpet011.ogg',  note= 31},
     transpose = 12,
   })
-  love.graphics.setBackgroundColor(colorScheme.background)
 
-  function patch.keyboard:drawCell(q, r, s, touch)
+  self.layout.drawCell = function(self, q, r, s, touch)
     local delta = 0
     if touch and touch.volume then
       delta = touch.volume
     end
-    local note = patch.keyboard:toNoteIndex(q, r)
+    local note = self:toNoteIndex(q, r)
     love.graphics.translate(0, delta/10)
     love.graphics.scale(0.8)
     if note % 12 == 0 then
@@ -73,22 +75,25 @@ function patch.load()
     love.graphics.translate(0, -0.15)
     love.graphics.circle('fill', 0, 0, 0.8)
   end
+  love.graphics.setBackgroundColor(colorScheme.background)
+  return self
 end
 
-function patch.process(s)
-  patch.keyboard:interpret(s)
+
+function patch:process(s)
+  self.layout:interpret(s)
   -- crossfade between instruments
-  patch.ensemble.masterVolume = l.remap(s.tilt.lp[1],-.2,  .1, 0, 1, 'clamp')
-  patch.trombone.masterVolume = l.remap(s.tilt.lp[1], .1, -.1, 0, 1, 'clamp')
-  patch.trombuzz.masterVolume = l.remap(s.tilt.lp[2], .2, -.1, 0, 1, 'clamp')
-  patch.trombone:processTouches(s.dt, s.touches)
-  patch.trombuzz:processTouches(s.dt, s.touches)
-  patch.ensemble:processTouches(s.dt, s.touches)
+  self.ensemble.masterVolume = l.remap(s.tilt.lp[1],-.2,  .1, 0, 1, 'clamp')
+  self.trombone.masterVolume = l.remap(s.tilt.lp[1], .1, -.1, 0, 1, 'clamp')
+  self.trombuzz.masterVolume = l.remap(s.tilt.lp[2], .2, -.1, 0, 1, 'clamp')
+  self.trombone:processTouches(s.dt, s.touches)
+  self.trombuzz:processTouches(s.dt, s.touches)
+  self.ensemble:processTouches(s.dt, s.touches)
   return s
 end
 
-function patch.draw(s)
-  patch.keyboard:draw(s)
+function patch:draw(s)
+  self.layout:draw(s)
 end
 
 function patch.icon(time)

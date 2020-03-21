@@ -1,4 +1,5 @@
 local patch = {}
+patch.__index = patch
 
 local l = require('lume')
 local sampler = require('sampler')
@@ -20,8 +21,9 @@ local colorScheme = {
 
 
 function patch.load()
-  patch.keyboard = hexpad.new(true, 7)
-  patch.tone = sampler.new({
+  local self = setmetatable({}, patch)
+  self.layout = hexpad.new(true, 7)
+  self.sampler = sampler.new({
   {path='patches/scat/Daah01.ogg', note=-9, velocity = .1},
   {path='patches/scat/Daah02.ogg', note=-4, velocity = .1},
   {path='patches/scat/Daah03.ogg', note=-1, velocity = .1},
@@ -47,26 +49,27 @@ function patch.load()
     looped = false,
     transpose = 0,
   })
-  patch.keyboard.colorScheme.background    = {l.rgba(0x2d2734ff)}
-  patch.keyboard.colorScheme.highlight     = {l.rgba(0xe86630ff)}
-  patch.keyboard.colorScheme.text          = {l.rgba(0xa7a2b8ff)}
-  patch.keyboard.colorScheme.surface       = {l.hsl(0.62, 0.16, 0.49)}
-  patch.keyboard.colorScheme.surfaceC      = {l.hsl(0.62, 0.10, 0.40)}
+  self.layout.colorScheme.background    = {l.rgba(0x2d2734ff)}
+  self.layout.colorScheme.highlight     = {l.rgba(0xe86630ff)}
+  self.layout.colorScheme.text          = {l.rgba(0xa7a2b8ff)}
+  self.layout.colorScheme.surface       = {l.hsl(0.62, 0.16, 0.49)}
+  self.layout.colorScheme.surfaceC      = {l.hsl(0.62, 0.10, 0.40)}
+  return self
 end
 
 
-function patch.process(s)
+function patch:process(s)
   for _,touch in pairs(s.touches) do
     touch.velocity = l.remap(s.tilt[1], -0.2, 0.2, 0.1, 0.9, 'clamp')
   end
-  patch.keyboard:interpret(s)
+  self.layout:interpret(s)
   efx.reverb.decaytime = l.remap(s.tilt.lp[2], 1, -1, 1, 5)
-  patch.tone:processTouches(s.dt, s.touches)
+  self.sampler:processTouches(s.dt, s.touches)
 end
 
 
-function patch.draw(s)
-  patch.keyboard:draw(s)
+function patch:draw(s)
+  self.layout:draw(s)
 end
 
 

@@ -1,5 +1,5 @@
 local patch = {}
-
+patch.__index = patch
 local l = require('lume')
 local efx = require('efx')
 local notes = require('notes')
@@ -25,30 +25,30 @@ local filter = {
 }
 
 function patch.load()
-  patch.keyboard = hexpad.new(true)
+  local self = setmetatable({}, patch)
+  self.layout = hexpad.new(true)
   efx.reverb.decaytime = 2
 
-  patch.melanc_synth = sampler.new({
+  self.melanc_synth = sampler.new({
     -- BPB mini analogue collection from bedroomproducersblog.com
     {path='patches/analog/mela_c2.ogg',  note = notes.toIndex['C3']},
     {path='patches/analog/mela_c3.ogg',  note = notes.toIndex['C4']},
     {path='patches/analog/mela_c4.ogg',  note = notes.toIndex['C5']},
   })
-  patch.sawsaw_synth = sampler.new({
+  self.sawsaw_synth = sampler.new({
     -- ZynAddSubFx patch AnalogStrings
     {path='patches/analog/saw_c1.ogg', note = notes.toIndex['C1']},
     {path='patches/analog/saw_c2.ogg', note = notes.toIndex['C2']},
     {path='patches/analog/saw_c3.ogg', note = notes.toIndex['C3']},
     transpose = -24,
   })
-  patch.keyboard.colorScheme.background = colorScheme.background
-  patch.keyboard.colorScheme.highlight  = colorScheme.highlight
-  patch.keyboard.colorScheme.surface    = colorScheme.surface
-  patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
-  patch.keyboard.colorScheme.text       = colorScheme.text
-  love.graphics.setBackgroundColor(colorScheme.background)
+  self.layout.colorScheme.background = colorScheme.background
+  self.layout.colorScheme.highlight  = colorScheme.highlight
+  self.layout.colorScheme.surface    = colorScheme.surface
+  self.layout.colorScheme.surfaceC   = colorScheme.surfaceC
+  self.layout.colorScheme.text       = colorScheme.text
 
-  function patch.keyboard:drawCell(q, r, s, touch)
+  self.layout.drawCell=function(self, q, r, s, touch)
     love.graphics.scale(0.70)
 
     local expandTo = expandTo or 1.02
@@ -86,20 +86,21 @@ function patch.load()
     love.graphics.setColor(self.colorScheme.surface)
     love.graphics.polygon('fill', self.shape)
   end
-
+  love.graphics.setBackgroundColor(colorScheme.background)
+  return self
 end
 
-function patch.process(s)
-  patch.keyboard:interpret(s)
-  patch.melanc_synth.masterVolume = l.remap(s.tilt.lp[1],  0.2,  0.0, 0, 1, 'clamp')
-  patch.sawsaw_synth.masterVolume = l.remap(s.tilt.lp[2],  0.0,  0.7, 0, 1, 'clamp')
+function patch:process(s)
+  self.layout:interpret(s)
+  self.melanc_synth.masterVolume = l.remap(s.tilt.lp[1],  0.2,  0.0, 0, 1, 'clamp')
+  self.sawsaw_synth.masterVolume = l.remap(s.tilt.lp[2],  0.0,  0.7, 0, 1, 'clamp')
 
-  patch.melanc_synth:processTouches(s.dt, s.touches)
-  patch.sawsaw_synth:processTouches(s.dt, s.touches)
+  self.melanc_synth:processTouches(s.dt, s.touches)
+  self.sawsaw_synth:processTouches(s.dt, s.touches)
 end
 
-function patch.draw(s)
-  patch.keyboard:draw(s)
+function patch:draw(s)
+  self.layout:draw(s)
 end
 
 local sine = {}

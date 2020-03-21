@@ -1,4 +1,7 @@
 local patch = {}
+patch.__index = patch
+
+
 local l = require("lume")
 local efx = require('efx')
 local sampler = require('sampler')
@@ -13,10 +16,11 @@ local colorScheme = {
   text       = {l.rgba(0x846b43ff)},
 }
 
-function patch.load()
-  patch.keyboard = hexpad.new(true)
 
-  patch.tone = sampler.new({
+function patch.load()
+  local self = setmetatable({}, patch)
+  self.layout = hexpad.new(true)
+  self.sampler = sampler.new({
     {path='patches/choir/choir_21.ogg',  note= -9},
     {path='patches/choir/choir_15.ogg',  note= -3},
     {path='patches/choir/choir_12.ogg',  note=  0},
@@ -30,18 +34,22 @@ function patch.load()
     envelope = { attack = 0.05, decay = 0.40, sustain = 0.85, release = 0.35 },
     synthCount = 12,
   })
-  patch.keyboard.colorScheme.background = colorScheme.background
-  patch.keyboard.colorScheme.highlight  = colorScheme.highlight
-  patch.keyboard.colorScheme.surface    = colorScheme.surface
-  patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
-  patch.keyboard.colorScheme.text       = colorScheme.text
+  self.layout.colorScheme.background = colorScheme.background
+  self.layout.colorScheme.highlight  = colorScheme.highlight
+  self.layout.colorScheme.surface    = colorScheme.surface
+  self.layout.colorScheme.surfaceC   = colorScheme.surfaceC
+  self.layout.colorScheme.text       = colorScheme.text
   love.graphics.setBackgroundColor(colorScheme.background)
+  return self
 end
+
 
 local pressing = false
 local sustained = {}
 local previous = {}
 local sustainedCount = 0
+
+
 function sustain(s)
   if next(s.touches) then
     -- erase previous sustains on next touch
@@ -79,22 +87,25 @@ function sustain(s)
   end
 end
 
-function patch.process(s)
-  patch.keyboard:interpret(s)
+
+function patch:process(s)
+  self.layout:interpret(s)
   sustain(s)
   -- slower attack & release when tilted forward
-  patch.tone.envelope.attack    = l.remap(s.tilt.lp[2],  .00, -.2, .2, 2, 'clamp')
-  patch.tone.envelope.release   = l.remap(s.tilt.lp[2], -.05, -.4, .6, 4, 'clamp')
+  self.sampler.envelope.attack    = l.remap(s.tilt.lp[2],  .00, -.2, .2, 2, 'clamp')
+  self.sampler.envelope.release   = l.remap(s.tilt.lp[2], -.05, -.4, .6, 4, 'clamp')
   efx.reverb.decaytime           = l.remap(s.tilt.lp[2],  .00, -.4, 1,  8, 'clamp')
   -- volume control
-  patch.tone.masterVolume   = l.remap(s.tilt.lp[1], -0.1, 0.6, 1, .05, 'clamp')
-  patch.tone:processTouches(s.dt, s.touches)
+  self.sampler.masterVolume   = l.remap(s.tilt.lp[1], -0.1, 0.6, 1, .05, 'clamp')
+  self.sampler:processTouches(s.dt, s.touches)
   return s
 end
 
-function patch.draw(s)
-  patch.keyboard:draw(s)
+
+function patch:draw(s)
+  self.layout:draw(s)
 end
+
 
 function patch.icon(time)
   love.graphics.setColor(colorScheme.text)
@@ -117,5 +128,6 @@ function patch.icon(time)
     i = i + 1
   end
 end
+
 
 return patch

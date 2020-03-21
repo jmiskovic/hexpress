@@ -15,6 +15,7 @@ function love.resize()
   dpi = love.window.getDPIScale()
 end
 
+
 function love.load()
   efx.load()
   love.resize() -- force layout re-configuration
@@ -27,21 +28,22 @@ function love.load()
   love.graphics.translate(sw / 2, sh / 2)
 end
 
+
 function transform()
   -- use same set of transformations in both draw() and update() functions
   -- it's extracted here because if they diverge, it takes time to detect and debug
-
   -- set (0,0) to screen center and 1 unit to half-screen hight
   love.graphics.translate(sw / 2, sh / 2)
   love.graphics.scale(sh / 2, sh / 2)
 end
 
+
 function love.update(dt)
   love.graphics.origin()
   transform()
   time = time + dt
-
-  stream = {   --spring
+  --stream is created
+  stream = {
     dt = dt,
     time = time,
     width = sw,
@@ -53,29 +55,30 @@ function love.update(dt)
   if love.system.getOS() ~= 'Android' then
     mock.process(stream)
   end
-  patch.process(stream)
+  patch:process(stream)
   efx.process(stream)
   love.timer.sleep(0.003)
-  -- falls
+  --stream is garbage collected
 end
 
 
 function love.draw()
   love.graphics.origin()
   transform()
-  patch.draw(stream)
+  patch:draw(stream)
   love.graphics.origin()
   --mock.draw(stream)
   --drawTable(stream)
   --track('fps %2.1f', love.timer.getFPS())
 end
 
+
 function loadPatch(newPatch)
   time = 0   -- back to big bang
   efx.load() -- restore efx to defaults
-  patch = newPatch
-  patch.load()
+  patch = newPatch.load()
 end
+
 
 function love.keypressed(key)
   if key == 'escape' then
@@ -88,5 +91,6 @@ function love.keypressed(key)
   elseif key == 'menu' or key == 'f' then
     controls.frozen = not controls.frozen
   end
+
 
 end

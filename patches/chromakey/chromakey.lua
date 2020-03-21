@@ -1,4 +1,5 @@
 local patch = {}
+patch.__index = patch
 
 local l = require('lume')
 local efx = require('efx')
@@ -38,8 +39,10 @@ local colorScheme = {
 local noteTracker = {}
 local keyCenter = 0
 
+patch.name = 'chormakey'
 
 function patch.load()
+  local self = setmetatable({}, patch)
   efx.addEffect(efx.tremolo)
   efx.setDryVolume(0.4)
   efx.reverb.volume = 1
@@ -47,30 +50,31 @@ function patch.load()
   efx.tremolo.volume = 1
   efx.tremolo.frequency = 4
 
-  patch.keyboard = hexpad.new(true)
-  patch.synth = sampler.new({
+  self.layout = hexpad.new(true)
+  self.synth = sampler.new({
     {path='patches/chromakey/synthpad.ogg',  note= notes.toIndex['C3']},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.15 },
     synthCount = 10,
     transpose = -24,
     })
-  patch.sustain = sampler.new({
+  self.sustain = sampler.new({
     {path='patches/chromakey/sustain.ogg',  note= notes.toIndex['C5']},
     envelope = { attack = 6, decay = 0, sustain = 1, release = 0.15 },
     looped = true,
     synthCount = 10,
     })
 
-  patch.keyboard.colorScheme.background = colorScheme.background
-  patch.keyboard.colorScheme.highlight  = colorScheme.highlight
-  patch.keyboard.colorScheme.surface    = colorScheme.surface
-  patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
-  patch.keyboard.colorScheme.text       = colorScheme.text
+  self.layout.colorScheme.background = colorScheme.background
+  self.layout.colorScheme.highlight  = colorScheme.highlight
+  self.layout.colorScheme.surface    = colorScheme.surface
+  self.layout.colorScheme.surfaceC   = colorScheme.surfaceC
+  self.layout.colorScheme.text       = colorScheme.text
   love.graphics.setBackgroundColor(colorScheme.background)
-  patch.keyboard.drawCell = patch.drawCell
+  self.layout.drawCell = patch.drawCell
+  return self
 end
 
-
+-- override the hexpad's drawCell but still reuse it's layouting
 function patch.drawCell(self, q, r, s, touch)
   local note = self:toNoteIndex(q, r)
   love.graphics.scale(.90)
@@ -100,8 +104,8 @@ function patch.drawCell(self, q, r, s, touch)
 end
 
 
-function patch.process(s)
-  patch.keyboard:interpret(s)
+function patch:process(s)
+  self.layout:interpret(s)
   for _,touch in pairs(s.touches) do
     if touch.noteRetrigger then
       noteTracker[touch.note  % 12] = (noteTracker[touch.note % 12] or 0) + 20000
@@ -110,14 +114,14 @@ function patch.process(s)
       keyCenter = touch.note
     end
   end
-  patch.synth.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
-  patch.sustain.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
+  self.synth.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
+  self.sustain.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
 
   efx.tremolo.frequency = l.remap(s.tilt.lp[1], 0.05, 0.3, 0, 8, 'clamp')
   efx.tremolo.volume = l.remap(s.tilt.lp[1], 0, 1, 0, 0.9, 'clamp')
 
-  patch.synth:processTouches(s.dt, s.touches)
-  patch.sustain:processTouches(s.dt, s.touches)
+  self.synth:processTouches(s.dt, s.touches)
+  self.sustain:processTouches(s.dt, s.touches)
 
   for note,decay in pairs(noteTracker) do
     noteTracker[note] = decay * (1 - s.dt * 1)
@@ -125,8 +129,8 @@ function patch.process(s)
 end
 
 
-function patch.draw(s)
-  patch.keyboard:draw(s)
+function patch:draw(s)
+  self.layout:draw(s)
 end
 
 

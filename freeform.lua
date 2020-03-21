@@ -40,7 +40,6 @@ local colorScheme = {
 
 function freeform:interpret(s)
   for id,touch in pairs(s.touches) do
-    print('id', id)
     local x, y = love.graphics.inverseTransformPoint(touch[1], touch[2])
     -- find closes element to touch position, retrigger as necessary
     for i = #self.layout, 1, -1 do -- reverse iteration, to trigger topmost elements first

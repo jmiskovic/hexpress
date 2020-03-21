@@ -1,4 +1,6 @@
 local patch = {}
+patch.__index = patch
+
 local l = require("lume")
 local efx = require('efx')
 local sampler = require('sampler')
@@ -17,10 +19,11 @@ local colorScheme = {
   stick   = {l.color('#5e2400')},
 }
 
-function patch.load()
-  patch.keyboard = hexpad.new()
 
-  patch.cello = sampler.new({
+function patch.load()
+  local self = setmetatable({}, patch)
+  self.layout = hexpad.new()
+  self.cello = sampler.new({
     {path='patches/strings/susvib_A2_v3.ogg', note=  9},
     {path='patches/strings/susvib_B1_v3.ogg', note= -1},
     {path='patches/strings/susvib_C1_v3.ogg', note=-12},
@@ -36,8 +39,7 @@ function patch.load()
     looped = true,
     envelope = {attack = 0.2, decay = 0.1, sustain = 0.8, release = 0.6},
   })
-
-  patch.tremolo = sampler.new({
+  self.tremolo = sampler.new({
     {path='patches/strings/trem_C1_v2.ogg', note = -24},
     {path='patches/strings/trem_E1_v2.ogg', note = -20},
     {path='patches/strings/trem_B1_v2.ogg', note = -13},
@@ -54,30 +56,30 @@ function patch.load()
     looped = false,
     envelope = {attack = 0.0, decay = 0.1, sustain = 1.0, release = 0.5},
   })
-
   love.graphics.setBackgroundColor(colorScheme.neck)
+  return self
 end
 
-function patch.process(s)
-  patch.keyboard:interpret(s)
+function patch:process(s)
+  self.layout:interpret(s)
   -- slow attack with forward tilt
-  patch.cello.envelope.attack    = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.2, 10, 'clamp')
-  patch.tremolo.envelope.attack  = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.0, 10, 'clamp')
-  patch.cello.envelope.release   = l.remap(s.tilt.lp[2], -0.05, -0.2, 0.6, 4, 'clamp')
-  patch.tremolo.envelope.release = l.remap(s.tilt.lp[2], -0.05, -0.2, 0.5, 2, 'clamp')
+  self.cello.envelope.attack    = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.2, 10, 'clamp')
+  self.tremolo.envelope.attack  = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.0, 10, 'clamp')
+  self.cello.envelope.release   = l.remap(s.tilt.lp[2], -0.05, -0.2, 0.6, 4, 'clamp')
+  self.tremolo.envelope.release = l.remap(s.tilt.lp[2], -0.05, -0.2, 0.5, 2, 'clamp')
   efx.reverb.decaytime     = l.remap(s.tilt.lp[2], 0.0, -0.9, 1.0, 8.0, 'clamp')
   -- crossfade between instruments
-  patch.cello.masterVolume   = l.remap(s.tilt.lp[1], -0.2, 0.3, 1, 0.2, 'clamp')
-  patch.tremolo.masterVolume = l.remap(s.tilt.lp[1], -0.1, 0.4, 0.2, 1, 'clamp')
-  patch.cello:processTouches(s.dt, s.touches)
-  patch.tremolo:processTouches(s.dt, s.touches)
+  self.cello.masterVolume   = l.remap(s.tilt.lp[1], -0.2, 0.3, 1, 0.2, 'clamp')
+  self.tremolo.masterVolume = l.remap(s.tilt.lp[1], -0.1, 0.4, 0.2, 1, 'clamp')
+  self.cello:processTouches(s.dt, s.touches)
+  self.tremolo:processTouches(s.dt, s.touches)
 
   colorScheme.neck[1] = .22 + l.remap(s.tilt.lp[1], -.2, .2, -.03, .03, 'clamp')
   love.graphics.setBackgroundColor(colorScheme.neck)
   return s
 end
 
-function patch.draw(s)
+function patch:draw(s)
   touched = {{}, {}, {}}
   -- mark touched 'strings' across three axes
   for k,touch in pairs(s.touches) do
@@ -89,10 +91,11 @@ function patch.draw(s)
     end
   end
   -- draw strings across 3 axes, vibrate strings that intersect touches
-  love.graphics.scale(patch.keyboard.scaling)
+  love.graphics.push()
+  love.graphics.scale(self.layout.scaling)
   love.graphics.setLineWidth(0.12)
   local t1, t2, x, y, z, sx, sy, ex, ey
-  local r = patch.keyboard.radius
+  local r = self.layout.radius
   for i = -r, r do -- covering range on single axis
     t1 = {
       i,
@@ -123,6 +126,7 @@ function patch.draw(s)
       end
     end
   end
+  love.graphics.pop()
 end
 
 function patch.icon(time)

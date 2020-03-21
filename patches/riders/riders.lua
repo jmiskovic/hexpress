@@ -1,4 +1,5 @@
 local patch = {}
+patch.__index = patch
 
 local l = require('lume')
 local efx = require('efx')
@@ -17,7 +18,9 @@ local colorScheme = {
   shiny      = {l.hsl(0.24, 0.09, 0.96, 0.5)},
 }
 
+
 function patch.load()
+  local self = setmetatable({}, patch)
   efx.addEffect(efx.tremolo)
   efx.addEffect(efx.flanger)
   efx.setDryVolume(0.4)
@@ -25,10 +28,9 @@ function patch.load()
   efx.reverb.decaytime = 2
   efx.tremolo.volume = 1
   efx.tremolo.frequency = 4
+  self.layout = hexpad.new(true)
 
-  patch.keyboard = hexpad.new(true)
-
-  patch.rhodes = sampler.new({
+  self.sampler = sampler.new({
     {path='patches/riders/A_029__F1_1.ogg', note =-19, velocity = 0.9},
     {path='patches/riders/A_029__F1_2.ogg', note =-19, velocity = 0.7},
     {path='patches/riders/A_029__F1_3.ogg', note =-19, velocity = 0.5},
@@ -52,52 +54,57 @@ function patch.load()
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.15 },
     synthCount = 6,
     })
-  patch.keyboard.colorScheme.background = colorScheme.background
-  patch.keyboard.colorScheme.highlight  = colorScheme.highlight
-  patch.keyboard.colorScheme.surface    = colorScheme.surface
-  patch.keyboard.colorScheme.surfaceC   = colorScheme.surfaceC
-  patch.keyboard.colorScheme.text       = colorScheme.text
+  self.layout.colorScheme.background = colorScheme.background
+  self.layout.colorScheme.highlight  = colorScheme.highlight
+  self.layout.colorScheme.surface    = colorScheme.surface
+  self.layout.colorScheme.surfaceC   = colorScheme.surfaceC
+  self.layout.colorScheme.text       = colorScheme.text
   love.graphics.setBackgroundColor(colorScheme.background)
+  return self
 end
 
-function patch.process(s)
-  patch.keyboard:interpret(s)
+
+function patch:process(s)
+  self.layout:interpret(s)
   for _,touch in pairs(s.touches) do
     touch.velocity = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
   end
-  patch.rhodes.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
-  efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.2, 0.3, 0, 15)
+  self.sampler.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
 
+  efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.2, 0.3, 0, 15)
   efx.flanger.volume    = l.remap(s.tilt.lp[1], 0, -0.2, 0, 1, 'clamp')
   efx.flanger.rate      = l.remap(s.tilt.lp[1], 0, -0.7, 0, 0.5, 'clamp')
 
-  patch.rhodes:processTouches(s.dt, s.touches)
+  self.sampler:processTouches(s.dt, s.touches)
 end
 
-function patch.draw(s)
-  patch.keyboard:draw(s)
+
+function patch:draw(s)
+  self.layout:draw(s)
 end
+
 
 function patch.icon(time)
   local font = hexpad.font
-
+  -- background
   love.graphics.setColor(colorScheme.surface)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
-
+  -- knob notch marker
   love.graphics.translate(0, 0.4)
   love.graphics.setColor(colorScheme.label)
   love.graphics.arc('fill', 0, -0.78, 0.18, -math.pi / 2 - math.pi / 5, -math.pi / 2 + math.pi / 5)
+  -- knob
   love.graphics.setColor(colorScheme.knob)
   love.graphics.circle('fill', 0, 0, 0.8)
   love.graphics.setColor(colorScheme.surfaceC)
   love.graphics.circle('line', 0, 0, 0.43)
   love.graphics.setColor(colorScheme.highlight)
   love.graphics.circle('fill', 0, 0, 0.4)
-
+  -- knob highlight
   love.graphics.setColor(colorScheme.shiny)
   love.graphics.arc('fill', 0, 0, 0.4, 0, math.pi / 6)
   love.graphics.arc('fill', 0, 0, 0.4, math.pi,  math.pi + math.pi / 6)
-
+  -- number markings
   love.graphics.setFont(font)
   love.graphics.setColor(colorScheme.text)
   love.graphics.rotate(math.sin(time / 4) - math.pi / 2)
@@ -110,5 +117,6 @@ function patch.icon(time)
     love.graphics.rotate(math.pi * 3 / 2 / 10)
   end
 end
+
 
 return patch

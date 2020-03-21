@@ -46,27 +46,40 @@ function selector.load()
   end
   radius = radius - 0.5 -- TODO: improve 16:9 screen utilization and remove line
   scale = 1 / (2 * radius + 0.7)
+  return selector
 end
 
-function selector.process(s)
+function selector.checkTouch(x, y)
+  love.graphics.push()
+  love.graphics.scale(scale)
+  x, y = love.graphics.inverseTransformPoint(x, y)
+  love.graphics.pop()
+  local q, r = hexgrid.pixelToHex(x, y)
+
+  if hexgrid.distanceFromCenter(q,r) < radius + 1 then
+    local selected = patches[q][r]
+    if selected then
+      loadPatch(selected)
+      return true
+    end
+  end
+  return false
+end
+
+function selector:process(s)
   -- if sceen is touched, find patch icon closest to touch and load that patch
   for _,id in ipairs(love.touch.getTouches()) do
     local x, y = love.touch.getPosition(id)
-    love.graphics.scale(scale)
-    x, y = love.graphics.inverseTransformPoint(x, y)
-    local q, r = hexgrid.pixelToHex(x, y)
-
-    if hexgrid.distanceFromCenter(q,r) < radius + 1 then
-      local selected = patches[q][r]
-      if selected then
-        loadPatch(selected)
-        break
-      end
+    if selector.checkTouch(x, y) then
+      break
     end
+  end
+  if love.mouse.isDown(1) then
+    selector.checkTouch(love.mouse.getPosition())
   end
 end
 
-function selector.draw(s)
+function selector:draw(s)
   for q, t in pairs(patches) do
     for r, patch in pairs(t) do
       local x, y = hexgrid.hexToPixel(q, r)

@@ -1,4 +1,6 @@
 local patch = {}
+patch.__index = patch
+
 local l = require("lume")
 local efx = require('efx')
 local sampler = require('sampler')
@@ -15,11 +17,11 @@ local colorScheme = {
 }
 
 function patch.load()
+  local self = setmetatable({}, patch)
   efx.reverb.decaytime = 2
-  patch.keyboard = fretboard.new(false, 'EBGDAE')
-  patch.keyboard.colorScheme = colorScheme
-  patch.clean = sampler.new({
-
+  self.layout = fretboard.new(false, 'EBGDAE')
+  self.layout.colorScheme = colorScheme
+  self.clean = sampler.new({
     {path='patches/guitar/clean-e1st-str-pluck.ogg',  note =  4},
     {path='patches/guitar/clean-g-str-pluck.ogg',     note = -5},
     {path='patches/guitar/clean-d-str-pluck.ogg',     note = -10},
@@ -27,8 +29,7 @@ function patch.load()
     {path='patches/guitar/clean-e-str-pluck.ogg',     note = -20},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 1.8 },
     })
-
-  patch.dirty = sampler.new({
+  self.dirty = sampler.new({
     {path='patches/guitar/pic1_F#1.ogg', note = -30 + 12 },
     {path='patches/guitar/pic2_B2.ogg',  note = -25 + 12 },
     {path='patches/guitar/pic4_C3.ogg',  note = -12 + 12 },
@@ -39,8 +40,7 @@ function patch.load()
     {path='patches/guitar/pic7_F#4.ogg', note =  30 + 12 },
     envelope = { attack = 0, decay = 0, sustain = 1, release = 1.8 },
     })
-
-  patch.power = sampler.new({
+  self.power = sampler.new({
     {path='patches/guitar/cho1_F#1.ogg', note = -30 + 12},
     {path='patches/guitar/cho2_C2.ogg',  note = -24 + 12},
     {path='patches/guitar/cho3_F#2.ogg', note = -18 + 12},
@@ -49,7 +49,7 @@ function patch.load()
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.2 },
     })
 
-  patch.sustn = sampler.new({
+  self.sustn = sampler.new({
     {path='patches/guitar/sus1_F#1.ogg', note = -30 + 12},
     {path='patches/guitar/sus2_C2.ogg',  note = -24 + 12},
     {path='patches/guitar/sus3_F#2.ogg', note = -18 + 12},
@@ -58,12 +58,13 @@ function patch.load()
     envelope = { attack = 5, decay = 0, sustain = 1, release = 0.2 },
     looped = true,
     })
-
   love.graphics.setBackgroundColor(colorScheme.wood)
+  return self
 end
 
-function patch.process(s)
-  patch.keyboard:interpret(s)
+
+function patch:process(s)
+  self.layout:interpret(s)
   -- whammy bar
   for _,touch in pairs(s.touches) do
     if touch.note then
@@ -71,35 +72,36 @@ function patch.process(s)
     end
   end
   -- increase the duration of released notes with vertical tilt
-  patch.clean.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 5,   'clamp')
-  patch.dirty.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 2,   'clamp')
-  patch.power.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 1,   'clamp')
+  self.clean.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 5,   'clamp')
+  self.dirty.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 2,   'clamp')
+  self.power.envelope.release = l.remap(s.tilt.lp[2], 0.7, -0.5, 0.2, 1,   'clamp')
   -- crossfade between clean / dirty / dirty+power
-  patch.clean.masterVolume = l.remap(s.tilt.lp[1],-0.2, 0.1, 1, 0, 'clamp')
-  patch.dirty.masterVolume = l.remap(s.tilt.lp[1],-0.1, 0.2, 0, 1, 'clamp')
-  patch.power.masterVolume = l.remap(s.tilt.lp[1], 0.2, 0.3, 0, 1, 'clamp')
-  patch.sustn.masterVolume = l.remap(s.tilt.lp[1], 0.2, 0.3, 0, 1, 'clamp')
+  self.clean.masterVolume = l.remap(s.tilt.lp[1],-0.2, 0.1, 1, 0, 'clamp')
+  self.dirty.masterVolume = l.remap(s.tilt.lp[1],-0.1, 0.2, 0, 1, 'clamp')
+  self.power.masterVolume = l.remap(s.tilt.lp[1], 0.2, 0.3, 0, 1, 'clamp')
+  self.sustn.masterVolume = l.remap(s.tilt.lp[1], 0.2, 0.3, 0, 1, 'clamp')
 
-  patch.clean:processTouches(s.dt, s.touches)
-  patch.dirty:processTouches(s.dt, s.touches)
-  patch.power:processTouches(s.dt, s.touches)
-  patch.sustn:processTouches(s.dt, s.touches)
+  self.clean:processTouches(s.dt, s.touches)
+  self.dirty:processTouches(s.dt, s.touches)
+  self.power:processTouches(s.dt, s.touches)
+  self.sustn:processTouches(s.dt, s.touches)
   return s
 end
 
-function patch.draw(s)
-  patch.keyboard:draw(s)
+
+function patch:draw(s)
+  self.layout:draw(s)
   -- draw nut
   local fretX = -0.4 * 4
   love.graphics.setLineWidth(0.09)
   love.graphics.setColor(colorScheme.nut)
-  love.graphics.line(fretX, -patch.keyboard.neckWidth / 2 * 1.05, fretX, patch.keyboard.neckWidth / 2 * 1.05)
+  love.graphics.line(fretX, -self.layout.neckWidth / 2 * 1.05, fretX, self.layout.neckWidth / 2 * 1.05)
   -- dots
   love.graphics.setColor(colorScheme.dot)
   love.graphics.circle('fill', 0.2, 0, 0.05)
   love.graphics.circle('fill', 1.0, 0, 0.05)
-
 end
+
 
 function patch.icon(time, s)
   -- neck
@@ -118,5 +120,6 @@ function patch.icon(time, s)
   love.graphics.line(-1, -0.7, 1, -0.7 + math.sin(50*time) * 0.02)
   love.graphics.line(-1, 0.7 , 1,  0.7)
 end
+
 
 return patch

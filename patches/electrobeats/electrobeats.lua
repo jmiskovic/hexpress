@@ -1,4 +1,5 @@
 local patch = {}
+patch.__index = patch
 
 local sampler = require('sampler')
 local freeform = require('freeform')
@@ -21,6 +22,7 @@ local colorScheme = {
 local colors = {'red', 'green', 'orange', 'blue', 'gray'}
 
 function patch.load()
+  local self = setmetatable({}, patch)
   local triggers = { -- elements are listed in draw order (lowest to highest)
     -- each group is single color, and with elements: kick, snare, hihat, crash
     {path=
@@ -104,22 +106,23 @@ function patch.load()
   for i, element in ipairs(triggers) do
     element.type = 'hex'
   end
-  patch.layout = freeform.new(triggers)
-  patch.sampler = sampler.new(triggers)
+  self.layout = freeform.new(triggers)
+  self.sampler = sampler.new(triggers)
   love.graphics.setBackgroundColor(colorScheme.background)
+  return self
 end
 
 
-function patch.process(s)
-  patch.layout:interpret(s)
+function patch:process(s)
+  self.layout:interpret(s)
   efx.reverb.decaytime = l.remap(s.tilt.lp[1], 0.1, -0.5, 0.5, 4)
-  patch.sampler:processTouches(s.dt, s.touches)
+  self.sampler:processTouches(s.dt, s.touches)
   return s
 end
 
 
-function patch.draw(s)
-  patch.layout:draw(s)
+function patch:draw(s)
+  self.layout:draw(s)
 end
 
 
