@@ -99,7 +99,7 @@ function freeform:draw(s)
         love.graphics.setColor(colorScheme[element.color][2])
         love.graphics.translate(element.x, element.y)
         love.graphics.rotate(-math.pi/12)
-        love.graphics.scale(element.r)
+        love.graphics.scale(element.r * 0.91)
         love.graphics.polygon('fill', roundhex)
         if not touched then
           love.graphics.setColor(colorScheme[element.color][1])
