@@ -54,7 +54,6 @@ function freeform:interpret(s)
             element.oscA = l.angle(x, y, element.x, element.y)
             element.oscM = l.distance(x, y, element.x, element.y)
           end
-          print(element.note)
         end
         touch.note = element.note
         touch.location = {x * 0.7, 0.5}

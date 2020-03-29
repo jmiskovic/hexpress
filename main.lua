@@ -10,7 +10,6 @@ local time = 0
 local sw, sh, dpi
 local patch = selector
 local stream = {}
-local tape1
 
 function love.resize()
   sw, sh = love.graphics.getDimensions()
@@ -24,10 +23,8 @@ function love.load()
   require('toolset') -- import module only after love.draw is defined
   controls.load()
   selector.load('patches')
-  tape1 = recorder.addTape()
-  tape2 = recorder.addTape()
-  tape1.position = {-1.65, -0.88}
-  tape2.position = {-1.30, -0.88}
+  recorder.addTape()
+  recorder.addTape()
   mock.load()
   love.audio.setPosition(0, 0, 0)
   love.audio.setVolume(1)
@@ -66,7 +63,7 @@ function love.update(dt)
   patch:process(stream)
   recorder.process(stream)
   efx.process(stream)
-  love.timer.sleep(0.053)
+  love.timer.sleep(0.003)
   --stream is garbage collected
 end
 
