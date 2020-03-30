@@ -33,6 +33,7 @@ function recorder.addTape()
   local self = setmetatable({}, tape)
   -- tape properties
   self.content = {} -- the actual recording of notes, array of {time, stream} tables
+  self.volume = 0.5 -- loudness of tape playback
   self.startTime = 0 -- time at which the used part of tape
   self.endTime = 0 -- end of used part of tape
   self.placement = {-1.65 + 0.35 * #recorder.tapes, -0.88} -- on-screen location
@@ -41,6 +42,7 @@ function recorder.addTape()
   self.doneRecording = false -- recording just stopped, needs processing
   self.touchId = nil -- last touch id, to distinguish new touch from held touch
   self.patch = nil -- a copy of patch is instantiated just for tape playback
+  self.samplers = {} -- list of samplers detected in patch
   self.headOnNote = false -- note being recorded or played currently
   self.canvas = love.graphics.newCanvas(200, 200) -- tape visualization
   self:drawVinyl()
@@ -93,7 +95,6 @@ function recorder.process(s)
     recorder.time = recorder.time % recorder.length -- loop tape back to start
   end
   recorder.timePrev = recorder.time - s.dt * recorder.speed
-  track("%1.2f", recorder.time)
 end
 
 
@@ -108,9 +109,9 @@ end
 
 
 function tape:interpret(s, inSelector)
-  local cnt = 0
+  local next = next
+  local handled = true  
   for id,touch in pairs(s.touches) do
-    cnt = cnt + 1
     local x, y = love.graphics.inverseTransformPoint(touch[1], touch[2])
     if (x - self.placement[1])^2 + (y - self.placement[2])^2 < 0.03 then
       if not inSelector then
@@ -124,15 +125,22 @@ function tape:interpret(s, inSelector)
             self.recording = false
             self.doneRecording = true
             self.endTime = recorder.time
-            self.patch.sampler.masterVolume = 0.5
+            -- find all samplers used by patch, to be used for playback
+            self.samplers = {}
+            for k,v in pairs(self.patch) do
+              if v.masterVolume then -- sampler detected
+                table.insert(self.samplers, v)
+              end
+            end
           end
           self.touchId = id
         end
       end
       s.touches[id] = nil -- sneakily remove touch from stream to prevent unintended notes
+      handled = true
     end
   end
-  if cnt == 0 then
+  if not next(s.touches) then
     self.touchId = nil
   end
 end
@@ -143,14 +151,15 @@ function tape:process(s)
   if self.recording then -- tape recording
     table.insert(self.content, {recorder.time, s})
     self.headOnNote = next(s.touches) ~= nil
-  elseif self.doneRecording then -- tape post-processing
-    print('recorded', recorder.length, 'seconds of sweet sweet music')
   end
   if not self.recording and self.patch then -- tape playback
     for i, rec in ipairs(self.content) do
       local noteTime, stream = unpack(rec)
       if noteTime < math.max(recorder.time, recorder.timePrev) and noteTime > math.min(recorder.time, recorder.timePrev) then
-        self.patch.sampler:processTouches(s.dt / recorder.length, stream.touches)
+        for _, sampler in ipairs(self.samplers) do
+          -- sampler.masterVolume = self.volume
+          sampler:processTouches(s.dt / recorder.length, stream.touches)
+        end
         self.headOnNote = next(stream.touches) ~= nil
       end
     end
