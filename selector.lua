@@ -68,9 +68,8 @@ end
 
 function selector:process(s)
   -- if sceen is touched, find patch icon closest to touch and load that patch
-  for _,id in ipairs(love.touch.getTouches()) do
-    local x, y = love.touch.getPosition(id)
-    if selector.checkTouch(x, y) then
+  for _,touch in pairs(s.touches) do
+    if selector.checkTouch(touch[1], touch[2]) then
       break
     end
   end

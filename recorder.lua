@@ -38,7 +38,7 @@ function recorder.addTape()
   self.volume = 0.7 -- loudness of tape playback
   self.startTime = 0 -- time at which the used part of tape
   self.endTime = 0 -- end of used part of tape
-  self.placement = {-1.65 + 0.35 * #recorder.tapes, -0.88} -- on-screen location
+  self.placement = {-1.65, -0.88 + 0.35 * #recorder.tapes} -- on-screen location
   self.dragging = false -- being dragged around the screen
   self.recording = false -- currently recording
   self.doneRecording = false -- recording just stopped, needs processing
@@ -116,7 +116,10 @@ function tape:interpret(s, inSelector)
   for id,touch in pairs(s.touches) do
     local x, y = love.graphics.inverseTransformPoint(touch[1], touch[2])
     if (x - self.placement[1])^2 + (y - self.placement[2])^2 < 0.03 then
-      if not inSelector then
+      if inSelector then
+        self.placement[1] = x
+        self.placement[2] = y
+      else
         -- on new touch toggle recording
         if id ~= self.touchId then
           if not self.recording then -- start recording
@@ -129,6 +132,7 @@ function tape:interpret(s, inSelector)
             self.endTime = recorder.time
             self.patch = recorder.currentPatch
             self.patch:process(s) -- update efx parameters with current tilt
+            love.audio.stop() -- process() triggers samples, kill them
             -- find all samplers used by patch, to be used for playback
             self.samplers = {}
             for k,v in pairs(self.patch) do
@@ -254,6 +258,7 @@ function tape:draw()
   love.graphics.setColor(colorScheme.background)
   love.graphics.translate(1, 0)
   love.graphics.scale(0.3)
+  love.graphics.rotate(self.headOnNote and math.pi / 12 or 0)
   love.graphics.polygon('fill', tapeHeadPolygon)
   --love.graphics.arc('fill', 0.05, 0, 0.065, math.pi * 1/12, -math.pi * 1/12)
   love.graphics.setColor(self.headOnNote and colorScheme.note or colorScheme.head)
