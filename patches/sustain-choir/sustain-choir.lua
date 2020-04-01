@@ -34,6 +34,7 @@ function patch.load()
     envelope = { attack = 0.05, decay = 0.40, sustain = 0.85, release = 0.35 },
     synthCount = 12,
   })
+  self.efx = efx.load()
   self.layout.colorScheme.background = colorScheme.background
   self.layout.colorScheme.highlight  = colorScheme.highlight
   self.layout.colorScheme.surface    = colorScheme.surface
@@ -94,10 +95,11 @@ function patch:process(s)
   -- slower attack & release when tilted forward
   self.sampler.envelope.attack    = l.remap(s.tilt.lp[2],  .00, -.2, .2, 2, 'clamp')
   self.sampler.envelope.release   = l.remap(s.tilt.lp[2], -.05, -.4, .6, 4, 'clamp')
-  efx.reverb.decaytime           = l.remap(s.tilt.lp[2],  .00, -.4, 1,  8, 'clamp')
+  self.efx.reverb.decaytime       = l.remap(s.tilt.lp[2],  .00, -.4, 1,  8, 'clamp')
   -- volume control
   self.sampler.masterVolume   = l.remap(s.tilt.lp[1], -0.1, 0.6, 1, .05, 'clamp')
-  self.sampler:processTouches(s.dt, s.touches)
+  self.efx:process()
+  self.sampler:processTouches(s.dt, s.touches, self.efx)
   return s
 end
 

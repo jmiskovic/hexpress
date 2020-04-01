@@ -2,7 +2,6 @@ local sampler = {}
 sampler.__index = sampler
 
 local notes = require('notes')
-local efx = require('efx')
 
 sampler.logSamples = false
 
@@ -41,7 +40,7 @@ function sampler.new(settings)
   return self
 end
 
-function sampler:processTouches(dt, touches)
+function sampler:processTouches(dt, touches, efx)
   -- hunt for new touches and play them
   for id, touch in pairs(touches) do
     if touch.noteRetrigger then
@@ -51,7 +50,7 @@ function sampler:processTouches(dt, touches)
           synth.touchId = nil
         end
       end
-      self:assignSynth(id, touch)
+      self:assignSynth(id, touch, efx)
     end
   end
   -- update sources for existing touches
@@ -74,7 +73,7 @@ function sampler:processTouches(dt, touches)
   end
 end
 
-function sampler:assignSynth(touchId, touch)
+function sampler:assignSynth(touchId, touch, efx)
   -- find synth with longest duration
   local maxDuration = -100
   local selected = nil
@@ -98,7 +97,7 @@ function sampler:assignSynth(touchId, touch)
   synth.enveloped = 0
   synth.active = true
   synth.note = sample.note
-  efx.applyFilter(synth.source)
+  efx:applyFilter(synth.source)
   if touch.location then
     synth.source:setPosition(touch.location[1] / 2, touch.location[2] / 2, 0.5)
   end

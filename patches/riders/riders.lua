@@ -21,13 +21,6 @@ local colorScheme = {
 
 function patch.load()
   local self = setmetatable({}, patch)
-  efx.addEffect(efx.tremolo)
-  efx.addEffect(efx.flanger)
-  efx.setDryVolume(0.4)
-  efx.reverb.volume = 1
-  efx.reverb.decaytime = 2
-  efx.tremolo.volume = 1
-  efx.tremolo.frequency = 4
   self.layout = hexpad.new(true)
 
   self.sampler = sampler.new({
@@ -54,6 +47,15 @@ function patch.load()
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.15 },
     synthCount = 6,
     })
+  self.efx = efx.load()
+  self.efx:addEffect(self.efx.tremolo)
+  self.efx:addEffect(self.efx.flanger)
+  self.efx:setDryVolume(0.4)
+  self.efx.reverb.volume = 1
+  self.efx.reverb.decaytime = 2
+  self.efx.tremolo.volume = 1
+  self.efx.tremolo.frequency = 4
+
   self.layout.colorScheme.background = colorScheme.background
   self.layout.colorScheme.highlight  = colorScheme.highlight
   self.layout.colorScheme.surface    = colorScheme.surface
@@ -71,11 +73,12 @@ function patch:process(s)
   end
   self.sampler.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
 
-  efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.2, 0.3, 0, 15)
-  efx.flanger.volume    = l.remap(s.tilt.lp[1], 0, -0.2, 0, 1, 'clamp')
-  efx.flanger.rate      = l.remap(s.tilt.lp[1], 0, -0.7, 0, 0.5, 'clamp')
+  self.efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.2, 0.3, 0, 15)
+  self.efx.flanger.volume    = l.remap(s.tilt.lp[1], 0, -0.2, 0, 1, 'clamp')
+  self.efx.flanger.rate      = l.remap(s.tilt.lp[1], 0, -0.7, 0, 0.5, 'clamp')
+  self.efx:process()
 
-  self.sampler:processTouches(s.dt, s.touches)
+  self.sampler:processTouches(s.dt, s.touches, self.efx)
 end
 
 

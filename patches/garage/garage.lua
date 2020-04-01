@@ -37,7 +37,7 @@ function patch.load()
     {path='patches/garage/acustic/CyCdh_K3Crash-02.ogg',      type='cymbal',   x=-1.312, y= 0.211, r= 0.32},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 1.0 },
   }
-
+  self.efx = efx.load()
   self.layout = freeform.new(triggers)
   self.sampler = sampler.new(triggers)
   love.graphics.setBackgroundColor(colorScheme.background)
@@ -47,8 +47,9 @@ end
 
 function patch:process(s)
   self.layout:interpret(s)
-  efx.reverb.decaytime = l.remap(s.tilt.lp[1], 0.1, -0.5, 0.5, 4)
-  self.sampler:processTouches(s.dt, s.touches)
+  self.efx.reverb.decaytime = l.remap(s.tilt.lp[1], 0.1, -0.5, 0.5, 4)
+  self.efx:process()
+  self.sampler:processTouches(s.dt, s.touches, self.efx)
   return s
 end
 

@@ -57,6 +57,8 @@ function patch.load()
     transpose = 12,
   })
 
+  self.efx = efx.load()
+
   self.layout.drawCell = function(self, q, r, s, touch)
     local delta = 0
     if touch and touch.volume then
@@ -86,9 +88,11 @@ function patch:process(s)
   self.ensemble.masterVolume = l.remap(s.tilt.lp[1],-.2,  .1, 0, 1, 'clamp')
   self.trombone.masterVolume = l.remap(s.tilt.lp[1], .1, -.1, 0, 1, 'clamp')
   self.trombuzz.masterVolume = l.remap(s.tilt.lp[2], .2, -.1, 0, 1, 'clamp')
-  self.trombone:processTouches(s.dt, s.touches)
-  self.trombuzz:processTouches(s.dt, s.touches)
-  self.ensemble:processTouches(s.dt, s.touches)
+  self.efx:process()
+
+  self.trombone:processTouches(s.dt, s.touches, self.efx)
+  self.trombuzz:processTouches(s.dt, s.touches, self.efx)
+  self.ensemble:processTouches(s.dt, s.touches, self.efx)
   return s
 end
 

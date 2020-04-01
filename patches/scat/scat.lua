@@ -49,6 +49,7 @@ function patch.load()
     looped = false,
     transpose = 0,
   })
+  self.efx = efx.load()
   self.layout.colorScheme.background    = {l.rgba(0x2d2734ff)}
   self.layout.colorScheme.highlight     = {l.rgba(0xe86630ff)}
   self.layout.colorScheme.text          = {l.rgba(0xa7a2b8ff)}
@@ -63,8 +64,9 @@ function patch:process(s)
     touch.velocity = l.remap(s.tilt[1], -0.2, 0.2, 0.1, 0.9, 'clamp')
   end
   self.layout:interpret(s)
-  efx.reverb.decaytime = l.remap(s.tilt.lp[2], 1, -1, 1, 5)
-  self.sampler:processTouches(s.dt, s.touches)
+  self.efx.reverb.decaytime = l.remap(s.tilt.lp[2], 1, -1, 1, 5)
+  self.efx:process()
+  self.sampler:processTouches(s.dt, s.touches, self.efx)
 end
 
 

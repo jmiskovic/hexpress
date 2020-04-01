@@ -27,7 +27,6 @@ local filter = {
 function patch.load()
   local self = setmetatable({}, patch)
   self.layout = hexpad.new(true)
-  efx.reverb.decaytime = 2
 
   self.melanc_synth = sampler.new({
     -- BPB mini analogue collection from bedroomproducersblog.com
@@ -42,6 +41,9 @@ function patch.load()
     {path='patches/analog/saw_c3.ogg', note = notes.toIndex['C3']},
     transpose = -24,
   })
+  self.efx = efx.load()
+  self.efx.reverb.decaytime = 2
+
   self.layout.colorScheme.background = colorScheme.background
   self.layout.colorScheme.highlight  = colorScheme.highlight
   self.layout.colorScheme.surface    = colorScheme.surface
@@ -94,9 +96,9 @@ function patch:process(s)
   self.layout:interpret(s)
   self.melanc_synth.masterVolume = l.remap(s.tilt.lp[1],  0.2,  0.0, 0, 1, 'clamp')
   self.sawsaw_synth.masterVolume = l.remap(s.tilt.lp[2],  0.0,  0.7, 0, 1, 'clamp')
-
-  self.melanc_synth:processTouches(s.dt, s.touches)
-  self.sawsaw_synth:processTouches(s.dt, s.touches)
+  self.efx:process()
+  self.melanc_synth:processTouches(s.dt, s.touches, self.efx)
+  self.sawsaw_synth:processTouches(s.dt, s.touches, self.efx)
 end
 
 function patch:draw(s)

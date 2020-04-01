@@ -41,14 +41,16 @@ function patch.load()
     envelope = {attack = 0.0, decay = 0, sustain = 1, release = 0.05 },
     transpose= 0,
     })
+  self.efx = efx.load()
   return self
 end
 
 
 function patch:process(s)
   self.layout:interpret(s)
-  efx.reverb.decaytime = l.remap(s.tilt.lp[2], -.1, 2, 0.5, 2)
-  self.sampler:processTouches(s.dt, s.touches)
+  self.efx.reverb.decaytime = l.remap(s.tilt.lp[2], -.1, 2, 0.5, 2)
+  self.efx:process()
+  self.sampler:processTouches(s.dt, s.touches, self.efx)
 end
 
 

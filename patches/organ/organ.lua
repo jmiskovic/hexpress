@@ -18,11 +18,6 @@ local colorScheme = {
 function patch.load()
   local self = setmetatable({}, patch)
   self.layout = keyboard.new(true, 0, 10, 2)
-  efx.setDryVolume(0.5)
-  efx.addEffect(efx.tremolo)
-  efx.tremolo.volume = .7
-  efx.reverb.decaytime = 4
-
   self.manOp = sampler.new({
     {path='patches/organ/Rode_Man3Open_04.ogg', note= -9},
     {path='patches/organ/Rode_Man3Open_07.ogg', note= -6},
@@ -49,6 +44,12 @@ function patch.load()
     looped = true,
     envelope = { attack = 0.1, decay = 0.50, sustain = 0.85, release = 0.4 },
   })
+  self.efx = efx.load()
+  self.efx:setDryVolume(0.5)
+  self.efx:addEffect(self.efx.tremolo)
+  self.efx.tremolo.volume = .7
+  self.efx.reverb.decaytime = 4
+
   love.graphics.setBackgroundColor(colorScheme.background)
   self.layout.colorScheme.background    = {l.rgba(0x000000ff)}
   self.layout.colorScheme.highlight     = {l.rgba(0xd3660aff)}
@@ -61,11 +62,12 @@ end
 
 function patch:process(s)
   self.layout:interpret(s)
-  efx.tremolo.frequency    = l.remap(s.tilt.lp[1],-.3, .3, 0, 4, 'clamp')
+  self.efx.tremolo.frequency    = l.remap(s.tilt.lp[1],-.3, .3, 0, 4, 'clamp')
   self.pedal.masterVolume = l.remap(s.tilt.lp[2], .6,  0, 0, .7, 'clamp')
   self.manOp.masterVolume = l.remap(s.tilt.lp[2], .1, .3, 0, .9, 'clamp')
-  self.pedal:processTouches(s.dt, s.touches)
-  self.manOp:processTouches(s.dt, s.touches)
+  self.efx:process()
+  self.pedal:processTouches(s.dt, s.touches, self.efx)
+  self.manOp:processTouches(s.dt, s.touches, self.efx)
   return s
 end
 

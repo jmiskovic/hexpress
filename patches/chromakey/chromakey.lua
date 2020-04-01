@@ -43,13 +43,6 @@ patch.name = 'chormakey'
 
 function patch.load()
   local self = setmetatable({}, patch)
-  efx.addEffect(efx.tremolo)
-  efx.setDryVolume(0.4)
-  efx.reverb.volume = 1
-  efx.reverb.decaytime = 2
-  efx.tremolo.volume = 1
-  efx.tremolo.frequency = 4
-
   self.layout = hexpad.new(true)
   self.synth = sampler.new({
     {path='patches/chromakey/synthpad.ogg',  note= notes.toIndex['C3']},
@@ -63,6 +56,10 @@ function patch.load()
     looped = true,
     synthCount = 10,
     })
+  self.efx = efx.load()
+  self.efx:addEffect(self.efx.tremolo)
+  self.efx:setDryVolume(0.4)
+  self.efx.reverb.decaytime = 1.5
 
   self.layout.colorScheme.background = colorScheme.background
   self.layout.colorScheme.highlight  = colorScheme.highlight
@@ -74,20 +71,18 @@ function patch.load()
   return self
 end
 
+
 -- override the hexpad's drawCell but still reuse it's layouting
 function patch.drawCell(self, q, r, s, touch)
+  local ch, cs, cl
   local note = self:toNoteIndex(q, r)
   love.graphics.scale(.90)
-
-  local ch, cs, cl
-
   if s.tilt[1] > .9 and note ~= keyCenter then
     ch, cs, cl = .0, .1, .1
   else
     ch, cs, cl = unpack(colorScheme.noteColors[math.floor(note-keyCenter+.5) % 12 + 1])
     cl = cl * (1 - math.exp(-(noteTracker[note % 12] or 0)/2))
   end
-
   love.graphics.setColor(l.hsl(ch, cs, cl))
   love.graphics.circle('fill', 0, 0, 0.8)
   if self.displayNoteNames then
@@ -106,6 +101,7 @@ end
 
 function patch:process(s)
   self.layout:interpret(s)
+  -- track pressed notes for visualization
   for _,touch in pairs(s.touches) do
     if touch.noteRetrigger then
       noteTracker[touch.note  % 12] = (noteTracker[touch.note % 12] or 0) + 20000
@@ -114,15 +110,18 @@ function patch:process(s)
       keyCenter = touch.note
     end
   end
+
   self.synth.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
   self.sustain.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
 
-  efx.tremolo.frequency = l.remap(s.tilt.lp[1], 0.05, 0.3, 0, 8, 'clamp')
-  efx.tremolo.volume = l.remap(s.tilt.lp[1], 0, 1, 0, 0.9, 'clamp')
+  self.efx.tremolo.frequency = l.remap(s.tilt.lp[1], 0.05, 0.3, 0, 8, 'clamp')
+  self.efx.tremolo.volume = l.remap(s.tilt.lp[1], 0, 1, 0, 0.9, 'clamp')
+  self.efx:process(s)
 
-  self.synth:processTouches(s.dt, s.touches)
-  self.sustain:processTouches(s.dt, s.touches)
+  self.synth:processTouches(s.dt, s.touches, self.efx)
+  self.sustain:processTouches(s.dt, s.touches, self.efx)
 
+  -- slowly forget pressed notes
   for note,decay in pairs(noteTracker) do
     noteTracker[note] = decay * (1 - s.dt * 1)
   end

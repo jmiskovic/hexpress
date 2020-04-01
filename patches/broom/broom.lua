@@ -36,16 +36,17 @@ function patch.load()
     {path='patches/broom/acbass_G21.ogg', note = notes.toIndex['G2']},
     {path='patches/broom/acbass_G31.ogg', note = notes.toIndex['G3']},
     envelope = {attack = 0.0, decay = 0, sustain = 1, release = 0.05 }})
+  self.efx = efx.load()
   return self
 end
 
 
 function patch:process(s)
   self.layout:interpret(s)
-  efx.reverb.decaytime = l.remap(s.tilt.lp[2], 0.7, -0.1, 0.2, 2.0, 'clamp')
-  -- sustain pedal
-  self.sampler.envelope.release = l.remap(s.tilt[2], .0, -0.2, 0.05, 5, 'clamp')
-  self.sampler:processTouches(s.dt, s.touches)
+  self.efx.reverb.decaytime = l.remap(s.tilt.lp[2], 0.7, -0.1, 0.2, 2.0, 'clamp')
+  self.sampler.envelope.release = l.remap(s.tilt[2], .0, -0.2, 0.05, 5, 'clamp') -- sustain pedal
+  self.efx:process()
+  self.sampler:processTouches(s.dt, s.touches, self.efx)
 end
 
 

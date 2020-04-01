@@ -33,7 +33,7 @@ function patch.load()
     looped = true,
     envelope = { attack = 0.05, decay = 0.40, sustain = 0.85, release = 0.35 },
   })
-
+  self.efx = efx.load()
   self.layout.colorScheme.background    = {l.rgba(0x2d2734ff)}
   self.layout.colorScheme.highlight     = {l.rgba(0xe86630ff)}
   self.layout.colorScheme.text          = {l.rgba(0xa7a2b8ff)}
@@ -45,10 +45,11 @@ end
 
 function patch:process(s)
   self.layout:interpret(s)
-  efx.reverb.decaytime = l.remap(s.tilt.lp[2], 1, -1, 1, 10)
+  self.efx.reverb.decaytime = l.remap(s.tilt.lp[2], 1, -1, 1, 10)
   self.sampler.envelope.attack = math.abs(s.tilt.lp[1])
   self.sampler.envelope.release = 0.35 + math.abs(s.tilt.lp[1]) / 2
-  self.sampler:processTouches(s.dt, s.touches)
+  self.efx:process()
+  self.sampler:processTouches(s.dt, s.touches, self.efx)
 end
 
 

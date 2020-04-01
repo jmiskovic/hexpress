@@ -18,9 +18,7 @@ local colorScheme = {
 
 function patch.load()
   local self = setmetatable({}, patch)
-  efx.reverb.decaytime = 2
   self.layout = fretboard.new(false, 'EBGDAE')
-  self.layout.colorScheme = colorScheme
   self.clean = sampler.new({
     {path='patches/guitar/clean-e1st-str-pluck.ogg',  note =  4},
     {path='patches/guitar/clean-g-str-pluck.ogg',     note = -5},
@@ -58,6 +56,9 @@ function patch.load()
     envelope = { attack = 5, decay = 0, sustain = 1, release = 0.2 },
     looped = true,
     })
+  self.efx = efx.load()
+  self.efx.reverb.decaytime = 2
+  self.layout.colorScheme = colorScheme
   love.graphics.setBackgroundColor(colorScheme.wood)
   return self
 end
@@ -80,11 +81,11 @@ function patch:process(s)
   self.dirty.masterVolume = l.remap(s.tilt.lp[1],-0.1, 0.2, 0, 1, 'clamp')
   self.power.masterVolume = l.remap(s.tilt.lp[1], 0.2, 0.3, 0, 1, 'clamp')
   self.sustn.masterVolume = l.remap(s.tilt.lp[1], 0.2, 0.3, 0, 1, 'clamp')
-
-  self.clean:processTouches(s.dt, s.touches)
-  self.dirty:processTouches(s.dt, s.touches)
-  self.power:processTouches(s.dt, s.touches)
-  self.sustn:processTouches(s.dt, s.touches)
+  self.efx:process()
+  self.clean:processTouches(s.dt, s.touches, self.efx)
+  self.dirty:processTouches(s.dt, s.touches, self.efx)
+  self.power:processTouches(s.dt, s.touches, self.efx)
+  self.sustn:processTouches(s.dt, s.touches, self.efx)
   return s
 end
 

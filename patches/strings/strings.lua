@@ -56,6 +56,7 @@ function patch.load()
     looped = false,
     envelope = {attack = 0.0, decay = 0.1, sustain = 1.0, release = 0.5},
   })
+  self.efx = efx.load()
   love.graphics.setBackgroundColor(colorScheme.neck)
   return self
 end
@@ -67,12 +68,13 @@ function patch:process(s)
   self.tremolo.envelope.attack  = l.remap(s.tilt.lp[2], 0.0, -0.9, 0.0, 10, 'clamp')
   self.cello.envelope.release   = l.remap(s.tilt.lp[2], -0.05, -0.2, 0.6, 4, 'clamp')
   self.tremolo.envelope.release = l.remap(s.tilt.lp[2], -0.05, -0.2, 0.5, 2, 'clamp')
-  efx.reverb.decaytime     = l.remap(s.tilt.lp[2], 0.0, -0.9, 1.0, 8.0, 'clamp')
+  self.efx.reverb.decaytime     = l.remap(s.tilt.lp[2], 0.0, -0.9, 1.0, 8.0, 'clamp')
   -- crossfade between instruments
   self.cello.masterVolume   = l.remap(s.tilt.lp[1], -0.2, 0.3, 1, 0.2, 'clamp')
   self.tremolo.masterVolume = l.remap(s.tilt.lp[1], -0.1, 0.4, 0.2, 1, 'clamp')
-  self.cello:processTouches(s.dt, s.touches)
-  self.tremolo:processTouches(s.dt, s.touches)
+  self.efx:process()
+  self.cello:processTouches(s.dt, s.touches, self.efx)
+  self.tremolo:processTouches(s.dt, s.touches, self.efx)
 
   colorScheme.neck[1] = .22 + l.remap(s.tilt.lp[1], -.2, .2, -.03, .03, 'clamp')
   love.graphics.setBackgroundColor(colorScheme.neck)

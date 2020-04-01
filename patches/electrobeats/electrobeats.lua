@@ -6,9 +6,6 @@ local freeform = require('freeform')
 local efx = require('efx')
 local l = require('lume')
 
--- polygon points for rounded hexagon in order: x1, y1, x2, y2...
-roundhex = {1.001,0.065,0.984,0.143,0.940,0.254,0.876,0.388,0.798,0.530,0.714,0.668,0.630,0.791,0.556,0.885,0.496,0.938,0.421,0.963,0.302,0.981,0.154,0.991,-0.008,0.995,-0.170,0.991,-0.318,0.981,-0.437,0.963,-0.512,0.938,-0.572,0.885,-0.646,0.791,-0.729,0.668,-0.814,0.530,-0.892,0.388,-0.956,0.254,-1.000,0.143,-1.017,0.065,-1.000,-0.013,-0.956,-0.125,-0.892,-0.258,-0.814,-0.400,-0.729,-0.539,-0.646,-0.662,-0.572,-0.756,-0.512,-0.809,-0.437,-0.834,-0.318,-0.851,-0.170,-0.862,-0.008,-0.866,0.154,-0.862,0.302,-0.851,0.421,-0.834,0.496,-0.809,0.556,-0.756,0.630,-0.662,0.714,-0.539,0.798,-0.400,0.876,-0.258,0.940,-0.125,0.984,-0.013}
-
 local colorScheme = {
            -- pad color             frame color
   green    = {{l.rgba(0x2a6222ff)}, {l.rgba(0x559644ff)}},
@@ -103,6 +100,7 @@ function patch.load()
 
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.2 },
   }
+  self.efx = efx.load()
   for i, element in ipairs(triggers) do
     element.type = 'hex'
   end
@@ -115,8 +113,9 @@ end
 
 function patch:process(s)
   self.layout:interpret(s)
-  efx.reverb.decaytime = l.remap(s.tilt.lp[1], 0.1, -0.5, 0.5, 4)
-  self.sampler:processTouches(s.dt, s.touches)
+  self.efx.reverb.decaytime = l.remap(s.tilt.lp[1], 0.1, -0.5, 0.5, 4)
+  self.efx:process()
+  self.sampler:processTouches(s.dt, s.touches, self.efx)
   return s
 end
 

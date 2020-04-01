@@ -3,7 +3,6 @@ local l = require('lume')
 local controls = require('controls')
 local selector = require('selector')
 local recorder = require('recorder')
-local efx      = require('efx')
 local mock     = require('mock')
 
 local time = 0
@@ -18,13 +17,12 @@ end
 
 
 function love.load()
-  efx.load()
   love.resize() -- force layout re-configuration
   require('toolset') -- import module only after love.draw is defined
   controls.load()
   selector.load('patches')
   recorder.addTape()
-  recorder.addTape()
+  --recorder.addTape()
   mock.load()
   love.audio.setPosition(0, 0, 0)
   love.audio.setVolume(1)
@@ -62,7 +60,6 @@ function love.update(dt)
   recorder.interpret(stream, patch == selector)
   patch:process(stream)
   recorder.process(stream)
-  efx.process(stream)
   love.timer.sleep(0.003)
   --stream is garbage collected
 end
@@ -82,7 +79,6 @@ end
 
 function loadPatch(newPatch)
   time = 0   -- back to big bang
-  efx.load() -- restore efx to defaults
   patch = newPatch.load()
   recorder.patchChanged(newPatch)
 end
