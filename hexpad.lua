@@ -7,7 +7,6 @@ local notes = require('notes')
 local l = require('lume')
 require('autotable')
 
-hexpad.shape = hexgrid.shape
 hexpad.font = love.graphics.newFont("Ubuntu-B.ttf", 64)
 
 local touchToQR = {}
@@ -33,7 +32,7 @@ function hexpad.new(displayNoteNames, noteOffset, radius)
   -- account for resolution and dpi (pixel density)
   self.scaling = 1 / 4.3
   -- this is good enough estimate of radius needed to just fill the screen
-  self.radius = radius or math.floor(1 / self.scaling + 2)
+  self.radius = radius or math.floor(1 / self.scaling + 1)
   love.graphics.setBackgroundColor(self.colorScheme.background)
   return self
 end
@@ -104,7 +103,7 @@ end
 function hexpad:drawCell(q, r, s, touch)
   local note = self:toNoteIndex(q, r)
   -- shape
-  love.graphics.scale(0.90)
+  love.graphics.scale(0.80)
   if note % 12 == 0 then
     love.graphics.setColor(self.colorScheme.surfaceC)
   else
@@ -112,13 +111,14 @@ function hexpad:drawCell(q, r, s, touch)
   end
   if touch and touch.volume then
     love.graphics.scale(1 + touch.volume/10)
+    love.graphics.rotate(0.05 *  math.sin(s.time * 50))
     self.colorScheme.highlight[4] = l.remap(touch.volume, 0, 1, 0.1, 1)
     love.graphics.setColor(self.colorScheme.highlight)
   end
-  love.graphics.polygon('fill', self.shape)
+  love.graphics.polygon('fill', hexgrid.roundhex)
   if self.displayNoteNames then
     -- note name text
-    love.graphics.scale(0.01)
+    love.graphics.scale(0.012)
     local text = notes.toName[note % 12]
     love.graphics.setFont(self.font)
     local h = self.font:getHeight()

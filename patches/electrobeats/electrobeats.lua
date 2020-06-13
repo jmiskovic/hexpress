@@ -1,6 +1,7 @@
 local patch = {}
 patch.__index = patch
 
+local hexgrid = require('hexgrid')
 local sampler = require('sampler')
 local freeform = require('freeform')
 local efx = require('efx')
@@ -134,11 +135,11 @@ function patch.icon(time)
   love.graphics.scale((0.75 - amp) + amp * math.sin(time * math.pi * speed * 2)^6)
   color = colors[1 + (math.floor(time * speed) % #colors)]
   love.graphics.setColor(colorScheme[color][2])
-  love.graphics.polygon('fill', roundhex)
+  love.graphics.polygon('fill', hexgrid.roundhex)
   love.graphics.setColor(colorScheme[color][1])
   love.graphics.translate(0, -0.1)
   love.graphics.scale(0.98)
-  love.graphics.polygon('fill', roundhex)
+  love.graphics.polygon('fill', hexgrid.roundhex)
 end
 
 return patch

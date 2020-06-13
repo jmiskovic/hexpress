@@ -7,13 +7,13 @@ local sampler = require('sampler')
 local fretboard = require('fretboard')
 
 local colorScheme = {
-  wood    = {l.hsl(0.09, 0.05, 0.16)},
-  neck    = {l.rgba(0x2f2c26ff)},
-  fret    = {l.hsl(0, 0, 0.5)},
-  string  = {l.hsl(0, 0, 0.5)},
-  dot     = {l.rgba(0xffffffc0)},
-  light   = {l.rgba(0xffffffc0)},
-  nut     = {l.rgba(0xffffffc0)},
+  wood    = {l.rgba(0x8a533bff)},
+  neck    = {l.rgba(0x4c2f22ff)},
+  fret    = {l.rgba(0x8ca697ff)},
+  string  = {l.rgba(0x8ca697ff)},
+  dot     = {l.rgba(0xeee8b6ff)},
+  light   = {l.rgba(0xe4ebd8ff)},
+  nut     = {l.rgba(0xeee8b6ff)},
 }
 
 function patch.load()
@@ -36,7 +36,7 @@ function patch.load()
     {path='patches/guitar/pic8_C5.ogg',  note =  12 + 12 },
     {path='patches/guitar/pic5_F#3.ogg', note =  18 + 12 },
     {path='patches/guitar/pic7_F#4.ogg', note =  30 + 12 },
-    envelope = { attack = 0, decay = 0, sustain = 1, release = 1.8 },
+    envelope = { attack = 0, decay = 0, sustain = 0.5, release = 1.8 },
     })
   self.power = sampler.new({
     {path='patches/guitar/cho1_F#1.ogg', note = -30 + 12},
@@ -44,7 +44,7 @@ function patch.load()
     {path='patches/guitar/cho3_F#2.ogg', note = -18 + 12},
     {path='patches/guitar/cho4_C3.ogg',  note = -12 + 12},
     {path='patches/guitar/cho5_F#3.ogg', note =  -6 + 12},
-    envelope = { attack = 0, decay = 0, sustain = 1, release = 0.2 },
+    envelope = { attack = 0, decay = 0, sustain = 0.5, release = 0.2 },
     })
 
   self.sustn = sampler.new({
@@ -58,7 +58,13 @@ function patch.load()
     })
   self.efx = efx.load()
   self.efx.reverb.decaytime = 2
-  self.layout.colorScheme = colorScheme
+  self.layout.colorScheme.wood = colorScheme.wood
+  self.layout.colorScheme.neck = colorScheme.neck
+  self.layout.colorScheme.fret = colorScheme.fret
+  self.layout.colorScheme.string = colorScheme.string
+  self.layout.colorScheme.dot = colorScheme.dot
+  self.layout.colorScheme.light = colorScheme.light
+  self.layout.colorScheme.nut = colorScheme.nut
   love.graphics.setBackgroundColor(colorScheme.wood)
   return self
 end
@@ -96,7 +102,7 @@ function patch:draw(s)
   local fretX = -0.4 * 4
   love.graphics.setLineWidth(0.09)
   love.graphics.setColor(colorScheme.nut)
-  love.graphics.line(fretX, -self.layout.neckWidth / 2 * 1.05, fretX, self.layout.neckWidth / 2 * 1.05)
+  love.graphics.line(fretX, -self.layout.neckHeight * 1.01, fretX, self.layout.neckHeight * 1.01)
   -- dots
   love.graphics.setColor(colorScheme.dot)
   love.graphics.circle('fill', 0.2, 0, 0.05)

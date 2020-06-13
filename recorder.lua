@@ -126,6 +126,9 @@ function tape:interpret(s, inSelector)
             love.audio.stop()
             self.recording = true
             self.content = {}
+            for k,v in pairs(self.samplers) do -- reseting volume if it was diminished by previous recordings
+              v.masterVolume = 1
+            end
           else -- stop recording
             self.recording = false
             self.doneRecording = true

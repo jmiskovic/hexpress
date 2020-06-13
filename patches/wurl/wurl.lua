@@ -44,12 +44,6 @@ noteOctaveTracker[0] = 10
 
 function patch.load()
   local self = setmetatable({}, patch)
-  efx.addEffect(efx.tremolo)
-  efx.setDryVolume(0.4)
-  efx.reverb.volume = 0.2
-  efx.reverb.decaytime = 4
-  efx.tremolo.volume = 0.25
-  efx.tremolo.frequency = 3
 
   self.layout = hexpad.new(true)
 
@@ -62,8 +56,13 @@ function patch.load()
     transpose = -24,
     synthCount = 6,
     })
-
-  self.sampler.masterVolume = 1
+  self.efx = efx.load()
+  self.efx:addEffect(self.efx.tremolo)
+  self.efx:setDryVolume(0.4)
+  self.efx.reverb.volume = 0.2
+  self.efx.reverb.decaytime = 4
+  self.efx.tremolo.volume = 0.25
+  self.efx.tremolo.frequency = 3
 
   self.layout.colorScheme.background = colorScheme.background
   self.layout.colorScheme.highlight  = colorScheme.highlight
@@ -138,10 +137,11 @@ function patch:process(s)
     end
   end
 
-  efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.2, 0.2, 0, 5, 'clamp')
+  self.efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.2, 0.2, 0, 5, 'clamp')
   self.sampler.envelope.attack = l.remap(s.tilt.lp[2], -.1, -0.3, 0, 0.8, 'clamp')
+  self.efx:process()
 
-  self.sampler:processTouches(s.dt, s.touches)
+  self.sampler:processTouches(s.dt, s.touches, self.efx)
 
   for note,decay in pairs(noteTracker) do
     noteTracker[note] = decay + s.dt

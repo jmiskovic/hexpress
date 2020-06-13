@@ -2,20 +2,39 @@
 
 local l = require('lume')
 
+local hexgrid = require('hexgrid')
+
 local freeform = {}
 freeform.__index = freeform
 
--- polygon points for rounded hexagon in order: x1, y1, x2, y2...
-roundhex = {1.001,0.065,0.984,0.143,0.940,0.254,0.876,0.388,0.798,0.530,0.714,0.668,0.630,0.791,0.556,0.885,0.496,0.938,0.421,0.963,0.302,0.981,0.154,0.991,-0.008,0.995,-0.170,0.991,-0.318,0.981,-0.437,0.963,-0.512,0.938,-0.572,0.885,-0.646,0.791,-0.729,0.668,-0.814,0.530,-0.892,0.388,-0.956,0.254,-1.000,0.143,-1.017,0.065,-1.000,-0.013,-0.956,-0.125,-0.892,-0.258,-0.814,-0.400,-0.729,-0.539,-0.646,-0.662,-0.572,-0.756,-0.512,-0.809,-0.437,-0.834,-0.318,-0.851,-0.170,-0.862,-0.008,-0.866,0.154,-0.862,0.302,-0.851,0.421,-0.834,0.496,-0.809,0.556,-0.756,0.630,-0.662,0.714,-0.539,0.798,-0.400,0.876,-0.258,0.940,-0.125,0.984,-0.013}
+freeform.editing = false
+freeform.selected = 1
 
 function freeform.new(triggers)
   local self = setmetatable(
     {layout= triggers,
-     active= {}},
+     active= {},
+     colorScheme = {
+       -- drumset
+       cymbal       = {l.rgba(0xccad00ff)},
+       shade        = {l.rgba(0x00000050)},
+       brightCymbal = {l.rgba(0xffffff50)},
+       membrane     = {l.rgba(0xd7d0aeff)},
+       rim          = {l.rgba(0x606060ff)},
+       -- piano
+       whitekey     = {l.rgba(0xd7d0aeff)},
+       blackkey     = {l.rgba(0x0d0d0aff)},
+       -- hex pads:    pad color             frame color
+       green    = {{l.rgba(0x2a6222ff)}, {l.rgba(0x559644ff)}},
+       red      = {{l.rgba(0x91251cff)}, {l.rgba(0xd83a2cff)}},
+       orange   = {{l.rgba(0xa84c0cff)}, {l.rgba(0xf47e35ff)}},
+       blue     = {{l.rgba(0x264452ff)}, {l.rgba(0x53a691ff)}},
+       gray     = {{l.rgba(0x825e4cff)}, {l.rgba(0xc0957cff)}},
+     }},
     freeform)
 
   for i, element in ipairs(triggers) do
-    element.note = i
+    element.note = element.note or i -- if note not assigned, assign index
     if element.type == 'cymbal' then
         element.oscM = 0 --oscillation magnitude
         element.oscA = 0 --oscillation angle
@@ -23,22 +42,6 @@ function freeform.new(triggers)
   end
   return self
 end
-
-local colorScheme = {
-  -- drumset
-  cymbal       = {l.rgba(0xccad00ff)},
-  shade        = {l.rgba(0x00000050)},
-  brightCymbal = {l.rgba(0xffffff50)},
-  membrane     = {l.rgba(0xd7d0aeff)},
-  rim          = {l.rgba(0x606060ff)},
-  -- hex pads:    pad color             frame color
-  green    = {{l.rgba(0x2a6222ff)}, {l.rgba(0x559644ff)}},
-  red      = {{l.rgba(0x91251cff)}, {l.rgba(0xd83a2cff)}},
-  orange   = {{l.rgba(0xa84c0cff)}, {l.rgba(0xf47e35ff)}},
-  blue     = {{l.rgba(0x264452ff)}, {l.rgba(0x53a691ff)}},
-  gray    = {{l.rgba(0x825e4cff)}, {l.rgba(0xc0957cff)}},
-
-}
 
 
 function freeform:interpret(s)
@@ -85,37 +88,66 @@ function freeform:draw(s)
       end
     end
     if element.type == 'membrane' then
-      love.graphics.setColor(colorScheme.shade)
+      love.graphics.setColor(self.colorScheme.shade)
       love.graphics.circle('fill', element.x * 0.95, element.y + 0.05, element.r)
-      love.graphics.setColor(colorScheme.membrane)
+      love.graphics.setColor(self.colorScheme.membrane)
       love.graphics.circle('fill', element.x, element.y, element.r)
-      love.graphics.setColor(colorScheme.rim)
+      love.graphics.setColor(self.colorScheme.rim)
       love.graphics.circle('line', element.x, element.y, touched and element.r - 0.01 or element.r)
     elseif element.type == 'cymbal' then
-      drawCymbal(s, element)
+      self:drawCymbal(s, element)
     elseif element.type == 'block' then
-      love.graphics.setColor(colorScheme.brightCymbal)
+      love.graphics.setColor(self.colorScheme.brightCymbal)
       love.graphics.circle('fill', element.x, element.y, touched and element.r - 0.01 or element.r)
     elseif element.type == 'hex' then
-        love.graphics.push()
-        love.graphics.setColor(colorScheme[element.color][2])
-        love.graphics.translate(element.x, element.y)
-        love.graphics.rotate(-math.pi/12)
-        love.graphics.scale(element.r * 0.91)
-        love.graphics.polygon('fill', roundhex)
-        if not touched then
-          love.graphics.setColor(colorScheme[element.color][1])
-          love.graphics.translate(0, -0.1)
-          love.graphics.scale(0.98)
-          love.graphics.polygon('fill', roundhex)
-        end
-        love.graphics.pop()
+      love.graphics.push()
+      love.graphics.setColor(self.colorScheme[element.color][2])
+      love.graphics.translate(element.x, element.y)
+      love.graphics.rotate(-math.pi/12)
+      love.graphics.scale(element.r * 0.91)
+      love.graphics.polygon('fill', hexgrid.roundhex)
+      if not touched then
+        love.graphics.setColor(self.colorScheme[element.color][1])
+        love.graphics.translate(0, -0.1)
+        love.graphics.scale(0.98)
+        love.graphics.polygon('fill', hexgrid.roundhex)
+      end
+      love.graphics.pop()
+    elseif element.type == 'whitekey' then
+      love.graphics.push()
+      local size = element.r * 1.3
+      love.graphics.setColor(self.colorScheme.shade)
+      love.graphics.rectangle('fill', element.x - size * 0.4, element.y - size * 1.3,
+                                      size * 1.02, size * 2.05, size * 0.1)
+      love.graphics.translate(0, touched and 0 or -0.02)
+      love.graphics.setColor(self.colorScheme.whitekey)
+      love.graphics.rectangle('fill', element.x - size/2, element.y -  size * 1.3,
+                                      size, size * 2, size * 0.1)
+      love.graphics.pop()
+    elseif element.type == 'blackkey' then
+      love.graphics.push()
+      local size = element.r * 1.3
+      love.graphics.setColor(self.colorScheme.shade)
+      love.graphics.rectangle('fill', element.x - size * 0.5, element.y - size * 0.7,
+                                      size * 1.02, size * 1.55, size * 0.3)
+      love.graphics.translate(0, touched and 0 or -0.02)
+      love.graphics.setColor(self.colorScheme.blackkey)
+      love.graphics.rectangle('fill', element.x - size/2, element.y - size * 0.7,
+                                      size, size * 1.5, size * 0.1)
+      love.graphics.pop()
+    end
+    if freeform.editing and i == self.selected then
+      love.graphics.setColor(0, 1, 0, 0.3)
+      love.graphics.circle('fill', element.x, element.y, element.r)
+      if love.mouse.isDown(1) then
+        element.x, element.y = love.graphics.inverseTransformPoint(love.mouse.getX(), love.mouse.getY())
+      end
     end
   end
 end
 
 
-function drawCymbal(s, element)
+function freeform:drawCymbal(s, element)
   love.graphics.push()
     love.graphics.translate(element.x, element.y)
     -- emulate cymbal wobbling when hit
@@ -125,9 +157,9 @@ function drawCymbal(s, element)
     element.oscM = element.oscM * (1 - 0.99 * s.dt)
     local aoff = element.oscM * math.cos(5 * s.time) -- reflections angle offset
     -- cymbal surface
-    love.graphics.setColor(colorScheme.cymbal)
+    love.graphics.setColor(self.colorScheme.cymbal)
     love.graphics.circle('fill', 0, 0, element.r)
-    love.graphics.setColor(colorScheme.brightCymbal)
+    love.graphics.setColor(self.colorScheme.brightCymbal)
     -- cymbal outline
     love.graphics.circle('line', 0, 0, element.r - 0.01)
     ---[[ light reflections
@@ -144,45 +176,41 @@ function drawCymbal(s, element)
       love.graphics.pop()
     end
     -- surface grooves
-    love.graphics.setColor(colorScheme.cymbal)
+    love.graphics.setColor(self.colorScheme.cymbal)
     for r = element.r * 0.2, element.r - 0.03, 0.03 do
       love.graphics.circle('line', 0, 0, r)
     end
     --]]
     -- center bell
     love.graphics.circle('fill', 0, 0, element.r * 0.2)
-    love.graphics.setColor(colorScheme.brightCymbal)
+    love.graphics.setColor(self.colorScheme.brightCymbal)
     love.graphics.circle('fill', 0, 0, element.r * 0.2)
   love.graphics.pop()
 end
 
---[[ freeform layout editor
-local selected = 1
 
-draw
-    if i == selected then
-      love.graphics.setColor(0, 1, 0, 0.3)
-      love.graphics.circle('fill', element.x, element.y, element.r)
-      if love.mouse.isDown(1) then
-        element.x, element.y = love.graphics.inverseTransformPoint(love.mouse.getX(), love.mouse.getY())
-      end
-    end
-
+--[[
 function love.keypressed(key)
   if key == 'tab' then
-    selected = (selected % #patch.layout) + 1
+    patch.layout.selected = (patch.layout.selected % #patch.layout.layout) + 1
+    --log(patch.layout.selected)
+  end
+  if key == '`' then
+    patch.layout.selected = ((patch.layout.selected - 2) % #patch.layout.layout) + 1
+    --log(patch.layout.selected)
   end
   if key == 'return' then
-    for i,v in ipairs(patch.layout) do
+    for i,v in ipairs(patch.layout.layout) do
       print(string.format('x=% 1.3f, y=% 1.3f, r=% 1.2f},',v.x, v.y, v.r))
     end
   end
   if key == '=' then
-    patch.layout[selected].r = patch.layout[selected].r * 1.02
+    patch.layout.layout[patch.layout.selected].r = patch.layout.layout[patch.layout.selected].r * 1.02
   elseif key == '-' then
-    patch.layout[selected].r = patch.layout[selected].r / 1.02
+    patch.layout.layout[patch.layout.selected].r = patch.layout.layout[patch.layout.selected].r / 1.02
   end
 end
 --]]
+
 
 return freeform

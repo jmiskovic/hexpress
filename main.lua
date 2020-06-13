@@ -7,7 +7,7 @@ local mock     = require('mock')
 
 local time = 0
 local sw, sh, dpi
-local patch = selector
+patch = selector
 local stream = {}
 
 function love.resize()
@@ -21,7 +21,7 @@ function love.load()
   require('toolset') -- import module only after love.draw is defined
   controls.load()
   selector.load('patches')
-  recorder.addTape()
+  --recorder.addTape()
   mock.load()
   love.audio.setPosition(0, 0, 0)
   love.audio.setVolume(1)
@@ -79,7 +79,7 @@ end
 function loadPatch(newPatch)
   time = 0   -- back to big bang
   patch = newPatch.load()
-  recorder.patchChanged(newPatch)
+  --recorder.patchChanged(newPatch)
 end
 
 

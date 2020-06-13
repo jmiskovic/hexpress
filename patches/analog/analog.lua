@@ -81,12 +81,12 @@ function patch.load()
       love.graphics.scale(s)
       love.graphics.translate(x, y)
       love.graphics.setLineWidth(1/6)
-      love.graphics.polygon('fill', hexgrid.shape)
+      love.graphics.polygon('fill', hexgrid.hexagon)
       love.graphics.pop()
     end
     love.graphics.pop()
     love.graphics.setColor(self.colorScheme.surface)
-    love.graphics.polygon('fill', self.shape)
+    love.graphics.polygon('fill', hexgrid.hexagon)
   end
   love.graphics.setBackgroundColor(colorScheme.background)
   return self

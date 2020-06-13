@@ -17,6 +17,7 @@ local scale = 0    -- fit about this many icons along vertical screen space
 
 local patches = {}
 
+
 function selector.load()
   love.graphics.setBackgroundColor(colorScheme.background)
   patches = table.autotable(2)
@@ -24,7 +25,9 @@ function selector.load()
   -- try to load all patches in directory, store them in hexagonal spiral
   local fileList = love.filesystem.getDirectoryItems('patches')
   for q, r in hexgrid.spiralIter(0, 0, math.huge) do
-    if i == 12 then -- skip this one for better layout
+    -- skip everything outside the y-range for better layout
+    x, y = hexgrid.hexToPixel(q, r)
+    if math.abs(y) > 3 then
       i = i+1
     else
       if #fileList == 0 then
@@ -111,7 +114,9 @@ function selector:draw(s)
       love.graphics.pop()
     end
   end
+  --selector.drawLogo(s.tilt.lp)
 end
+
 
 -- if patch doesn't have icon, use single color unique to patch name
 function selector.defaultIcon(q, r)
@@ -129,9 +134,33 @@ function selector.defaultIcon(q, r)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
 end
 
+
 -- icon cutout shape
 function stencilFunc()
   love.graphics.circle('fill', 0, 0, 1)
+end
+
+
+--selector.logo = love.graphics.newImage('media/hi-res_icon.png')
+
+function selector.drawLogo(tilt)
+  local height = selector.logo:getHeight()
+  local count = 5
+  love.graphics.push()
+  love.graphics.translate(1.3, 0.8)
+  love.graphics.scale(0.3)
+  love.graphics.setColor(colorScheme.frame)
+  love.graphics.circle('fill', 0, 0, 1.05)
+  love.graphics.stencil(stencilFunc, "replace", 1)
+  love.graphics.setStencilTest("greater", 0)
+  love.graphics.scale(2 / height)
+  for i = 1, count do
+    love.graphics.translate(-tilt[1] * 0.2 * height * i / count, -tilt[2] * 0.2 * height * i / count)
+    love.graphics.setColor(1,1,1, i/count)
+    love.graphics.draw(selector.logo, -selector.logo:getWidth()/2, -height/2)
+  end
+  love.graphics.setStencilTest() -- disable stencil
+  love.graphics.pop()
 end
 
 return selector

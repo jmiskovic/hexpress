@@ -5,15 +5,7 @@ fretboard.__index = fretboard
 
 local l = require("lume")
 
-fretboard.colorScheme = {
-  neck    = {l.rgba(0x2f2c26ff)},
-  fret    = {l.hsl(0, 0, 0.5)},
-  string  = {l.hsl(0, 0, 0.5)},
-  dot     = {l.rgba(0xffffffc0)},
-  light   = {l.rgba(0xffffffc0)},
-}
-
-fretboard.neckHeight = 1.85  -- with 1.0 being half-screen height
+fretboard.neckHeight = 0.98  -- with 1.0 being half-screen height
 fretboard.neckWidth = 3.2
 fretboard.fretWidth = 0.4
 
@@ -35,7 +27,15 @@ function fretboard.new(displayNoteNames, tuning)
   end
   local self = setmetatable({
     strings = tuning or tuning_presets['EBGDAE'], -- list of note indexes across strings
-    activeNotes   = {}
+    activeNotes   = {},
+    colorScheme = {
+      neck    = {l.rgba(0x2f2c26ff)},
+      fret    = {l.hsl(0, 0, 0.5)},
+      string  = {l.hsl(0, 0, 0.5)},
+      dot     = {l.rgba(0xffffffc0)},
+      light   = {l.rgba(0xffffffc0)},
+      shade   = {l.rgba(0x00000010)},
+    }
     }, fretboard)
   -- calculate positions of C notes
   self.cNotePositions = {}
@@ -60,22 +60,24 @@ function fretboard:interpret(s)
       love.graphics.scale(self.scaling)
       x, y = love.graphics.inverseTransformPoint(x, y)
     love.graphics.pop()
-    -- check if string is pressed, report string, fret and note
-    local stringI, fretI
-    stringI = l.remap(y, self.neckHeight / 2, -self.neckHeight / 2, 1, #self.strings)
-    stringI = math.floor(stringI + 0.5)
-    fretI = math.ceil(l.remap(x, -self.neckWidth/2, self.neckWidth/2, 0, self.neckWidth / self.fretWidth))
+    if y < self.neckHeight and y > -self.neckHeight and x < 2 and x > -2 then
+      -- check if string is pressed, report string, fret and note
+      local stringI, fretI
+      stringI = l.remap(y, self.neckHeight, -self.neckHeight, 1, #self.strings)
+      stringI = math.floor(stringI + 0.5)
+      fretI = math.ceil(l.remap(x, -self.neckWidth/2, self.neckWidth/2, 0, self.neckWidth / self.fretWidth))
 
-    if stringI >= 1 and stringI <= #self.strings then
-      if self.activeNotes[id] and self.activeNotes[id].string == stringI then
-        touch.noteRetrigger = false
-      else
-        touch.noteRetrigger = true
-        self.activeNotes[id] = touch
+      if stringI >= 1 and stringI <= #self.strings then
+        if self.activeNotes[id] and self.activeNotes[id].string == stringI then
+          touch.noteRetrigger = false
+        else
+          touch.noteRetrigger = true
+          self.activeNotes[id] = touch
+        end
+        touch.string = stringI
+        touch.fret = fretI
+        touch.note = self:toNoteIndex(fretI, stringI)
       end
-      touch.string = stringI
-      touch.fret = fretI
-      touch.note = self:toNoteIndex(fretI, stringI)
     end
   end
   -- clean up released activeNotes
@@ -95,22 +97,25 @@ function fretboard:toY(string)
   if stringCount == 1 then
     return 0
   else
-    return l.remap(string, 1, stringCount, self.neckHeight / 2, -self.neckHeight / 2)
+    return l.remap(string, 1, stringCount, self.neckHeight * 0.9, -self.neckHeight * 0.9)
   end
 end
 
 function fretboard:draw(s)
+  local heightReduction = 0.99
   love.graphics.setColor(self.colorScheme.neck)
-  love.graphics.rectangle('fill', -15, -self.neckHeight / 2 * 1.05, 30, self.neckHeight * 1.05)
+  love.graphics.rectangle('fill', -15, -self.neckHeight * heightReduction, 30, self.neckHeight * heightReduction * 2)
 
   -- draw frets
   love.graphics.setLineWidth(0.125 * self.fretWidth)
   for toX = -self.neckWidth/2, self.neckWidth/2, self.fretWidth do
+    love.graphics.setColor(self.colorScheme.shade)
+    love.graphics.line(toX + 0.05, -self.neckHeight, toX + 0.05, self.neckHeight)
     love.graphics.setColor(self.colorScheme.fret)
-    love.graphics.line(toX, -self.neckHeight / 2 * 1.05, toX, self.neckHeight / 2 * 1.05)
+    love.graphics.line(toX, -self.neckHeight, toX, self.neckHeight)
     local dx = 0.01
     love.graphics.setColor(self.colorScheme.light)
-    love.graphics.line(toX + dx, -self.neckHeight / 2 * 1.05, toX + dx, self.neckHeight / 2 * 1.05)
+    love.graphics.line(toX + dx, -self.neckHeight, toX + dx, self.neckHeight)
   end
   -- draw strings
   for i = 1, #self.strings do
@@ -121,12 +126,12 @@ function fretboard:draw(s)
         dy = 0.015 * math.sin(s.time * 50 + i)
       end
     end
-    love.graphics.setLineWidth(l.remap(i, 1, #self.strings, 0.03, 0.015))
+    love.graphics.setLineWidth(l.remap(i, 0, #self.strings+1, 0.04, 0.01))
     love.graphics.setColor(self.colorScheme.string)
-    love.graphics.line(-15, y, 15, y + dy)
-    love.graphics.setLineWidth(l.remap(i, 1, #self.strings, 0.03 / 2, 0.015 / 2))
+    love.graphics.line(-2, y, 2, y + dy)
+    love.graphics.setLineWidth(l.remap(i, 0, #self.strings+1, 0.04 / 2, 0.01 / 2))
     love.graphics.setColor(self.colorScheme.light)
-    love.graphics.line(-15, y, 15, y + dy)
+    love.graphics.line(-2, y, 2, y + dy)
   end
 
 end
