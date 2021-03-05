@@ -107,7 +107,7 @@ function patch:process(s)
       noteTracker[touch.note  % 12] = (noteTracker[touch.note % 12] or 0) + 20000
     end
     if s.tilt[1] > .9 then
-      keyCenter = touch.note
+      keyCenter = touch.note or 0
     end
   end
 
