@@ -65,7 +65,7 @@ function patch.load()
   self.sampler = sampler.new({
     {path='patches/chromakey/sustain.ogg',  note=  0},
     looped = true,
-    envelope = { attack = 0, decay = 0.40, sustain = 1, release = 0.2 },
+    envelope = { attack = 0.02, decay = 0.40, sustain = 1, release = 0.2 },
   })
 
   self.efx = efx.load()
@@ -80,7 +80,6 @@ function patch.load()
   self.recording = false        -- currently storing buffers being recorded
   self.recordingLength = 0      -- collected recording length in number of samples
   self.collectedSamples = {}    -- table holding recorded buffers
-  self.crossBuffer = nil        -- store first buffer separately to crossfade
 
   self.hexpad.drawCell = function(self, q, r, s, touch)
     love.graphics.scale(touch and 0.8 or 0.75)
@@ -188,37 +187,49 @@ function patch:process(s)
   if self.recording then
     local data = self.recorder:getData()
     if data then
-      if not self.crossBuffer then
-        self.crossBuffer = data
-      else
-        self.recordingLength = self.recordingLength + data:getSampleCount()
-        table.insert(self.collectedSamples, data)
-      end
+      self.recordingLength = self.recordingLength + data:getSampleCount()
+      table.insert(self.collectedSamples, data)
     end
   end
   -- recording stopped, assemble all collected samples
   if self.button.touchId and not next(s.touches) then
+    local crossfadeSamples = math.floor(0.2 * self.parameters.samplingFrequency)
     self.button.touchId = nil
     self.recording = false
-    if self.recordingLength > 0 then
-      local recording = love.sound.newSoundData(self.recordingLength, self.parameters.samplingFrequency, self.parameters.bitDepth, 1)
-      local sampleIndex = 0
-      local crossfade = math.min(self.crossBuffer:getSampleCount(), self.recordingLength/2)
+    if self.recordingLength > crossfadeSamples * 2 then
       --waveformInit()
-      for _, v in ipairs(self.collectedSamples) do
-        for i = 0, v:getSampleCount() - 1 do
-          if sampleIndex < self.recordingLength - crossfade then
-            recording:setSample(sampleIndex, v:getSample(i))
+      local loopLength = self.recordingLength - crossfadeSamples
+      local recording = love.sound.newSoundData(loopLength, self.parameters.samplingFrequency, self.parameters.bitDepth, 1)
+      local sampleIndex = 0
+      --[[ glue collected samples onto recording, with cross-faded section at beginning
+           cross-fade serves to create a seamless loop between track ending and beginning (to eliminate pop)
+                       B~~~~~~~~~~~~~E   original recording from beginning to end
+
+                       B~~~~~~~~~E
+                                  E~~~   ending section is isolated
+
+                       b<<B~~~~~~E       beginning in faded in
+                       E>>e              end is overlapped with beginning and faded out
+
+                       b~~e~~~~~~~       tracks are mixed together in seamless loop                       ]]
+      for _, buff in ipairs(self.collectedSamples) do
+        for i = 0, buff:getSampleCount() - 1 do
+          if sampleIndex < loopLength then
+            local sample = buff:getSample(i)
+            --print(sampleIndex, loopLength, self.recordingLength)
+            recording:setSample(sampleIndex, sample)
+            --waveformAdd(sampleIndex / (self.recordingLength - crossfadeSamples), recording:getSample(2sampleIndex))
           else
-            local fadeout = l.remap(sampleIndex, self.recordingLength - crossfade, self.recordingLength, 1, 0, 'clamp')
-            local fadein  = 1 - fadeout
-            local crossSample = self.crossBuffer:getSample(self.crossBuffer:getSampleCount() - (self.recordingLength - sampleIndex))
-            recording:setSample(sampleIndex, v:getSample(i) * fadeout + crossSample * fadein)
+            local fadein =  l.remap(sampleIndex, loopLength, self.recordingLength, 0, 1, 'clamp')
+            local fadeout = l.remap(sampleIndex, loopLength, self.recordingLength, 1, 0, 'clamp')
+            local bi = sampleIndex - loopLength
+            local beginning = recording:getSample(bi) * fadein
+            local ending    =      buff:getSample(i)  * fadeout
+            recording:setSample(bi, beginning + ending)
           end
-          --waveformAdd(sampleIndex / self.recordingLength, recording:getSample(sampleIndex))
           sampleIndex = sampleIndex + 1
         end
-        v:release()
+        buff:release()
       end
       self.sampler.samples[1].soundData = recording
       --waveformEnd()
@@ -231,7 +242,6 @@ function patch:process(s)
       if not self.button.touchId then
         self.recorder:getData() -- clear data captured so far
         self.recording = true
-        self.crossBuffer = nil
         self.recordingLength = 0
         self.collectedSamples = {}
       end
