@@ -21,7 +21,7 @@ function love.load()
   require('toolset') -- import module only after love.draw is defined
   controls.load()
   selector.load('patches')
-  --recorder.addTape()
+  recorder.addTape()
   mock.load()
   love.audio.setPosition(0, 0, 0)
   love.audio.setVolume(1)
@@ -68,7 +68,7 @@ function love.draw()
   love.graphics.origin()
   transform()
   patch:draw(stream)
-  recorder.draw()
+  recorder.draw(patch == selector)
   love.graphics.origin()
   --mock.draw(stream)
   --drawTable(stream)
@@ -79,7 +79,7 @@ end
 function loadPatch(newPatch)
   time = 0   -- back to big bang
   patch = newPatch.load()
-  --recorder.patchChanged(newPatch)
+  recorder.patchChanged(newPatch)
 end
 
 
@@ -94,6 +94,4 @@ function love.keypressed(key)
   elseif key == 'menu' or key == 'f' then
     controls.frozen = not controls.frozen
   end
-
-
 end

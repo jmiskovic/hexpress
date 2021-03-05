@@ -32,6 +32,12 @@ function mock.process(s)
     },
   }
 
+  if love.keyboard.isDown('r') then -- soundbyte record
+    s.touches[1] = {818, 73, velocity = 0.1}
+  end
+  if love.keyboard.isDown('w') then -- tape record
+    s.touches[1] = {64, 64, velocity = 0.1}
+  end
   if love.keyboard.isDown('a') then
     s.touches[1] = {250, 250, velocity = 0.1}
   end
@@ -41,7 +47,7 @@ function mock.process(s)
   if love.keyboard.isDown('d') then
     s.touches[1] = {250, 550, velocity = 0.9}
   end
-  if love.keyboard.isDown('r') then
+  if love.keyboard.isDown('q') then
     s.touches[1] = {196, 106, velocity = 0.9}
   end
   if love.keyboard.isDown('f1') then

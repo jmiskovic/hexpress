@@ -34,6 +34,7 @@ recorder.currentPatch = nil -- patch is preloaded here so it can be quickly tran
 function recorder.addTape()
   local self = setmetatable({}, tape)
   -- tape properties
+  self.enabled = false -- disabled tape is hidden in instrument
   self.content = {} -- the actual recording of notes, array of {time, stream} tables
   self.volume = 0.7 -- loudness of tape playback
   self.startTime = 0 -- time at which the used part of tape
@@ -100,9 +101,13 @@ function recorder.process(s)
 end
 
 
-function recorder.draw()
+function recorder.draw(inSelector)
   for i,tape in ipairs(recorder.tapes) do
-    tape:draw()
+    if tape.enabled then
+      tape:draw()
+    elseif inSelector then
+      tape:drawDisabled()
+    end
   end
 end
 
@@ -117,9 +122,13 @@ function tape:interpret(s, inSelector)
     local x, y = love.graphics.inverseTransformPoint(touch[1], touch[2])
     if (x - self.placement[1])^2 + (y - self.placement[2])^2 < 0.03 then
       if inSelector then
-        self.placement[1] = x
-        self.placement[2] = y
-      else
+        if id ~= self.touchId then
+          self.enabled = not self.enabled
+          print('recorder is ', self.enabled and 'enabled' or 'disabled')
+          self.touchId = id
+        end
+        handled = true
+      elseif self.enabled then
         -- on new touch toggle recording
         if id ~= self.touchId then
           if not self.recording then -- start recording
@@ -147,9 +156,9 @@ function tape:interpret(s, inSelector)
           end
           self.touchId = id
         end
+        s.touches[id] = nil -- sneakily remove touch from stream to prevent unintended notes
+        handled = true
       end
-      s.touches[id] = nil -- sneakily remove touch from stream to prevent unintended notes
-      handled = true
     end
   end
   if not handled then
@@ -271,5 +280,16 @@ function tape:draw()
   love.graphics.pop()
 end
 
+function tape:drawDisabled()
+  love.graphics.push()
+  love.graphics.translate(unpack(self.placement))
+  love.graphics.scale(0.1)
+  love.graphics.setColor(colorScheme.background)
+  love.graphics.circle("fill", 0, 0, 0.6)
+  love.graphics.setColor(colorScheme.recording)
+  love.graphics.setColor(colorScheme.head)
+  love.graphics.circle("fill", 0, 0, 0.3)
+  love.graphics.pop()
+end
 
 return recorder
