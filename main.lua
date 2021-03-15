@@ -59,7 +59,7 @@ function love.update(dt)
   recorder.interpret(stream, patch == selector)
   patch:process(stream)
   recorder.process(stream)
-  love.timer.sleep(0.003)
+  love.timer.sleep(0.007)
   --stream is garbage collected
 end
 

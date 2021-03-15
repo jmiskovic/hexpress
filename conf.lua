@@ -14,7 +14,7 @@ function love.conf(t)
   t.window.title = "Hexpress"
   t.window.width, t.window.height = unpack(resolutions[5])
   t.window.fullscreen = true
-  t.window.resizable = true
+  t.window.resizable = false
   t.window.vsync = false
   t.audio.mic = true
 end
