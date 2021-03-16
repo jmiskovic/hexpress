@@ -51,10 +51,9 @@ local defaults = {
   }
 }
 
-
-function efx.load()
+function efx.load(trackName)
   local self = setmetatable({}, efx)
-  self.uuid = l.uuid()
+  self.trackName = trackName or 'live'
   for name, params in pairs(defaults) do
     self[name] = {}
     for param, value in pairs(params) do
@@ -69,18 +68,12 @@ end
 
 
 function efx:effectName(effect)
-  return self.uuid .. '_' .. effect.type
+  return self.trackName .. '_' .. effect.type
 end
 
 
 function efx:addEffect(effect)
-  -- some platforms don't have all effects, ignore request if not available
-  local ok, result = pcall(love.audio.setEffect, self:effectName(effect), effect)
-  if ok then
-    table.insert(self.activeEffects, effect)
-  else log(err)
-  end
-  return ok
+  table.insert(self.activeEffects, effect)
 end
 
 

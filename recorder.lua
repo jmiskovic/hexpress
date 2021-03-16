@@ -57,6 +57,9 @@ end
 function recorder.patchChanged(patch)
   if recorder.state ~= states.off then
     recorder.currentPatch = patch.load()
+    if recorder.currentPatch.efx then
+      recorder.currentPatch.efx.trackName = 'staging'
+    end
   end
 end
 
@@ -143,6 +146,7 @@ function tape:interpret(s, inSelector)
             self.doneRecording = true
             self.endTime = recorder.time
             self.patch = recorder.currentPatch
+            self.patch.efx.trackName = 'track1'
             self.patch:process(s) -- update efx parameters with current tilt
             love.audio.stop() -- process() triggers samples, kill them
             -- find all samplers used by patch, to be used for playback
