@@ -82,7 +82,7 @@ function patch:process(s)
 end
 
 function patch:draw(s)
-  touched = {{}, {}, {}}
+  local touched = {{}, {}, {}}
   -- mark touched 'strings' across three axes
   for k,touch in pairs(s.touches) do
     if touch.qr then

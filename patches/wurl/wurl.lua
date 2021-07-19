@@ -16,7 +16,6 @@ local colorScheme = {
   surface    = {l.hsl(0.66, 0.25, 0.26)},
   surfaceC   = {l.hsl(0.66, 0.20, 0.23)},
   knob       = {l.hsl(0.67, 0.09, 0.15)},
-  text       = {l.hsl(0.66, 0.18, 0.38)},
   text       = {l.hsl(0.24, 0.09, 0.72)},
   shiny      = {l.hsl(0.24, 0.09, 0.96, 0.5)},
   noteColors = {

@@ -83,7 +83,7 @@ function mock.draw(s)
   love.graphics.print(s.tilt[1], s.width / 2 * s.tilt[1], barsize * 1.1)
   love.graphics.pop()
   -- scaling square for tilt[3] (roll)
-  local barsize = 80
+  barsize = 80
   love.graphics.push()
   love.graphics.translate(s.width - 2 * barsize, s.height - 2 * barsize)
   love.graphics.setColor(1, 1, 1, 0.2)

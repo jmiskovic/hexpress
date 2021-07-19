@@ -11,7 +11,7 @@ local activeTouches = {}
 function controls.load()
   -- finding accelerometer
   local joysticks = love.joystick.getJoysticks()
-  for i, joystick in ipairs(joysticks) do
+  for _, joystick in ipairs(joysticks) do
     if joystick:getName() == 'Android Accelerometer' then
       controls.readTilt = function()
           return joystick:getAxis(1), joystick:getAxis(2), joystick:getAxis(3)
@@ -22,12 +22,21 @@ function controls.load()
 end
 
 
+local lastId = 0
+
+local function nextId()
+  lastId = lastId + 1
+  return lastId
+end
+
+
 function controls.process(s)
   local frameTouches = {} -- temp map for pruning non-active touches
   s.touches = {}
   local touches = love.touch.getTouches() -- returns array of 'light userdata' ids, guaranteed to be unique only for duration of touch
   -- udid is user data id that Love2D provides, it is not Lua datatype and not serializable
   -- seqid is integer id that is locally generated and sequential
+
   for _,udid in ipairs(touches) do
     local x, y = love.touch.getPosition(udid)
     local seqid = activeTouches[udid] or nextId()
@@ -58,14 +67,6 @@ function controls.process(s)
   end
 
   return s
-end
-
-
-local lastId = 0
-
-function nextId()
-  lastId = lastId + 1
-  return lastId
 end
 
 return controls

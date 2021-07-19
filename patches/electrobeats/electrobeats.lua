@@ -133,7 +133,7 @@ function patch.icon(time)
   love.graphics.rectangle('fill', -1, -1, 2, 2)
   love.graphics.rotate(0.5 * math.sin(time)^5)
   love.graphics.scale((0.75 - amp) + amp * math.sin(time * math.pi * speed * 2)^6)
-  color = colors[1 + (math.floor(time * speed) % #colors)]
+  local color = colors[1 + (math.floor(time * speed) % #colors)]
   love.graphics.setColor(colorScheme[color][2])
   love.graphics.polygon('fill', hexgrid.roundhex)
   love.graphics.setColor(colorScheme[color][1])

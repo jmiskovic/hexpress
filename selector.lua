@@ -25,6 +25,7 @@ function selector.load()
   -- try to load all patches in directory, store them in hexagonal spiral
   local fileList = love.filesystem.getDirectoryItems('patches')
   for q, r in hexgrid.spiralIter(0, 0, math.huge) do
+    local x, y
     -- skip everything outside the y-range for better layout
     x, y = hexgrid.hexToPixel(q, r)
     if math.abs(y) > 3 then

@@ -15,7 +15,7 @@ local colorScheme = {
   spindle    = {l.hsl(0, 0.1, 0.3)},
 }
 
-states = {
+local states = {
   off = {},
   armed = {},
   recording = {},
@@ -65,7 +65,7 @@ end
 
 
 function recorder.interpret(s, inSelector)
-  for i,tape in ipairs(recorder.tapes) do
+  for i, tape in ipairs(recorder.tapes) do
     tape.doneRecording = false -- clean info from previous frame
     tape:interpret(s, inSelector)
   end
@@ -226,7 +226,7 @@ function tape:drawNotes()
   love.graphics.setColor(colorScheme.note)
   -- notes
   for i, rec in ipairs(self.content) do
-    noteTime, stream = unpack(rec)
+    local noteTime, stream = unpack(rec)
     for id, touch in pairs(stream.touches) do
       if touch.note and noteTime < recorder.length then
         local angle = 2 * math.pi * noteTime / recorder.length

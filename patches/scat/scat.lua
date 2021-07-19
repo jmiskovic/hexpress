@@ -15,7 +15,6 @@ local colorScheme = {
   shirt  = {l.rgba(0xf0f0f0ff)},
   glasses= {l.rgba(0x0f0f0fff)},
   tongue = {l.hsl(0.00, 0.70, 0.5)},
-  fog    = {l.hsl(0.62, 0.21, 0.52)},
   fog    = {l.hsl(0.62, 0.21, 0.52, 0.3)},
 }
 

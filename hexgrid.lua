@@ -44,7 +44,6 @@ end
 
 -- generate iterator that spirals from center QR cell until specified radius
 function hexgrid.spiralIter(q, r, radius)
-  local q, r = q, r
   local rad = 0
   local ring = 0 -- iterator over ring, when completed set to -1
 

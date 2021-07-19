@@ -19,7 +19,6 @@ local math_atan2 = math.atan2 or math.atan
 local math_sqrt = math.sqrt
 local math_abs = math.abs
 local math_mod = math.mod
-local math_huge = math.huge
 
 local noop = function()
 end
@@ -851,6 +850,7 @@ function lume.createIIR(a, b)
     z[i] = 0
   end
   local filtering = function(xn)
+      local v1
       -- A coefficients block
       local s1 = xn
       for i=2, #a do
