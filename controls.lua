@@ -44,6 +44,13 @@ function controls.process(s)
     frameTouches[udid] = true
     s.touches[seqid] = {x, y}
   end
+  -- inject mouse as touch on left click
+  if love.system.getOS() ~= 'Android' and love.mouse.isDown(1) then
+    local id = #s.touches + 1
+    s.touches[id] = {love.mouse.getPosition()}
+    frameTouches[id] = true
+  end
+
   -- prune active touches that dissapeared from this frame list of touches
   for udid, seqid in pairs(activeTouches) do
     if not frameTouches[udid] then
