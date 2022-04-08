@@ -20,6 +20,9 @@ function freeform.new(triggers)
        shade        = {l.rgba(0x00000050)},
        brightCymbal = {l.rgba(0xffffff50)},
        membrane     = {l.rgba(0xd7d0aeff)},
+       tablaShade1  = {l.rgba(0xccb594ff)},
+       tablaShade2  = {l.rgba(0xc9bba3ff)},
+       tablaShade3  = {l.rgba(0x41413fff)},
        rim          = {l.rgba(0x606060ff)},
        -- piano
        whitekey     = {l.rgba(0xd7d0aeff)},
@@ -50,7 +53,16 @@ function freeform:interpret(s)
     -- find closes element to touch position, retrigger as necessary
     for i = #self.layout, 1, -1 do -- reverse iteration, to trigger topmost elements first
       local element = self.layout[i]
-      if l.distance(x, y, element.x, element.y, true) < element.r^2 then
+
+      local triggerDetect = false
+
+      if (element.type == 'whitekey' or element.type == 'blackkey') then
+        triggerDetect = math.abs(x - element.x) < element.r * 1.1 and
+                        math.abs(y - element.y) < element.r * 2.1
+      else
+        triggerDetect = l.distance(x, y, element.x, element.y, true) < element.r^2
+      end
+      if triggerDetect then
         touch.noteRetrigger = false
         -- new tone
         if not self.active[id] or self.active[id] ~= element then
@@ -94,6 +106,18 @@ function freeform:draw(s)
       love.graphics.circle('fill', element.x, element.y, element.r)
       love.graphics.setColor(self.colorScheme.rim)
       love.graphics.circle('line', element.x, element.y, touched and element.r - 0.01 or element.r)
+    elseif element.type == 'tabla' then
+      love.graphics.setColor(self.colorScheme.shade)
+      love.graphics.ellipse('fill', element.x * 0.95, element.y + 0.05, element.r, element.r * .95)
+      love.graphics.setColor(self.colorScheme.tablaShade1)
+      love.graphics.ellipse('fill', element.x, element.y, element.r, element.r * .95)
+      love.graphics.setColor(self.colorScheme.tablaShade2)
+      love.graphics.ellipse('fill', element.x, element.y, element.r * .8, element.r * .8 * .95)
+      love.graphics.setColor(self.colorScheme.tablaShade3)
+      love.graphics.ellipse('fill', element.x, element.y, element.r * .3, element.r * .3 * .95)
+      love.graphics.setColor(self.colorScheme.rim)
+      local rimRadius = touched and element.r - 0.01 or element.r
+      love.graphics.ellipse('line', element.x, element.y, rimRadius, rimRadius * .95)
     elseif element.type == 'cymbal' then
       self:drawCymbal(s, element)
     elseif element.type == 'block' then
@@ -115,25 +139,25 @@ function freeform:draw(s)
       love.graphics.pop()
     elseif element.type == 'whitekey' then
       love.graphics.push()
-      local size = element.r * 1.3
+      local hsize = element.r * 1
       love.graphics.setColor(self.colorScheme.shade)
-      love.graphics.rectangle('fill', element.x - size * 0.4, element.y - size * 1.3,
-                                      size * 1.02, size * 2.05, size * 0.1)
+      love.graphics.rectangle('fill', element.x - hsize, element.y - hsize * 0.8,
+                                      hsize * 1.9, hsize * 3, hsize * 0.4)
       love.graphics.translate(0, touched and 0 or -0.02)
       love.graphics.setColor(self.colorScheme.whitekey)
-      love.graphics.rectangle('fill', element.x - size/2, element.y -  size * 1.3,
-                                      size, size * 2, size * 0.1)
+      love.graphics.rectangle('fill', element.x - hsize, element.y - hsize * 2.1,
+                                      hsize * 2, hsize * 4.2, hsize * 0.2)
       love.graphics.pop()
     elseif element.type == 'blackkey' then
       love.graphics.push()
-      local size = element.r * 1.3
+      local hsize = element.r * 1
       love.graphics.setColor(self.colorScheme.shade)
-      love.graphics.rectangle('fill', element.x - size * 0.5, element.y - size * 0.7,
-                                      size * 1.02, size * 1.55, size * 0.3)
+      love.graphics.rectangle('fill', element.x - hsize + 0.01, element.y - hsize * 1.8,
+                                      hsize * 2, hsize * 3.8, hsize * 0.5, hsize * 0.3)
       love.graphics.translate(0, touched and 0 or -0.02)
       love.graphics.setColor(self.colorScheme.blackkey)
-      love.graphics.rectangle('fill', element.x - size/2, element.y - size * 0.7,
-                                      size, size * 1.5, size * 0.1)
+      love.graphics.rectangle('fill', element.x - hsize, element.y - hsize * 2,
+                                      hsize * 2, hsize * 4, hsize * 0.2)
       love.graphics.pop()
     end
     if freeform.editing and i == self.selected then
@@ -188,29 +212,27 @@ function freeform:drawCymbal(s, element)
   love.graphics.pop()
 end
 
-
---[[
-function love.keypressed(key)
-  if key == 'tab' then
-    patch.layout.selected = (patch.layout.selected % #patch.layout.layout) + 1
-    --log(patch.layout.selected)
-  end
-  if key == '`' then
-    patch.layout.selected = ((patch.layout.selected - 2) % #patch.layout.layout) + 1
-    --log(patch.layout.selected)
-  end
-  if key == 'return' then
-    for i,v in ipairs(patch.layout.layout) do
-      print(string.format('x=% 1.3f, y=% 1.3f, r=% 1.2f},',v.x, v.y, v.r))
+if freeform.editing then
+  function love.keypressed(key)
+    if key == 'tab' then
+      patch.layout.selected = (patch.layout.selected % #patch.layout.layout) + 1
+      --log(patch.layout.selected)
+    end
+    if key == '`' then
+      patch.layout.selected = ((patch.layout.selected - 2) % #patch.layout.layout) + 1
+      --log(patch.layout.selected)
+    end
+    if key == 'return' then
+      for i,v in ipairs(patch.layout.layout) do
+        print(string.format('x=% 1.3f, y=% 1.3f, r=% 1.2f},',v.x, v.y, v.r))
+      end
+    end
+    if key == '=' then
+      patch.layout.layout[patch.layout.selected].r = patch.layout.layout[patch.layout.selected].r * 1.02
+    elseif key == '-' then
+      patch.layout.layout[patch.layout.selected].r = patch.layout.layout[patch.layout.selected].r / 1.02
     end
   end
-  if key == '=' then
-    patch.layout.layout[patch.layout.selected].r = patch.layout.layout[patch.layout.selected].r * 1.02
-  elseif key == '-' then
-    patch.layout.layout[patch.layout.selected].r = patch.layout.layout[patch.layout.selected].r / 1.02
-  end
 end
---]]
-
 
 return freeform
