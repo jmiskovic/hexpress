@@ -9,11 +9,11 @@ local hexgrid = require('hexgrid')
 
 local colorScheme = {
   wood    = {l.color('#8c3c00')},
-  neck    = {l.color('#302400')},
+  neck    = {l.color('#4f3322')},
   strings = {
-    {l.color('#a69b87')},
-    {l.color('#988c75')},
-    {l.color('#847965')},
+    {l.color('#86624a')},
+    {l.color('#a2663c')},
+    {l.color('#5e4835')},
   },
   hair    = {l.color('#a39782')},
   stick   = {l.color('#5e2400')},
@@ -111,7 +111,6 @@ function patch:draw(s)
       }
     -- phew...
     for a=1, 3 do -- iterating over 3 axes in cube coordinates
-      colorScheme.strings[4] = 0.4 + 0.2 * a
       love.graphics.setColor(colorScheme.strings[a])
       x, y, z = t1[(a - 1) % 3 + 1], t1[(a + 0) % 3 + 1], t1[(a + 1) % 3 + 1]
       sx, sy = hexgrid.hexToPixel(hexgrid.cubeToAxial(x, y, z))
