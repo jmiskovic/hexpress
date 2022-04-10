@@ -17,48 +17,44 @@ local colorScheme = {
 }
 
 local octave_triggers = {
-  {type='whitekey', note=  -7, x=-2.300 + 0.1, y= 0.00, r= 0.16},
-  {type='whitekey', note=  -5, x=-1.970 + 0.1, y= 0.00, r= 0.16},
-  {type='whitekey', note=  -3, x=-1.640 + 0.1, y= 0.00, r= 0.16},
-  {type='whitekey', note=  -1, x=-1.310 + 0.1, y= 0.00, r= 0.16},
-  {type='blackkey', note=  -6, x=-2.135 + 0.1, y=-0.22, r= 0.12},
-  {type='blackkey', note=  -4, x=-1.805 + 0.1, y=-0.22, r= 0.12},
-  {type='blackkey', note=  -2, x=-1.475 + 0.1, y=-0.22, r= 0.12},
-  {type='whitekey', note=   0, x=-0.980 + 0.1, y= 0.00, r= 0.16},
-  {type='whitekey', note=   2, x=-0.650 + 0.1, y= 0.00, r= 0.16},
-  {type='whitekey', note=   4, x=-0.320 + 0.1, y= 0.00, r= 0.16},
-  {type='whitekey', note=   5, x= 0.010 + 0.1, y= 0.00, r= 0.16},
-  {type='whitekey', note=   7, x= 0.340 + 0.1, y= 0.00, r= 0.16},
-  {type='whitekey', note=   9, x= 0.670 + 0.1, y= 0.00, r= 0.16},
-  {type='whitekey', note=  11, x= 1.000 + 0.1, y= 0.00, r= 0.16},
-  {type='blackkey', note=   1, x=-0.815 + 0.1, y=-0.22, r= 0.12},
-  {type='blackkey', note=   3, x=-0.485 + 0.1, y=-0.22, r= 0.12},
-  {type='blackkey', note=   6, x= 0.175 + 0.1, y=-0.22, r= 0.12},
-  {type='blackkey', note=   8, x= 0.505 + 0.1, y=-0.22, r= 0.12},
-  {type='blackkey', note=  10, x= 0.835 + 0.1, y=-0.22, r= 0.12},
-  {type='whitekey', note=  12, x= 1.330 + 0.1, y= 0.00, r= 0.16},
-  {type='whitekey', note=  14, x= 1.660 + 0.1, y= 0.00, r= 0.16},
-  {type='whitekey', note=  16, x= 1.990 + 0.1, y= 0.00, r= 0.16},
-  {type='whitekey', note=  17, x= 2.320 + 0.1, y= 0.00, r= 0.16},
-  {type='blackkey', note=  13, x= 1.495 + 0.1, y=-0.22, r= 0.12},
-  {type='blackkey', note=  15, x= 1.825 + 0.1, y=-0.22, r= 0.12},
-  {type='blackkey', note=  18, x= 2.155 + 0.1, y=-0.22, r= 0.12},
+  {type='whitekey', note=   0, x=0.000, y= 0.00, r= 0.16},
+  {type='whitekey', note=   2, x=0.330, y= 0.00, r= 0.16},
+  {type='whitekey', note=   4, x=0.660, y= 0.00, r= 0.16},
+  {type='whitekey', note=   5, x=0.990, y= 0.00, r= 0.16},
+  {type='whitekey', note=   7, x=1.320, y= 0.00, r= 0.16},
+  {type='whitekey', note=   9, x=1.650, y= 0.00, r= 0.16},
+  {type='whitekey', note=  11, x=1.980, y= 0.00, r= 0.16},
+  {type='blackkey', note=   1, x=0.165, y=-0.22, r= 0.12},
+  {type='blackkey', note=   3, x=0.495, y=-0.22, r= 0.12},
+  {type='blackkey', note=   6, x=1.155, y=-0.22, r= 0.12},
+  {type='blackkey', note=   8, x=1.485, y=-0.22, r= 0.12},
+  {type='blackkey', note=  10, x=1.815, y=-0.22, r= 0.12},
 }
+
 
 
 function patch.load()
   local self = setmetatable({}, patch)
   self.triggers = {}
-  for octave = 1, -1, -1 do
-    for i, trigger in ipairs(octave_triggers) do
-      local t = { type=trigger.type, r=trigger.r }
-      t.note = trigger.note - octave * 12
-      t.x = trigger.x + (octave % 2 == 0 and 0.3 or 0)
-      t.y = trigger.y + octave * 0.65
-      t.x = t.x + love.math.randomNormal(0.001, 0)
-      t.y = t.y + love.math.randomNormal(0.002, 0)
-      table.insert(self.triggers, t)
+  local octave = -1
+  for y = 0.65, -0.65, -0.65 do
+    local x = -3 + y * 1.1
+    while x < 3 do
+      for _, trigger in ipairs(octave_triggers) do
+        if x + trigger.x > -2.2 and x + trigger.x < 2.2 then
+          local key = { type=trigger.type, r=trigger.r }
+          key.note = trigger.note + octave * 12
+          key.x = x + trigger.x
+          key.y = y + trigger.y
+          key.x = key.x + love.math.randomNormal(0.001, 0)
+          key.y = key.y + love.math.randomNormal(0.002, 0)
+          table.insert(self.triggers, key)
+        end
+      end
+      x = x + 0.33 * 7
+      octave = octave + 1
     end
+    octave = octave - 2
   end
   patch.layout = freeform.new(self.triggers)
   self.sampler = sampler.new({
@@ -121,9 +117,12 @@ end
 
 patch.icon_drawer = freeform.new(octave_triggers)
 
+
 function patch.icon(time)
   love.graphics.scale(4)
-  love.graphics.translate(-0.5 + (time * 0.2) % 2.3, 0)
+  love.graphics.translate(-4 + (time * 0.1) % (0.33*7), 0)
+  patch.icon_drawer:draw({})
+  love.graphics.translate(0.33*7, 0)
   patch.icon_drawer:draw({})
 end
 
