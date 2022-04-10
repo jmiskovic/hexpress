@@ -127,7 +127,9 @@ function tape:interpret(s, inSelector)
       if inSelector then
         if id ~= self.touchId then
           self.enabled = not self.enabled
-          print('recorder is ', self.enabled and 'enabled' or 'disabled')
+          if not self.enabled then
+            love.audio.stop()
+          end
           self.touchId = id
         end
         handled = true
@@ -178,7 +180,7 @@ function tape:process(s)
     table.insert(self.content, {recorder.time, s})
     self.headOnNote = next(s.touches) ~= nil
   end
-  if not self.recording and self.patch then -- tape playback
+  if not self.recording and self.enabled and self.patch then -- tape playback
     for i, rec in ipairs(self.content) do
       local noteTime, stream = unpack(rec)
       if noteTime < math.max(recorder.time, recorder.timePrev) and noteTime > math.min(recorder.time, recorder.timePrev) then
