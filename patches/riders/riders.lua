@@ -73,7 +73,7 @@ function patch:process(s)
   end
   self.sampler.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
 
-  self.efx.tremolo.frequency = l.remap(s.tilt.lp[1], -0.2, 0.3, 0, 15)
+  self.efx.tremolo.frequency = l.remap(s.tilt.lp[1], 0,  0.3, 0, 15)
   self.efx.flanger.volume    = l.remap(s.tilt.lp[1], 0, -0.2, 0, 1, 'clamp')
   self.efx.flanger.rate      = l.remap(s.tilt.lp[1], 0, -0.7, 0, 0.5, 'clamp')
   self.efx:process()
