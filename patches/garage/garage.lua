@@ -62,7 +62,7 @@ end
 function patch.icon(time)
   local speed = 4
   love.graphics.setColor(colorScheme.background)
-  love.graphics.rectangle('fill', -1, -1, 2, 2)
+  love.graphics.rectangle('fill', -2, -2, 4, 4)
   -- drum
   love.graphics.setColor(colorScheme.shade)
   love.graphics.rectangle('fill', -1.22, 0, 2.44, 1)

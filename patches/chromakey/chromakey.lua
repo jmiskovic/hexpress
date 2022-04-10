@@ -142,7 +142,7 @@ end
 
 function patch.icon(time)
   love.graphics.setColor(colorScheme.background)
-  love.graphics.rectangle('fill', -1, -1, 2, 2)
+  love.graphics.rectangle('fill', -2, -2, 4, 4)
   local i = 1
   for q, r in hexgrid.spiralIter(0, 0, 2) do
     -- simulate random notes on grid

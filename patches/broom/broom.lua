@@ -63,7 +63,7 @@ end
 function patch.icon(time, s)
   -- body
   love.graphics.setColor(colorScheme.body)
-  love.graphics.rectangle('fill', -1, -1, 2, 2)
+  love.graphics.rectangle('fill', -2, -2, 4, 4)
   -- pickup
   love.graphics.setColor(colorScheme.pickup)
   love.graphics.rectangle('fill', -0.5, -0.9, 0.7, 1.8)

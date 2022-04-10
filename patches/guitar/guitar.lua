@@ -113,7 +113,7 @@ end
 function patch.icon(time, s)
   -- neck
   love.graphics.setColor(colorScheme.neck)
-  love.graphics.rectangle('fill', -1, -1, 2, 2)
+  love.graphics.rectangle('fill', -2, -2, 4, 4)
   -- dot
   love.graphics.setColor(colorScheme.dot)
   love.graphics.circle('fill', 0, 0, 0.4)

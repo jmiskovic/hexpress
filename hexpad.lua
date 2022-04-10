@@ -31,8 +31,9 @@ function hexpad.new(displayNoteNames, noteOffset, radius)
   -- would like to keep cell size constant across different devices, so have to
   -- account for resolution and dpi (pixel density)
   self.scaling = 1 / 4.3
+  self.vspan = math.floor(1 / self.scaling + 1)
   -- this is good enough estimate of radius needed to just fill the screen
-  self.radius = radius or math.floor(1 / self.scaling + 1)
+  self.radius = radius or math.floor(1 / self.scaling * 1.4)
   love.graphics.setBackgroundColor(self.colorScheme.background)
   return self
 end
@@ -91,12 +92,14 @@ function hexpad:draw(s)
   end
 
   for q, r in hexgrid.spiralIter(0, 0, self.radius) do
-    love.graphics.push()
-      love.graphics.scale(self.scaling)
-      local x, y = hexgrid.hexToPixel(q, r)
-      love.graphics.translate(x,y)
-      self:drawCell(q, r, s, touches[q][r])
-    love.graphics.pop()
+    local x, y = hexgrid.hexToPixel(q, r)
+    if y > -self.vspan and y < self.vspan then
+      love.graphics.push()
+        love.graphics.scale(self.scaling)
+        love.graphics.translate(x,y)
+        self:drawCell(q, r, s, touches[q][r])
+      love.graphics.pop()
+    end
   end
 end
 

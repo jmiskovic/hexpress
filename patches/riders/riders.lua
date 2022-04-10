@@ -91,7 +91,7 @@ function patch.icon(time)
   local font = hexpad.font
   -- background
   love.graphics.setColor(colorScheme.surface)
-  love.graphics.rectangle('fill', -1, -1, 2, 2)
+  love.graphics.rectangle('fill', -2, -2, 4, 4)
   -- knob notch marker
   love.graphics.translate(0, 0.4)
   love.graphics.setColor(colorScheme.label)

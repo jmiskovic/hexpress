@@ -6,7 +6,7 @@ fretboard.__index = fretboard
 local l = require("lume")
 
 fretboard.neckHeight = 0.98  -- with 1.0 being half-screen height
-fretboard.neckWidth = 3.2
+fretboard.neckWidth = 4
 fretboard.fretWidth = 0.4
 
 function fretboard.load()

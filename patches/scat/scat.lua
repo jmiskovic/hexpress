@@ -77,27 +77,24 @@ end
 local function drawDude(time)
   local gape = 0.7 + 0.3 * math.cos(time * 2)^2
   love.graphics.setColor(colorScheme.suit)
-  love.graphics.ellipse('fill', 0, 0, 0.5, 0.8)
+  love.graphics.ellipse('fill', 0, 0, 0.8, 0.8, 8)
   love.graphics.setColor(colorScheme.shirt)
   love.graphics.ellipse('fill', 0, -0.7, 0.1, 0.6)
   love.graphics.setColor(colorScheme.hair)
-  love.graphics.ellipse('fill', 0, -1.1, 0.32, 0.35)
+  love.graphics.ellipse('fill', 0, -1.15, 0.3, 0.4)
   love.graphics.setColor(colorScheme.skin)
   love.graphics.ellipse('fill', 0, -1.0, 0.3, 0.35)
   love.graphics.setColor(colorScheme.mouth)
   love.graphics.ellipse('fill', 0, -0.85, 0.15, 0.04 * gape)
   love.graphics.setColor(colorScheme.tongue)
   love.graphics.ellipse('fill', 0, -0.85 + 0.03 * gape, 0.07, 0.02 * gape)
-  love.graphics.setColor(colorScheme.glasses)
-  love.graphics.ellipse('fill', -0.13, -1.1, 0.15, 0.1, 6)
-  love.graphics.ellipse('fill',  0.13, -1.1, 0.15, 0.1, 6)
 end
 
 
 function patch.icon(time)
   local sway = 0.05
   love.graphics.setColor(colorScheme.fog)
-  love.graphics.rectangle('fill', -1, -1, 2, 2)
+  love.graphics.rectangle('fill', -2, -2, 4, 4)
   love.graphics.push()
     love.graphics.translate(0, 1)
     love.graphics.rotate(math.cos(time + 2) * sway)

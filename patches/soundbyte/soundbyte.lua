@@ -35,30 +35,30 @@ function patch.load()
   self.pitchboard.fretWidth  = 0.04
 
   patch.triggers = {
-    {type='whitekey', note= -12, x=-0.054, y= 0.492, r= 0.20},
-    {type='whitekey', note= -10, x= 0.220, y= 0.481, r= 0.20},
-    {type='whitekey', note=  -8, x= 0.493, y= 0.507, r= 0.20},
-    {type='whitekey', note=  -7, x= 0.769, y= 0.484, r= 0.20},
-    {type='whitekey', note=  -5, x= 1.043, y= 0.484, r= 0.20},
-    {type='whitekey', note=  -3, x= 1.319, y= 0.475, r= 0.20},
-    {type='whitekey', note=  -1, x= 1.596, y= 0.488, r= 0.20},
-    {type='blackkey', note= -11, x= 0.059, y= 0.270, r= 0.16},
-    {type='blackkey', note=  -9, x= 0.396, y= 0.256, r= 0.16},
-    {type='blackkey', note=  -6, x= 0.880, y= 0.244, r= 0.16},
-    {type='blackkey', note=  -4, x= 1.193, y= 0.263, r= 0.16},
-    {type='blackkey', note=  -2, x= 1.509, y= 0.261, r= 0.16},
-    {type='whitekey', note=   0, x=-0.072, y=-0.129, r= 0.20},
-    {type='whitekey', note=   2, x= 0.200, y=-0.151, r= 0.20},
-    {type='whitekey', note=   4, x= 0.467, y=-0.138, r= 0.20},
-    {type='whitekey', note=   5, x= 0.744, y=-0.153, r= 0.20},
-    {type='whitekey', note=   7, x= 1.011, y=-0.190, r= 0.20},
-    {type='whitekey', note=   9, x= 1.283, y=-0.210, r= 0.20},
-    {type='whitekey', note=  11, x= 1.556, y=-0.219, r= 0.20},
-    {type='blackkey', note=   1, x= 0.037, y=-0.378, r= 0.16},
-    {type='blackkey', note=   3, x= 0.346, y=-0.372, r= 0.16},
-    {type='blackkey', note=   6, x= 0.857, y=-0.415, r= 0.16},
-    {type='blackkey', note=   8, x= 1.165, y=-0.443, r= 0.16},
-    {type='blackkey', note=  10, x= 1.444, y=-0.443, r= 0.16},
+    {type='whitekey', note= -12, x=-0.054, y= 0.432, r= 0.132},
+    {type='whitekey', note= -10, x= 0.220, y= 0.421, r= 0.132},
+    {type='whitekey', note=  -8, x= 0.493, y= 0.447, r= 0.132},
+    {type='whitekey', note=  -7, x= 0.769, y= 0.424, r= 0.132},
+    {type='whitekey', note=  -5, x= 1.043, y= 0.424, r= 0.132},
+    {type='whitekey', note=  -3, x= 1.319, y= 0.415, r= 0.132},
+    {type='whitekey', note=  -1, x= 1.596, y= 0.428, r= 0.132},
+    {type='blackkey', note= -11, x= 0.059, y= 0.300, r= 0.090},
+    {type='blackkey', note=  -9, x= 0.396, y= 0.286, r= 0.090},
+    {type='blackkey', note=  -6, x= 0.880, y= 0.274, r= 0.090},
+    {type='blackkey', note=  -4, x= 1.193, y= 0.293, r= 0.090},
+    {type='blackkey', note=  -2, x= 1.509, y= 0.291, r= 0.090},
+    {type='whitekey', note=   0, x=-0.072, y=-0.229, r= 0.132},
+    {type='whitekey', note=   2, x= 0.200, y=-0.251, r= 0.132},
+    {type='whitekey', note=   4, x= 0.467, y=-0.238, r= 0.132},
+    {type='whitekey', note=   5, x= 0.744, y=-0.253, r= 0.132},
+    {type='whitekey', note=   7, x= 1.011, y=-0.290, r= 0.132},
+    {type='whitekey', note=   9, x= 1.283, y=-0.310, r= 0.132},
+    {type='whitekey', note=  11, x= 1.556, y=-0.319, r= 0.132},
+    {type='blackkey', note=   1, x= 0.037, y=-0.388, r= 0.090},
+    {type='blackkey', note=   3, x= 0.346, y=-0.382, r= 0.090},
+    {type='blackkey', note=   6, x= 0.857, y=-0.425, r= 0.090},
+    {type='blackkey', note=   8, x= 1.165, y=-0.453, r= 0.090},
+    {type='blackkey', note=  10, x= 1.444, y=-0.453, r= 0.090},
   }
   patch.freeform = freeform.new(patch.triggers)
 
@@ -310,15 +310,13 @@ function patch:draw(s)
     love.graphics.setColor(colorScheme.highlight)
     love.graphics.print('REC')
     love.graphics.pop()
-    love.graphics.translate(0, 0.4)
-    love.graphics.scale(1.5)
   end
 end
 
 
 function patch.icon(time)
   love.graphics.setColor(colorScheme.highlight)
-  love.graphics.rectangle('fill', -1, -1, 2, 2)
+  love.graphics.rectangle('fill', -2, -2, 4, 4)
   love.graphics.scale(0.8 + 0.03 * math.sin(time)^10)
   love.graphics.setColor(colorScheme.background)
   love.graphics.circle('fill', -3, -1 + 0.2 * math.cos(time), 4)

@@ -130,7 +130,7 @@ function patch.icon(time)
   local speed = 1
   local amp = 0.1
   love.graphics.setColor(colorScheme.background)
-  love.graphics.rectangle('fill', -1, -1, 2, 2)
+  love.graphics.rectangle('fill', -2, -2, 4, 4)
   love.graphics.rotate(0.5 * math.sin(time)^5)
   love.graphics.scale((0.75 - amp) + amp * math.sin(time * math.pi * speed * 2)^6)
   local color = colors[1 + (math.floor(time * speed) % #colors)]

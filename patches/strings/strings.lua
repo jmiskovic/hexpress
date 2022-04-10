@@ -135,7 +135,7 @@ function patch.icon(time)
   love.graphics.rotate(0.04)
   -- wood body
   love.graphics.setColor(colorScheme.wood)
-  love.graphics.rectangle('fill', -1, -1, 2, 2)
+  love.graphics.rectangle('fill', -2, -2, 4, 4)
   -- neck
   love.graphics.setColor(colorScheme.neck)
   love.graphics.rectangle('fill', -0.5, -1, 1, 2)

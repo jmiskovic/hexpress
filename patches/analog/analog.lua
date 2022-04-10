@@ -115,7 +115,7 @@ end
 
 function patch.icon(time)
   love.graphics.setColor(colorScheme.surfaceC)
-  love.graphics.rectangle('fill', -1, -1, 2, 2)
+  love.graphics.rectangle('fill', -2, -2, 4, 4)
   love.graphics.setColor(colorScheme.grid)
   love.graphics.setLineWidth(0.001)
   for x = -1, 1, 0.5 do

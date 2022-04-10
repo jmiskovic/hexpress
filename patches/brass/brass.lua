@@ -102,7 +102,7 @@ end
 
 function patch.icon(time)
   love.graphics.setColor(colorScheme.background)
-  love.graphics.rectangle('fill', -1, -1, 2, 2)
+  love.graphics.rectangle('fill', -2, -2, 4, 4)
   local valve_min = 0.1
   local valve_max = 0.25
   local ds = math.cos(time) * 0.03 -- shading offset
