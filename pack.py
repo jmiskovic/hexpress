@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import os
-import commands
+import subprocess
 import sys
 import re
 
@@ -34,6 +34,6 @@ try:
   os.remove('game.love')
 except:
   pass
-status, output = commands.getstatusoutput('zip game.love ' + pathlist)
+status, output = subprocess.getstatusoutput('zip game.love ' + pathlist)
 print(output)
 print('Created game.love with size %1.2f Mb' % (os.path.getsize('./game.love') * 1E-6))
