@@ -36,10 +36,10 @@ local colorScheme = {
 }
 
 local keyCenter = 0
+local keycenter_treshold = 0.9 -- how much of X tilt is needed for key center selection
 local noteTracker = {}       -- seconds since last note trigger, across octaves
 local noteOctaveTracker = {10,10,10,10,10,10,10,10,10,10,10,10} -- seconds since last note trigger, flattened to single octave
 noteOctaveTracker[0] = 10
-
 
 function patch.load()
   local self = setmetatable({}, patch)
@@ -82,8 +82,8 @@ function patch.drawCell(self, q, r, s, touch)
   local noteDecay = 10
   local ch, cs, cl
 
-  if s.tilt[1] > .9 and note ~= keyCenter then
-    ch, cs, cl = .0, .1, 0.9
+  if s.tilt[1] > keycenter_treshold and note ~= keyCenter then
+    ch, cs, cl = .1, .1, 0.9
   else
     ch, cs = nh, ns
     cl = l.remap(noteTime, noteDecay * 0.9, noteDecay, nl, 1, 'clamp')
@@ -109,7 +109,7 @@ function patch.drawCell(self, q, r, s, touch)
   scl = l.remap(noteTime, 0, 0.1, 0.6, scl, 'clamp')
   --love.graphics.rotate(ampl * math.sin(freq * noteTime))
   love.graphics.scale(scl)
-  love.graphics.circle('fill', 0, 0, 0.93, 6) --love.mouse.getY() / love.graphics.getHeight() * 2
+  love.graphics.circle('fill', 0, 0, 0.93, 6)
   love.graphics.pop()
   if self.displayNoteNames then
     -- note name text
@@ -131,8 +131,13 @@ function patch:process(s)
       noteOctaveTracker[touch.note  % 12] = 0
       noteTracker[touch.note] = 0
     end
-    if s.tilt[1] > .9 then
+    if s.tilt[1] > keycenter_treshold then
       keyCenter = touch.note or 0
+    end
+  end
+  if s.tilt[1] > keycenter_treshold then
+    for i = 0, #noteOctaveTracker do
+      noteOctaveTracker[i] = 10
     end
   end
 
