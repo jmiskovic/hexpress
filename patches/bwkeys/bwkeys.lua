@@ -31,17 +31,15 @@ local octave_triggers = {
   {type='blackkey', note=  10, x=1.815, y=-0.22, r= 0.12},
 }
 
-
-
 function patch.load()
   local self = setmetatable({}, patch)
   self.triggers = {}
-  local octave = -1
+  local octave = -2
   for y = 0.65, -0.65, -0.65 do
     local x = -3 + y * 1.1
     while x < 3 do
       for _, trigger in ipairs(octave_triggers) do
-        if x + trigger.x > -2.2 and x + trigger.x < 2.2 then
+        if x + trigger.x > -2.5 and x + trigger.x < 2.5 then
           local key = { type=trigger.type, r=trigger.r }
           key.note = trigger.note + octave * 12
           key.x = x + trigger.x
@@ -58,35 +56,36 @@ function patch.load()
   end
   patch.layout = freeform.new(self.triggers)
   self.sampler = sampler.new({
-    {path='patches/riders/A_029__F1_1.ogg', note =-19, velocity = 0.9},
-    {path='patches/riders/A_029__F1_2.ogg', note =-19, velocity = 0.7},
-    {path='patches/riders/A_029__F1_3.ogg', note =-19, velocity = 0.5},
-    {path='patches/riders/A_029__F1_4.ogg', note =-19, velocity = 0.3},
-    {path='patches/riders/A_029__F1_5.ogg', note =-19, velocity = 0.1},
-    {path='patches/riders/A_040__E2_1.ogg', note = -8, velocity = 0.9},
-    {path='patches/riders/A_040__E2_2.ogg', note = -8, velocity = 0.7},
-    {path='patches/riders/A_040__E2_3.ogg', note = -8, velocity = 0.5},
-    {path='patches/riders/A_040__E2_4.ogg', note = -8, velocity = 0.3},
-    {path='patches/riders/A_040__E2_5.ogg', note = -8, velocity = 0.1},
-    {path='patches/riders/A_050__D3_1.ogg', note =  2, velocity = 0.9},
-    {path='patches/riders/A_050__D3_2.ogg', note =  2, velocity = 0.7},
-    {path='patches/riders/A_050__D3_3.ogg', note =  2, velocity = 0.5},
-    {path='patches/riders/A_050__D3_4.ogg', note =  2, velocity = 0.3},
-    {path='patches/riders/A_050__D3_5.ogg', note =  2, velocity = 0.1},
-    {path='patches/riders/A_062__D4_1.ogg', note = 14, velocity = 0.9},
-    {path='patches/riders/A_062__D4_2.ogg', note = 14, velocity = 0.7},
-    {path='patches/riders/A_062__D4_3.ogg', note = 14, velocity = 0.5},
-    {path='patches/riders/A_062__D4_4.ogg', note = 14, velocity = 0.3},
-    {path='patches/riders/A_062__D4_5.ogg', note = 14, velocity = 0.1},
+    {path='patches/bwkeys/Ab4-97-127.ogg', note=notes.toIndex['G#4'], velocity=0.8},
+    {path='patches/bwkeys/Ab4-1-48.ogg', note=notes.toIndex['G#4'], velocity=0.2},
+    {path='patches/bwkeys/Ab3-97-127.ogg', note=notes.toIndex['G#3'], velocity=0.8},
+    {path='patches/bwkeys/Ab3-1-48.ogg', note=notes.toIndex['G#3'], velocity=0.2},
+    {path='patches/bwkeys/Ab2-97-127.ogg', note=notes.toIndex['G#2'], velocity=0.8},
+    {path='patches/bwkeys/Ab2-1-48.ogg', note=notes.toIndex['G#2'], velocity=0.2},
+    {path='patches/bwkeys/Ab1-97-127.ogg', note=notes.toIndex['G#1'], velocity=0.8},
+    {path='patches/bwkeys/Ab1-1-48.ogg', note=notes.toIndex['G#1'], velocity=0.2},
+    {path='patches/bwkeys/E4-97-127.ogg',  note=notes.toIndex['E4'], velocity=0.8},
+    {path='patches/bwkeys/E4-1-48.ogg',  note=notes.toIndex['E4'], velocity=0.2},
+    {path='patches/bwkeys/E3-97-127.ogg',  note=notes.toIndex['E3'], velocity=0.8},
+    {path='patches/bwkeys/E3-1-48.ogg',  note=notes.toIndex['E3'], velocity=0.2},
+    {path='patches/bwkeys/E2-97-127.ogg',  note=notes.toIndex['E2'], velocity=0.8},
+    {path='patches/bwkeys/E2-1-48.ogg',  note=notes.toIndex['E2'], velocity=0.2},
+    {path='patches/bwkeys/C5-97-127.ogg',  note=notes.toIndex['C5'], velocity=0.8},
+    {path='patches/bwkeys/C5-1-48.ogg',  note=notes.toIndex['C5'], velocity=0.2},
+    {path='patches/bwkeys/C4-97-127.ogg',  note=notes.toIndex['C4'], velocity=0.8},
+    {path='patches/bwkeys/C4-1-48.ogg',  note=notes.toIndex['C4'], velocity=0.2},
+    {path='patches/bwkeys/C3-97-127.ogg',  note=notes.toIndex['C3'], velocity=0.8},
+    {path='patches/bwkeys/C3-1-48.ogg',  note=notes.toIndex['C3'], velocity=0.2},
+    {path='patches/bwkeys/C2-97-127.ogg',  note=notes.toIndex['C2'], velocity=0.8},
+    {path='patches/bwkeys/C2-1-48.ogg',  note=notes.toIndex['C2'], velocity=0.2},
     envelope = { attack = 0, decay = 0, sustain = 1, release = 0.15 },
-    synthCount = 6,
+    synthCount = 8,
     })
   self.efx = efx.load()
   self.efx:addEffect(self.efx.tremolo)
-  self.efx:addEffect(self.efx.flanger)
   self.efx:setDryVolume(0.4)
   self.efx.reverb.volume = 1
-  self.efx.reverb.decaytime = 2
+  self.efx.reverb.decaytime = 2.5
   self.efx.tremolo.volume = 1
   self.efx.tremolo.frequency = 4
   patch.layout.colorScheme.whitekey = colorScheme.surface
@@ -101,10 +100,8 @@ function patch:process(s)
   for _,touch in pairs(s.touches) do
     touch.velocity = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
   end
-  self.sampler.masterVolume =  l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
-  self.efx.tremolo.frequency = l.remap(s.tilt.lp[1], 0, 0.3, 0, 5)
-  self.efx.flanger.volume    = l.remap(s.tilt.lp[1], 0, -0.2, 0.2, 1, 'clamp')
-  self.efx.flanger.rate      = l.remap(s.tilt.lp[1], 0, -0.7, 0, 1, 'clamp')
+  self.sampler.masterVolume =  l.remap(s.tilt[2], 0.2, 0.7, 0.4, 1, 'clamp')
+  self.efx.tremolo.frequency = l.remap(s.tilt.lp[1], 0.05, 0.3, 0, 3)
   self.efx:process()
   self.sampler:processTouches(s.dt, s.touches, self.efx)
 end
