@@ -49,7 +49,6 @@ function patch.load()
     })
   self.efx = efx.load()
   self.efx:addEffect(self.efx.tremolo)
-  self.efx:addEffect(self.efx.flanger)
   self.efx:setDryVolume(0.4)
   self.efx.reverb.volume = 1
   self.efx.reverb.decaytime = 2
@@ -71,11 +70,8 @@ function patch:process(s)
   for _,touch in pairs(s.touches) do
     touch.velocity = l.remap(s.tilt[2], 0.2, 0.7, 0.1, 1, 'clamp')
   end
-  self.sampler.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.2, 1, 'clamp')
-
-  self.efx.tremolo.frequency = l.remap(s.tilt.lp[1], 0,  0.3, 0, 15)
-  self.efx.flanger.volume    = l.remap(s.tilt.lp[1], 0, -0.2, 0, 1, 'clamp')
-  self.efx.flanger.rate      = l.remap(s.tilt.lp[1], 0, -0.7, 0, 0.5, 'clamp')
+  self.sampler.masterVolume = l.remap(s.tilt[2], 0.2, 0.7, 0.3, 1, 'clamp')
+  self.efx.tremolo.frequency = l.remap(s.tilt.lp[1], 0,  0.5, 0, 10, 'clamp')
   self.efx:process()
 
   self.sampler:processTouches(s.dt, s.touches, self.efx)
