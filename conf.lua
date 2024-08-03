@@ -18,4 +18,5 @@ function love.conf(t)
   t.window.resizable = false
   t.window.vsync = false
   t.audio.mic = true
+  t.accelerometerjoystick = true
 end
